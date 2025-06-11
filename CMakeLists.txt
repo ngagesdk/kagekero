@@ -88,6 +88,6 @@ if (NINTENDO_3DS)
     )
   ctr_create_3dsx(
     ncore
-    ROMFS "${ROMFS_DIR}"
+    #ROMFS "${ROMFS_DIR}"
     SMDH "${SMDH_FILE}")
 endif()
