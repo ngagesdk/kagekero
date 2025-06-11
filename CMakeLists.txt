@@ -84,7 +84,7 @@ if (NINTENDO_3DS)
     NAME "ncore"
     DESCRIPTION "A cross-platform engine with native Nokia N-Gage compatibility."
     AUTHOR "Michael Fitzmayer"
-    ICON "${CMAKE_CURRENT_SOURCE_DIR}/icon.png"
+    #ICON "${CMAKE_CURRENT_SOURCE_DIR}/icon.png"
   )
 
   ctr_create_3dsx(
