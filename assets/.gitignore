@@ -1,2 +1,6 @@
 *
 !.gitignore
+!*.png
+!*.tiled-project
+!*.tmj
+!*.xcf

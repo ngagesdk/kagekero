@@ -60,34 +60,36 @@ if(WIN32)
       COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/packer ${assets}
       COMMAND ${CMAKE_COMMAND} -E copy
         ${asset_dir}/data.pfs
-        ${CMAKE_BINARY_DIR}/export/data.pfs
+        ${EXPORT_DIR}/data.pfs
     )
   endfunction()
 endif()
 
 if(PACK_ASSETS)
   set(assets
-    001.tmj
-    002.tmj
-    frame.png
-    hero.png
-    tileset.png
+    "001.tmj"
+    "frame.png"
+    "hero.png"
+    "tileset.png"
   )
-  pack_assets(${CMAKE_CURRENT_SOURCE_DIR}/assets "${assets}")
+  pack_assets("${CMAKE_CURRENT_SOURCE_DIR}/assets" "${assets}")
 endif()
 
 if (NINTENDO_3DS)
   set(ROMFS_DIR "${CMAKE_CURRENT_BINARY_DIR}/romfs")
-  #file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/export/data.pfs DESTINATION ${ROMFS_DIR})
+  file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/export/data.pfs DESTINATION ${ROMFS_DIR})
   set(SMDH_FILE "${CMAKE_CURRENT_BINARY_DIR}/ncore.smdh")
+
   ctr_generate_smdh("${SMDH_FILE}"
     NAME "ncore"
-    DESCRIPTION "A game engine, written in C."
+    DESCRIPTION "A cross-platform engine with native Nokia N-Gage compatibility."
     AUTHOR "Michael Fitzmayer"
-    #ICON "${CMAKE_CURRENT_SOURCE_DIR}/icon.png")
-    )
+    ICON "${CMAKE_CURRENT_SOURCE_DIR}/icon.png"
+  )
+
   ctr_create_3dsx(
     ncore
-    #ROMFS "${ROMFS_DIR}"
-    SMDH "${SMDH_FILE}")
+    ROMFS "${ROMFS_DIR}"
+    SMDH "${SMDH_FILE}"
+  )
 endif()

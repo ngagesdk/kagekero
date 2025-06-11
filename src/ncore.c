@@ -31,11 +31,11 @@ bool init_ncore(ncore_t **nc)
 
     init_file_reader();
 
-    if (!load_map("002.tmj", &(*nc)->map, (*nc)->renderer)) {
+    if (!load_map("001.tmj", &(*nc)->map, (*nc)->renderer)) {
         return false;
     }
 
-    if (!load_hero(&(*nc)->hero, 120.f, 72.f)) {
+    if (!load_hero(&(*nc)->hero, 80.f, 136.f)) {
         SDL_Log("Failed to load hero");
         return false;
     }
@@ -112,8 +112,8 @@ bool draw_ncore_scene(ncore_t *nc)
     SDL_Rect dst_rect;
     dst_rect.x = (int)nc->hero->pos_x - 8;
     dst_rect.y = (int)nc->hero->pos_y - 8;
-    dst_rect.w = 16;
-    dst_rect.h = 16;
+    dst_rect.w = 32;
+    dst_rect.h = 32;
 
     if (!SDL_UpdateTexture(nc->map->render_target, &dst_rect, nc->hero->render_canvas->pixels, nc->hero->render_canvas->pitch)) {
         SDL_Log("Error updating animated tile texture: %s", SDL_GetError());

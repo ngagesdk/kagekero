@@ -47,13 +47,13 @@ bool load_hero(hero_t **hero, float pos_x, float pos_y)
         return false;
     }
 
-    (*hero)->render_canvas = SDL_CreateSurface(16, 16, SDL_PIXELFORMAT_XRGB4444);
+    (*hero)->render_canvas = SDL_CreateSurface(32, 32, SDL_PIXELFORMAT_XRGB4444);
     if (!(*hero)->render_canvas) {
         SDL_Log("Error creating temporary surface: %s", SDL_GetError());
         return false;
     }
 
-    (*hero)->temp_canvas = SDL_CreateSurface(16, 16, SDL_PIXELFORMAT_XRGB4444);
+    (*hero)->temp_canvas = SDL_CreateSurface(32, 32, SDL_PIXELFORMAT_XRGB4444);
     if (!(*hero)->temp_canvas) {
         SDL_Log("Error creating temporary surface: %s", SDL_GetError());
         return false;
@@ -106,8 +106,8 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
     }
 
     if (hero->state == STATE_IDLE) {
-        hero->anim_fps = 3;
-        hero->anim_length = 3;
+        hero->anim_fps = 15;
+        hero->anim_length = 11;
         hero->anim_offset = 0;
         return;
     }
@@ -120,12 +120,12 @@ bool render_hero(hero_t *hero, map_t *map)
     SDL_Rect src;
     src.x = (int)hero->pos_x - 8;
     src.y = (int)hero->pos_y - 8;
-    src.w = 16;
-    src.h = 16;
+    src.w = 32;
+    src.h = 32;
 
     SDL_BlitSurface(map->render_canvas, &src, hero->temp_canvas, NULL);
 
-    src.x = hero->current_frame * 16;
+    src.x = hero->current_frame * 32;
     src.y = hero->anim_offset + hero->sprite_offset;
 
     SDL_BlitSurface(hero->sprite, &src, hero->temp_canvas, NULL);
