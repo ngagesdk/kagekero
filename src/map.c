@@ -527,14 +527,12 @@ static bool load_entities(map_t *map)
             object = get_head_object(layer, map);
             while (object) {
                 entity_t *entity = &map->entity[index];
-                cute_tiled_property_t *properties = object->properties;
 
                 entity->handle = object;
                 entity->pos_x = (int)object->x;
                 entity->pos_y = (int)object->y;
                 entity->uid = (int)get_object_uid(object);
                 entity->id = (int)index + 1;
-                entity->prop_cnt = get_object_property_count(object);
                 entity->is_gone = false;
 
                 index += 1;
@@ -796,10 +794,8 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                     for (int index_width = 0; index_width < map->handle->width; index_width += 1) {
                         int *layer_content = get_layer_content(layer);
                         int gid = remove_gid_flip_bits(layer_content[(index_height * map->handle->width) + index_width]);
-                        int local_id = gid - get_first_gid(map->handle);
 
                         if (is_gid_valid(gid, map->handle)) {
-                            cute_tiled_tileset_t *tileset = get_head_tileset(map->handle);
                             int anim_length = 0;
                             int id = 0;
 
@@ -823,9 +819,8 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                                 map->animated_tile[map->animated_tile_index].current_frame = 0;
                                 map->animated_tile[map->animated_tile_index].anim_length = anim_length;
 
-                                if (layer - 1) {
-                                    cute_tiled_layer_t *layer_below = layer - 1;
-                                    int *layer_content_below = get_layer_content(layer_below);
+                                if (prev_layer) {
+                                    int *layer_content_below = get_layer_content(prev_layer);
                                     int gid_below = remove_gid_flip_bits(layer_content_below[(index_height * map->handle->width) + index_width]);
                                     if (is_gid_valid(gid_below, map->handle)) {
                                         int tmp_x_below, tmp_y_below;

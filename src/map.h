@@ -39,7 +39,6 @@ typedef struct entity
     int uid;
     int id;
     int index;
-    int prop_cnt;
     bool is_gone;
 
 } entity_t;
