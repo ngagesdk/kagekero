@@ -639,7 +639,6 @@ void destroy_map(map_t *map)
 
     // [1] Map.
     SDL_free(map);
-    map = NULL;
 }
 
 bool load_map(const char *file_name, map_t **map, SDL_Renderer *renderer)
@@ -709,6 +708,7 @@ exit:
 bool render_map(map_t *map, SDL_Renderer *renderer)
 {
     cute_tiled_layer_t *layer;
+    cute_tiled_layer_t *prev_layer = NULL;
 
     if (!map || !renderer) {
         SDL_Log("Invalid parameters: map or renderer is NULL.");
@@ -875,11 +875,10 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                         map->animated_tile[map->animated_tile_index].anim_length = anim_length;
                         map->animated_tile[map->animated_tile_index].object_id = get_object_uid(object);
 
-                        if (layer - 1) {
-                            cute_tiled_layer_t *layer_below = layer - 1;
+                        if (prev_layer) {
                             int index_height = dst.y / get_tile_height(map->handle);
                             int index_width = dst.x / get_tile_width(map->handle);
-                            int *layer_content_below = get_layer_content(layer_below);
+                            int *layer_content_below = get_layer_content(prev_layer);
                             int gid_below = remove_gid_flip_bits(layer_content_below[(index_height * map->handle->width) + index_width]);
                             if (is_gid_valid(gid_below, map->handle)) {
                                 int tmp_x_below, tmp_y_below;
@@ -899,6 +898,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
             const char *layer_name = get_layer_name(layer);
             SDL_Log("Render obj layer: %s", layer_name);
         }
+        prev_layer = layer;
         layer = layer->next;
     }
 
