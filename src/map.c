@@ -845,7 +845,6 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
             cute_tiled_object_t *object = get_head_object(layer, map);
             while (object) {
                 int gid = remove_gid_flip_bits(object->gid);
-                int local_id = gid - get_first_gid(map->handle);
 
                 if (is_gid_valid(gid, map->handle)) {
                     int anim_length = 0;
