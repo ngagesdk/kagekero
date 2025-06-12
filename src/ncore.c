@@ -110,10 +110,10 @@ bool draw_ncore_scene(ncore_t *nc)
     }
 
     SDL_Rect dst_rect;
-    dst_rect.x = (int)nc->hero->pos_x - 8;
-    dst_rect.y = (int)nc->hero->pos_y - 8;
-    dst_rect.w = 32;
-    dst_rect.h = 32;
+    dst_rect.x = (int)nc->hero->pos_x - HERO_HALF;
+    dst_rect.y = (int)nc->hero->pos_y - HERO_HALF;
+    dst_rect.w = HERO_SIZE;
+    dst_rect.h = HERO_SIZE;
 
     if (!SDL_UpdateTexture(nc->map->render_target, &dst_rect, nc->hero->render_canvas->pixels, nc->hero->render_canvas->pitch)) {
         SDL_Log("Error updating animated tile texture: %s", SDL_GetError());

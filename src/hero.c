@@ -47,13 +47,13 @@ bool load_hero(hero_t **hero, float pos_x, float pos_y)
         return false;
     }
 
-    (*hero)->render_canvas = SDL_CreateSurface(32, 32, SDL_PIXELFORMAT_XRGB4444);
+    (*hero)->render_canvas = SDL_CreateSurface(HERO_SIZE, HERO_SIZE, SDL_PIXELFORMAT_XRGB4444);
     if (!(*hero)->render_canvas) {
         SDL_Log("Error creating temporary surface: %s", SDL_GetError());
         return false;
     }
 
-    (*hero)->temp_canvas = SDL_CreateSurface(32, 32, SDL_PIXELFORMAT_XRGB4444);
+    (*hero)->temp_canvas = SDL_CreateSurface(HERO_SIZE, HERO_SIZE, SDL_PIXELFORMAT_XRGB4444);
     if (!(*hero)->temp_canvas) {
         SDL_Log("Error creating temporary surface: %s", SDL_GetError());
         return false;
@@ -62,6 +62,9 @@ bool load_hero(hero_t **hero, float pos_x, float pos_y)
     (*hero)->pos_x = pos_x;
     (*hero)->pos_y = pos_y;
     (*hero)->anim_fps = 1;
+    (*hero)->acceleration = 0.0025f;
+    (*hero)->deceleration = 0.0008f;
+    (*hero)->max_speed = 0.2f;
 
     set_hero_state(*hero, STATE_IDLE);
 
@@ -91,41 +94,87 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
 
     if (check_bit(*btn, BTN_LEFT)) {
         hero->heading = 0;
+        hero->state = STATE_RUN;
+
     } else if (check_bit(*btn, BTN_RIGHT)) {
         hero->heading = 1;
+        hero->state = STATE_RUN;
+
+    } else if (hero->velocity <= 0.f) {
+        hero->state = STATE_IDLE;
     }
 
     if (hero->heading) {
         hero->sprite_offset = 0;
+
+        if (hero->velocity > 0.f) {
+            hero->pos_x += fp_mul(hero->velocity, (float)hero->delta_time);
+        } else {
+            hero->pos_x -= fp_mul(hero->velocity, (float)hero->delta_time);
+        }
+
     } else {
         hero->sprite_offset = 96;
+
+        if (hero->velocity > 0.f) {
+            hero->pos_x -= fp_mul(hero->velocity, (float)hero->delta_time);
+        } else {
+            hero->pos_x += fp_mul(hero->velocity, (float)hero->delta_time);
+        }
     }
 
-    if (!*btn) {
-        hero->state = STATE_IDLE;
+    if (hero->pos_x <= HERO_HALF) {
+        hero->pos_x = HERO_HALF;
+
+    } else if (hero->pos_x >= map->width - HERO_HALF) {
+        hero->pos_x = map->width - HERO_HALF;
     }
 
-    if (hero->state == STATE_IDLE) {
+    if (STATE_IDLE == hero->state) {
         hero->anim_fps = 15;
         hero->anim_length = 11;
         hero->anim_offset = 0;
         return;
     }
 
-    // Tbd.
+    if (STATE_RUN == hero->state) {
+        hero->anim_fps = 15;
+        hero->anim_length = 12;
+        hero->anim_offset = 32;
+
+        if (check_bit(*btn, BTN_LEFT) || check_bit(*btn, BTN_RIGHT)) {
+            hero->velocity += fp_mul(hero->acceleration, (float)hero->delta_time);
+
+            if (hero->velocity > hero->max_speed) {
+                hero->velocity = hero->max_speed;
+            }
+
+        } else {
+            if (hero->velocity > 0.f) {
+                hero->velocity -= fp_mul(hero->deceleration, (float)hero->delta_time);
+            }
+            if (hero->velocity < 0.f) {
+                hero->velocity = 0.f;
+            }
+        }
+    }
 }
 
 bool render_hero(hero_t *hero, map_t *map)
 {
     SDL_Rect src;
-    src.x = (int)hero->pos_x - 8;
-    src.y = (int)hero->pos_y - 8;
-    src.w = 32;
-    src.h = 32;
+    src.x = (int)hero->pos_x - HERO_HALF;
+    src.y = (int)hero->pos_y - HERO_HALF;
+    src.w = HERO_SIZE;
+    src.h = HERO_SIZE;
+
+    if (src.x <= 0) {
+        src.x = 0;
+    }
 
     SDL_BlitSurface(map->render_canvas, &src, hero->temp_canvas, NULL);
 
-    src.x = hero->current_frame * 32;
+    src.x = hero->current_frame * HERO_SIZE;
     src.y = hero->anim_offset + hero->sprite_offset;
 
     SDL_BlitSurface(hero->sprite, &src, hero->temp_canvas, NULL);

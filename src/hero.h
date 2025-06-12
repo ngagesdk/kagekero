@@ -14,6 +14,9 @@
 
 #include "map.h"
 
+#define HERO_SIZE 32
+#define HERO_HALF 16
+
 typedef enum hero_state
 {
     STATE_IDLE = 0x00000000,
@@ -41,11 +44,10 @@ typedef struct hero
 
     float pos_x;
     float pos_y;
-    float accel_x;
-    float accel_y;
-    float velocity_x;
-    float velocity_y;
-    float max_velocity_x;
+    float acceleration;
+    float deceleration;
+    float velocity;
+    float max_speed;
 
     int current_frame;
     int anim_fps;
