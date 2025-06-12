@@ -528,13 +528,13 @@ static bool load_entities(map_t *map)
             while (object) {
                 entity_t *entity = &map->entity[index];
                 cute_tiled_property_t *properties = object->properties;
-                int prop_cnt = get_object_property_count(object);
 
                 entity->handle = object;
                 entity->pos_x = (int)object->x;
                 entity->pos_y = (int)object->y;
                 entity->uid = (int)get_object_uid(object);
                 entity->id = (int)index + 1;
+                entity->prop_cnt = get_object_property_count(object);
                 entity->is_gone = false;
 
                 index += 1;
@@ -737,7 +737,6 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
             map->time_since_last_frame = 0;
 
             for (int index = 0; map->animated_tile_index > index; index += 1) {
-                cute_tiled_tileset_t *tileset;
                 SDL_Rect dst = { 0 };
                 SDL_Rect src = { 0 };
                 int gid = map->animated_tile[index].gid;
@@ -745,7 +744,6 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                 int local_id;
 
                 local_id = map->animated_tile[index].id + 1;
-                tileset = get_head_tileset(map->handle);
                 src.w = dst.w = get_tile_width(map->handle);
                 src.h = dst.h = get_tile_height(map->handle);
                 src.x = 0;
@@ -793,8 +791,6 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
         SDL_Rect src = { 0 };
 
         if (is_layer_of_type(TILE_LAYER, layer, map)) {
-            int prop_cnt = get_layer_property_count(layer);
-
             if (layer->visible) {
                 for (int index_height = 0; index_height < map->handle->height; index_height += 1) {
                     for (int index_width = 0; index_width < map->handle->width; index_width += 1) {

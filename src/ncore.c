@@ -163,9 +163,9 @@ bool handle_ncore_events(ncore_t *nc)
         const SDL_JoystickID which = nc->event->gdevice.which;
         SDL_Gamepad *gamepad = SDL_OpenGamepad(which);
         if (!gamepad) {
-            // SDL_Log("Joystick #%" SDL_PRIu32 " could not be opened: %s", which, SDL_GetError());
+            SDL_LogDebug(SDL_LOG_CATEGORY_INPUT, "Joystick #%" SDL_PRIu32 " could not be opened: %s", which, SDL_GetError());
         } else {
-            // SDL_Log("Joystick #%" SDL_PRIu32 " connected: %s", which, SDL_GetGamepadName(gamepad));
+            SDL_LogDebug(SDL_LOG_CATEGORY_INPUT, "Joystick #%" SDL_PRIu32 " connected: %s", which, SDL_GetGamepadName(gamepad));
         }
         return true;
     }
