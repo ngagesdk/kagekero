@@ -7,6 +7,8 @@
 
 A cross-platform engine with native Nokia N-Gage compatibility.
 
+![Preview](https://github.com/mupfdev/ncore/blob/main/media/ncore-preview.gif)
+
 ## Status
 
 This project is currently in development.
