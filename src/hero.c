@@ -80,19 +80,7 @@ bool load_hero(hero_t **hero, map_t *map)
 
 void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
 {
-    hero->time_b = hero->time_a;
-    hero->time_a = SDL_GetTicks();
-
-    if (hero->time_a > hero->time_b)
-    {
-        hero->delta_time = hero->time_a - hero->time_b;
-    }
-    else
-    {
-        hero->delta_time = hero->time_b - hero->time_a;
-    }
-
-    hero->time_since_last_frame += hero->delta_time;
+    hero->time_since_last_frame += DELTA_TIME;
     if (hero->time_since_last_frame >= (1000 / hero->anim_fps))
     {
         hero->time_since_last_frame = 0;
@@ -108,14 +96,22 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
     int index = get_tile_index((int)hero->pos_x, (int)hero->pos_y, map);
     index += map->handle->width;
 
-    if (map->tile_desc[index].is_solid)
+    if (hero->pos_y > map->height - HERO_HALF)
+    {
+        hero->velocity_y += fp_mul(GRAVITY, (float)DELTA_TIME);
+        if (hero->velocity_y > MAX_FALLING_SPEED)
+        {
+            hero->velocity_y = MAX_FALLING_SPEED;
+        }
+    }
+    else if (map->tile_desc[index].is_solid)
     {
         // Hero is on solid ground.
         hero->velocity_y = 0.f;
     }
     else
     {
-        hero->velocity_y += fp_mul(GRAVITY, (float)hero->delta_time);
+        hero->velocity_y += fp_mul(GRAVITY, (float)DELTA_TIME);
         if (hero->velocity_y > MAX_FALLING_SPEED)
         {
             hero->velocity_y = MAX_FALLING_SPEED;
@@ -124,7 +120,7 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
 
     if (hero->velocity_y > 0.f)
     {
-        hero->pos_y += fp_mul(hero->velocity_y, (float)hero->delta_time);
+        hero->pos_y += fp_mul(hero->velocity_y, (float)DELTA_TIME);
     }
     else
     {
@@ -163,11 +159,11 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
 
         if (hero->velocity_x > 0.f)
         {
-            hero->pos_x += fp_mul(hero->velocity_x, (float)hero->delta_time);
+            hero->pos_x += fp_mul(hero->velocity_x, (float)DELTA_TIME);
         }
         else
         {
-            hero->pos_x -= fp_mul(hero->velocity_x, (float)hero->delta_time);
+            hero->pos_x -= fp_mul(hero->velocity_x, (float)DELTA_TIME);
         }
     }
     else
@@ -176,11 +172,11 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
 
         if (hero->velocity_x > 0.f)
         {
-            hero->pos_x -= fp_mul(hero->velocity_x, (float)hero->delta_time);
+            hero->pos_x -= fp_mul(hero->velocity_x, (float)DELTA_TIME);
         }
         else
         {
-            hero->pos_x += fp_mul(hero->velocity_x, (float)hero->delta_time);
+            hero->pos_x += fp_mul(hero->velocity_x, (float)DELTA_TIME);
         }
     }
 
@@ -209,7 +205,7 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
 
         if (check_bit(*btn, BTN_LEFT) || check_bit(*btn, BTN_RIGHT))
         {
-            hero->velocity_x += fp_mul(ACCELERATION, (float)hero->delta_time);
+            hero->velocity_x += fp_mul(ACCELERATION, (float)DELTA_TIME);
 
             float max_speed = MAX_SPEED;
 
@@ -227,7 +223,7 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
         {
             if (hero->velocity_x > 0.f)
             {
-                hero->velocity_x -= fp_mul(DECELERATION, (float)hero->delta_time);
+                hero->velocity_x -= fp_mul(DECELERATION, (float)DELTA_TIME);
             }
             if (hero->velocity_x < 0.f)
             {

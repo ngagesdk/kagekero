@@ -811,20 +811,8 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
             return true;
         }
 
-        map->time_b = map->time_a;
-        map->time_a = SDL_GetTicks();
-
-        if (map->time_a > map->time_b)
-        {
-            map->delta_time = map->time_a - map->time_b;
-        }
-        else
-        {
-            map->delta_time = map->time_b - map->time_a;
-        }
-
         // Update and render animated tiles & entities.
-        map->time_since_last_frame += map->delta_time;
+        map->time_since_last_frame += DELTA_TIME;
 
         if (map->time_since_last_frame >= (1000 / ANIM_FPS))
         {

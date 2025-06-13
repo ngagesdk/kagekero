@@ -35,9 +35,6 @@ typedef struct hero
     SDL_Surface *render_canvas;
     SDL_Surface *temp_canvas;
 
-    Uint64 time_a;
-    Uint64 time_b;
-    Uint64 delta_time;
     Uint64 time_since_last_frame;
 
     Uint32 state;
