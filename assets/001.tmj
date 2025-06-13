@@ -3091,6 +3091,11 @@
                          "name":"is_solid",
                          "type":"bool",
                          "value":true
+                        }, 
+                        {
+                         "name":"offset_top",
+                         "type":"int",
+                         "value":2
                         }]
                 }, 
                 {
@@ -3100,6 +3105,11 @@
                          "name":"is_solid",
                          "type":"bool",
                          "value":true
+                        }, 
+                        {
+                         "name":"offset_top",
+                         "type":"int",
+                         "value":4
                         }]
                 }, 
                 {
@@ -3109,6 +3119,11 @@
                          "name":"is_solid",
                          "type":"bool",
                          "value":true
+                        }, 
+                        {
+                         "name":"offset_top",
+                         "type":"int",
+                         "value":5
                         }]
                 }, 
                 {
@@ -3118,6 +3133,11 @@
                          "name":"is_solid",
                          "type":"bool",
                          "value":true
+                        }, 
+                        {
+                         "name":"offset_top",
+                         "type":"int",
+                         "value":4
                         }]
                 }, 
                 {
@@ -3127,6 +3147,11 @@
                          "name":"is_solid",
                          "type":"bool",
                          "value":true
+                        }, 
+                        {
+                         "name":"offset_top",
+                         "type":"int",
+                         "value":2
                         }]
                 }, 
                 {

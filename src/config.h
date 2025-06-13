@@ -12,12 +12,12 @@
 
 #include "SDL3/SDL.h"
 
-#define ANIM_FPS       15
-#define METER_IN_PIXEL 16
-#define ACCELERATION   0.0025f
-#define DECELERATION   0.0008f
-#define MAX_SPEED      0.1f
-#define GRAVITY        0.00125f
+#define ANIM_FPS          15
+#define ACCELERATION      0.0025f
+#define DECELERATION      0.0008f
+#define MAX_SPEED         0.1f
+#define GRAVITY           0.00125f
+#define MAX_FALLING_SPEED 0.3f
 
 #define START_MAP "001.tmj"
 

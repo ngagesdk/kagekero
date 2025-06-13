@@ -25,12 +25,12 @@
 
 #include "config.h"
 
-#define H_GRAVITY        0x0000d0b30d77f26b
-#define H_IS_SOLID       0x001ae728dd16b21b
-#define H_METER_IN_PIXEL 0xfbbc8a6d4a407cf9
-#define H_OBJECTGROUP    0xc0b9d518970be349
-#define H_SPAWN          0x00000031105f18ee
-#define H_TILELAYER      0x0377d9f70e844fb0
+#define H_GRAVITY     0x0000d0b30d77f26b
+#define H_IS_SOLID    0x001ae728dd16b21b
+#define H_OBJECTGROUP 0xc0b9d518970be349
+#define H_OFFSET_TOP  0x727241bd0a7e257e
+#define H_SPAWN       0x00000031105f18ee
+#define H_TILELAYER   0x0377d9f70e844fb0
 
 static cute_tiled_layer_t *get_head_layer(map_t *map)
 {
@@ -527,6 +527,7 @@ static bool load_tiles(map_t *map)
                         {
                             map->tile_desc[tile_index].is_solid = true;
                         }
+                        map->tile_desc[tile_index].offset_top = get_integer_property(H_OFFSET_TOP, tile->properties, prop_cnt, map);
                     }
                 }
             }

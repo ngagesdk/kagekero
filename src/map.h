@@ -17,6 +17,7 @@
 typedef struct tile_desc
 {
     bool is_solid;
+    int offset_top;
 
 } tile_desc_t;
 

@@ -40,6 +40,8 @@ void destroy_hero(hero_t *hero)
 
 bool load_hero(hero_t **hero, map_t *map)
 {
+    SDL_Log("%llx", generate_hash("offset_top"));
+
     *hero = (hero_t *)SDL_calloc(1, sizeof(hero_t));
     if (!*hero)
     {
@@ -108,11 +110,16 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
 
     if (map->tile_desc[index].is_solid)
     {
+        // Hero is on solid ground.
         hero->velocity_y = 0.f;
     }
     else
     {
         hero->velocity_y += fp_mul(GRAVITY, (float)hero->delta_time);
+        if (hero->velocity_y > MAX_FALLING_SPEED)
+        {
+            hero->velocity_y = MAX_FALLING_SPEED;
+        }
     }
 
     if (hero->velocity_y > 0.f)
@@ -121,14 +128,18 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
     }
     else
     {
-        hero->pos_y = (float)((int)(hero->pos_y / METER_IN_PIXEL) * (int)METER_IN_PIXEL);
+        hero->pos_y = (float)((int)(hero->pos_y / map->handle->tileheight) * map->handle->tileheight);
+        hero->pos_y += map->tile_desc[index].offset_top;
     }
 
     // Out of bounds.
     if (hero->pos_y >= map->height + HERO_HALF)
     {
+        set_hero_state(hero, STATE_IDLE);
         hero->pos_x = (float)map->spawn_x;
         hero->pos_y = (float)map->spawn_y;
+        hero->velocity_x = 0.f;
+        hero->velocity_y = 0.f;
     }
 
     if (check_bit(*btn, BTN_LEFT))
