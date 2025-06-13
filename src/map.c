@@ -29,6 +29,7 @@
 #define H_IS_SOLID       0x001ae728dd16b21b
 #define H_METER_IN_PIXEL 0xfbbc8a6d4a407cf9
 #define H_OBJECTGROUP    0xc0b9d518970be349
+#define H_SPAWN          0x00000031105f18ee
 #define H_TILELAYER      0x0377d9f70e844fb0
 
 static cute_tiled_layer_t *get_head_layer(map_t *map)
@@ -534,6 +535,11 @@ static bool load_entities(map_t *map)
                 entity->uid = (int)get_object_uid(object);
                 entity->id = (int)index + 1;
                 entity->is_gone = false;
+
+                if (H_SPAWN == generate_hash(get_object_name(object))) {
+                    map->spawn_x = entity->pos_x;
+                    map->spawn_y = entity->pos_y;
+                }
 
                 index += 1;
                 object = object->next;

@@ -59,7 +59,7 @@ typedef struct hero
 } hero_t;
 
 void destroy_hero(hero_t *hero);
-bool load_hero(hero_t **hero, float pos_x, float pos_y);
+bool load_hero(hero_t **hero, map_t *map);
 void update_hero(hero_t *hero, map_t *map, unsigned int *btn);
 bool render_hero(hero_t *hero, map_t *map);
 void set_hero_state(hero_t *hero, hero_state_t state);

@@ -35,7 +35,7 @@ bool init_ncore(ncore_t **nc)
         return false;
     }
 
-    if (!load_hero(&(*nc)->hero, 80.f, 136.f)) {
+    if (!load_hero(&(*nc)->hero, (*nc)->map)) {
         SDL_Log("Failed to load hero");
         return false;
     }

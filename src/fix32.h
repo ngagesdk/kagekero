@@ -12,6 +12,7 @@
 
 #include <math.h>   // pow()
 #include <stdint.h> // int32_t, int64_t, …
+#include <stdlib.h> // strtod()
 
 #ifdef __SYMBIAN32__
 static inline long long llabs(long long x)
@@ -32,8 +33,8 @@ typedef int32_t fix32_t;
 
 static inline fix32_t fix32_value(int16_t i, uint16_t f);
 static inline fix32_t fix32_from_string(const char *s, char **endptr);
-static inline fix32_t fix32_from_double(double d);
-static inline double fix32_to_double(fix32_t x);
+static inline fix32_t fix32_from_float(float d);
+static inline float fix32_to_float(fix32_t x);
 static inline fix32_t fix32_from_int(int i);
 static inline int fix32_to_int(fix32_t x);
 static inline fix32_t fix32_from_int8(int8_t x);
@@ -101,17 +102,17 @@ static inline fix32_t fix32_value(int16_t i, uint16_t f)
 
 static inline fix32_t fix32_from_string(const char *s, char **endptr)
 {
-    return fix32_from_double(strtod(s, endptr));
+    return fix32_from_float((float)strtod(s, endptr));
 }
 
-static inline fix32_t fix32_from_double(double d)
+static inline fix32_t fix32_from_float(float d)
 {
     return (int32_t)(int64_t)(d * 65536.0);
 }
 
-static inline double fix32_to_double(fix32_t x)
+static inline float fix32_to_float(fix32_t x)
 {
-    return (double)x * (1.0 / 65536.0);
+    return (float)(x * (1.0 / 65536.0));
 }
 
 static inline fix32_t fix32_from_int(int i)
@@ -430,7 +431,7 @@ static inline fix32_t fix32_floor(fix32_t x)
 
 static inline fix32_t fix32_pow(fix32_t x, fix32_t y)
 {
-    return fix32_from_double(pow(fix32_to_double(x), fix32_to_double(y)));
+    return fix32_from_float((float)pow(fix32_to_float(x), fix32_to_float(y)));
 }
 
 static inline fix32_t fix32_lshr(fix32_t x, int y)

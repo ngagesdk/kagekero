@@ -20,7 +20,7 @@ endif()
 set(ncore_sources
   src/aabb.c
   src/app.c
-  src/fixedp.cpp
+  src/fixedp.c
   src/hero.c
   src/main.c
   src/map.c

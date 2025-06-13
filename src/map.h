@@ -64,6 +64,8 @@ typedef struct map
     int width;
     int height;
     int layer_count;
+    int spawn_x;
+    int spawn_y;
 
     SDL_Texture *render_target;
     SDL_Surface *render_canvas;

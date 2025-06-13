@@ -34,7 +34,7 @@ void destroy_hero(hero_t *hero)
     }
 }
 
-bool load_hero(hero_t **hero, float pos_x, float pos_y)
+bool load_hero(hero_t **hero, map_t *map)
 {
     *hero = (hero_t *)SDL_calloc(1, sizeof(hero_t));
     if (!*hero) {
@@ -59,12 +59,12 @@ bool load_hero(hero_t **hero, float pos_x, float pos_y)
         return false;
     }
 
-    (*hero)->pos_x = pos_x;
-    (*hero)->pos_y = pos_y;
+    (*hero)->pos_x = (float)map->spawn_x;
+    (*hero)->pos_y = (float)map->spawn_y;
     (*hero)->anim_fps = 1;
     (*hero)->acceleration = 0.0025f;
     (*hero)->deceleration = 0.0008f;
-    (*hero)->max_speed = 0.2f;
+    (*hero)->max_speed = 0.1f;
 
     set_hero_state(*hero, STATE_IDLE);
 
@@ -127,7 +127,7 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
         hero->pos_x = HERO_HALF;
 
     } else if (hero->pos_x >= map->width - HERO_HALF) {
-        hero->pos_x = map->width - HERO_HALF;
+        hero->pos_x = (float)(map->width - HERO_HALF);
     }
 
     if (STATE_IDLE == hero->state) {
