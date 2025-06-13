@@ -89,6 +89,9 @@ typedef struct map
     Uint8 bg_g;
     Uint8 bg_b;
 
+    Uint64 time_a;
+    Uint64 time_b;
+    Uint64 delta_time;
     Uint64 time_since_last_frame;
 
     entity_t *entity;
