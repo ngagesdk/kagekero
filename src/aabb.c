@@ -18,11 +18,13 @@ bool do_intersect(aabb_t a, aabb_t b)
     float b_x = a.left - b.right;
     float b_y = a.top - b.bottom;
 
-    if (0.f < a_x || 0.f < a_y) {
+    if (0.f < a_x || 0.f < a_y)
+    {
         return false;
     }
 
-    if (0.f < b_x || 0.f < b_y) {
+    if (0.f < b_x || 0.f < b_y)
+    {
         return false;
     }
 

@@ -44,7 +44,8 @@ typedef struct hero
 
     float pos_x;
     float pos_y;
-    float velocity;
+    float velocity_x;
+    float velocity_y;
 
     int current_frame;
     int anim_fps;

@@ -22,7 +22,7 @@ AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: MultiLine
 
 # Custom brace breaking
-BreakBeforeBraces: Custom
+BreakBeforeBraces: Allman
 BraceWrapping:
   AfterCaseLabel: true
   AfterClass: true
@@ -56,8 +56,8 @@ ColumnLimit: 0
 
 IndentWidth: 4
 ContinuationIndentWidth: 4
-IndentCaseLabels: false
-IndentCaseBlocks: false
+IndentCaseLabels: true
+IndentCaseBlocks: true
 IndentGotoLabels: true
 IndentPPDirectives: None
 IndentExternBlock: NoIndent

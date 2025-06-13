@@ -17,8 +17,10 @@
 #ifdef __SYMBIAN32__
 static inline long long llabs(long long x)
 {
-    if (x < 0) {
-        if (x == (-9223372036854775807LL - 1)) {
+    if (x < 0)
+    {
+        if (x == (-9223372036854775807LL - 1))
+        {
             return 9223372036854775807LL;
         }
         return -x;
@@ -316,13 +318,16 @@ static inline fix32_t fix32_mul(fix32_t a, fix32_t b)
 
 static inline fix32_t fix32_div(fix32_t a, fix32_t b)
 {
-    if (b == 0x10000) {
+    if (b == 0x10000)
+    {
         return a; // Special case: division by 1 (0x10000)
     }
 
-    if (b) {
+    if (b)
+    {
         int64_t result = ((int64_t)a * 0x10000) / b;
-        if (llabs(result) <= 0x7FFFFFFF) {
+        if (llabs(result) <= 0x7FFFFFFF)
+        {
             return (fix32_t)result;
         }
     }
@@ -402,7 +407,8 @@ static inline fix32_t fix32_mod_assign(fix32_t *a, fix32_t b)
 // PICO-8 0.2.3 changelog: abs(0x8000) should be 0x7fff.ffff
 static inline fix32_t fix32_abs(fix32_t a)
 {
-    if (a == 0x80000000) {
+    if (a == 0x80000000)
+    {
         return 0x7fffffff;
     }
     return a >= 0 ? a : a << 1 == 0 ? fix32_not(a)

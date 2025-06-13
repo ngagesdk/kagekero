@@ -34,20 +34,23 @@ size_t size_of_file(const char *path)
 
     fread(&entries, 2, 1, data_pack);
 
-    for (int c = 0; c < entries; ++c) {
+    for (int c = 0; c < entries; ++c)
+    {
         uint8_t string_size = 0;
 
         fread(&offset, 4, 1, data_pack);
         fread(&string_size, 1, 1, data_pack);
         fread(&buffer, string_size + 1, 1, data_pack);
 
-        if (!strcmp(buffer, path)) {
+        if (!strcmp(buffer, path))
+        {
             goto found;
         }
     }
 
 found:
-    if (offset == 0) {
+    if (offset == 0)
+    {
         printf("failed to load %s\n", path);
         exit(-1);
     }
@@ -70,20 +73,23 @@ uint8_t *load_binary_file_from_path(const char *path)
 
     fread(&entries, 2, 1, data_pack);
 
-    for (int c = 0; c < entries; ++c) {
+    for (int c = 0; c < entries; ++c)
+    {
         int8_t string_size = 0;
 
         fread(&offset, 4, 1, data_pack);
         fread(&string_size, 1, 1, data_pack);
         fread(&buffer, string_size + 1, 1, data_pack);
 
-        if (!strcmp(buffer, path)) {
+        if (!strcmp(buffer, path))
+        {
             goto found;
         }
     }
 
 found:
-    if (offset == 0) {
+    if (offset == 0)
+    {
         printf("failed to load %s\n", path);
         exit(-1);
     }
@@ -109,14 +115,16 @@ FILE *open_binary_file_from_path(const char *path)
 
     fread(&entries, 2, 1, data_pack);
 
-    for (int c = 0; c < entries; ++c) {
+    for (int c = 0; c < entries; ++c)
+    {
         int8_t string_size = 0;
 
         fread(&offset, 4, 1, data_pack);
         fread(&string_size, 1, 1, data_pack);
         fread(&buffer, string_size + 1, 1, data_pack);
 
-        if (!strcmp(buffer, path)) {
+        if (!strcmp(buffer, path))
+        {
             goto found;
         }
     }
@@ -124,7 +132,8 @@ FILE *open_binary_file_from_path(const char *path)
     return NULL;
 
 found:
-    if (offset == 0) {
+    if (offset == 0)
+    {
         printf("failed to load %s\n", path);
         exit(-1);
     }

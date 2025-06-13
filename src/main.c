@@ -19,7 +19,8 @@ ncore_t *core = NULL;
 // This function runs once at startup.
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
-    if (!init_ncore(&core)) {
+    if (!init_ncore(&core))
+    {
         SDL_Log("Failed to initialize ncore.");
         return SDL_APP_FAILURE;
     }
@@ -30,13 +31,17 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 // This function runs when a new event (Keypresses, etc) occurs.
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
-    if (!core || !event) {
+    if (!core || !event)
+    {
         return SDL_APP_CONTINUE;
-    } else {
+    }
+    else
+    {
         core->event = event;
     }
 
-    if (!handle_ncore_events(core)) {
+    if (!handle_ncore_events(core))
+    {
         return SDL_APP_SUCCESS;
     }
 
@@ -46,10 +51,12 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 // This function runs once per frame, and is the heart of the program.
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
-    if (!update_ncore(core)) {
+    if (!update_ncore(core))
+    {
         return SDL_APP_SUCCESS;
     }
-    if (!draw_ncore_scene(core)) {
+    if (!draw_ncore_scene(core))
+    {
         SDL_Log("Failed to draw ncore scene");
         return SDL_APP_SUCCESS;
     }

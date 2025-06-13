@@ -42,13 +42,15 @@ static bool load_tiled_map(const char *file_name, map_t *map)
     Uint8 *buffer;
 
     buffer = (Uint8 *)load_binary_file_from_path(file_name);
-    if (!buffer) {
+    if (!buffer)
+    {
         SDL_Log("Failed to load resource: %s", file_name);
         return false;
     }
 
     map->handle = cute_tiled_load_map_from_memory((const void *)buffer, size_of_file(file_name), NULL);
-    if (!map->handle) {
+    if (!map->handle)
+    {
         SDL_free(buffer);
         SDL_Log("%s", cute_tiled_error_reason);
         return false;
@@ -61,15 +63,21 @@ static bool load_tiled_map(const char *file_name, map_t *map)
     map->bg_b = argb_color & 0xFF;
 
     cute_tiled_layer_t *layer = get_head_layer(map);
-    while (layer) {
-        if (H_TILELAYER == generate_hash((const unsigned char *)layer->type.ptr)) {
-            if (!map->hash_id_tilelayer) {
+    while (layer)
+    {
+        if (H_TILELAYER == generate_hash((const unsigned char *)layer->type.ptr))
+        {
+            if (!map->hash_id_tilelayer)
+            {
                 map->hash_id_tilelayer = layer->type.hash_id;
                 SDL_Log("Set hash ID for tile layer: %llu", map->hash_id_tilelayer);
             }
             map->layer_count += 1;
-        } else if (H_OBJECTGROUP == generate_hash((const unsigned char *)layer->type.ptr)) {
-            if (!map->hash_id_objectgroup) {
+        }
+        else if (H_OBJECTGROUP == generate_hash((const unsigned char *)layer->type.ptr))
+        {
+            if (!map->hash_id_objectgroup)
+            {
                 map->hash_id_objectgroup = layer->type.hash_id;
                 SDL_Log("Set hash ID for object group: %llu", map->hash_id_objectgroup);
             }
@@ -85,7 +93,8 @@ static void destroy_tiled_map(map_t *map)
     map->hash_id_objectgroup = 0;
     map->hash_id_tilelayer = 0;
 
-    if (map->handle) {
+    if (map->handle)
+    {
         cute_tiled_free_map(map->handle);
     }
 }
@@ -122,7 +131,8 @@ static int get_tile_height(cute_tiled_map_t *map)
 
 static bool create_textures(SDL_Renderer *renderer, map_t *map)
 {
-    if (!renderer || !map || !map->handle) {
+    if (!renderer || !map || !map->handle)
+    {
         SDL_Log("Invalid parameters for creating textures.");
         return false;
     }
@@ -137,7 +147,8 @@ static bool create_textures(SDL_Renderer *renderer, map_t *map)
         map->width,
         map->height);
 
-    if (!map->render_target) {
+    if (!map->render_target)
+    {
         SDL_Log("Error creating texture: %s", SDL_GetError());
         return false;
     }
@@ -147,7 +158,8 @@ static bool create_textures(SDL_Renderer *renderer, map_t *map)
         map->height,
         SDL_PIXELFORMAT_XRGB4444);
 
-    if (!map->render_canvas) {
+    if (!map->render_canvas)
+    {
         SDL_Log("Error creating temporary surface: %s", SDL_GetError());
         return false;
     }
@@ -157,12 +169,14 @@ static bool create_textures(SDL_Renderer *renderer, map_t *map)
 
 static void destroy_textures(map_t *map)
 {
-    if (map->render_canvas) {
+    if (map->render_canvas)
+    {
         SDL_DestroySurface(map->render_canvas);
         map->render_canvas = NULL;
     }
 
-    if (map->render_target) {
+    if (map->render_target)
+    {
         SDL_DestroyTexture(map->render_target);
         map->render_target = NULL;
     }
@@ -206,7 +220,8 @@ static void get_frame_position(int frame_index, int width, int height, int *pos_
 
 static bool is_gid_valid(int gid, cute_tiled_map_t *map)
 {
-    if (gid) {
+    if (gid)
+    {
         return true;
     }
 
@@ -219,13 +234,18 @@ static bool is_tile_animated(int gid, int *anim_length, int *id, cute_tiled_map_
     cute_tiled_tileset_t *tileset = map->tilesets;
     cute_tiled_tile_descriptor_t *tile = tileset->tiles;
 
-    while (tile) {
-        if (tile->tile_index == local_id) {
-            if (tile->animation) {
-                if (anim_length) {
+    while (tile)
+    {
+        if (tile->tile_index == local_id)
+        {
+            if (tile->animation)
+            {
+                if (anim_length)
+                {
                     *anim_length = tile->frame_count;
                 }
-                if (id) {
+                if (id)
+                {
                     *id = tile->animation->tileid;
                 }
                 return true;
@@ -248,9 +268,12 @@ static bool tile_has_properties(int gid, cute_tiled_tile_descriptor_t **tile, cu
 
     local_id = gid - get_first_gid(map);
 
-    while ((*tile)) {
-        if ((*tile)->tile_index == local_id) {
-            if (0 < (*tile)->property_count) {
+    while ((*tile))
+    {
+        if ((*tile)->tile_index == local_id)
+        {
+            if (0 < (*tile)->property_count)
+            {
                 return true;
             }
         }
@@ -262,17 +285,20 @@ static bool tile_has_properties(int gid, cute_tiled_tile_descriptor_t **tile, cu
 
 static bool is_layer_of_type(const layer_type type, cute_tiled_layer_t *layer, map_t *map)
 {
-    switch (type) {
-    case TILE_LAYER:
-        if (map->hash_id_tilelayer == layer->type.hash_id) {
-            return true;
-        }
-        break;
-    case OBJECT_GROUP:
-        if (map->hash_id_objectgroup == layer->type.hash_id) {
-            return true;
-        }
-        break;
+    switch (type)
+    {
+        case TILE_LAYER:
+            if (map->hash_id_tilelayer == layer->type.hash_id)
+            {
+                return true;
+            }
+            break;
+        case OBJECT_GROUP:
+            if (map->hash_id_objectgroup == layer->type.hash_id)
+            {
+                return true;
+            }
+            break;
     }
 
     return false;
@@ -280,7 +306,8 @@ static bool is_layer_of_type(const layer_type type, cute_tiled_layer_t *layer, m
 
 cute_tiled_object_t *get_head_object(cute_tiled_layer_t *layer, map_t *map)
 {
-    if (is_layer_of_type(OBJECT_GROUP, layer, map)) {
+    if (is_layer_of_type(OBJECT_GROUP, layer, map))
+    {
         return layer->objects;
     }
 
@@ -297,8 +324,10 @@ static int get_next_animated_tile_id(int gid, int current_frame, cute_tiled_map_
     cute_tiled_tileset_t *tileset = get_head_tileset(map);
     cute_tiled_tile_descriptor_t *tile = tileset->tiles;
 
-    while (tile) {
-        if (tile->tile_index == gid) {
+    while (tile)
+    {
+        if (tile->tile_index == gid)
+        {
             return tile->animation[current_frame].tileid;
         }
         tile = tile->next;
@@ -317,45 +346,51 @@ static int get_map_property_count(cute_tiled_map_t *map)
     return map->property_count;
 }
 
-static void load_property(const Uint64 name_hash, int property_count, map_t *map)
+static void load_property(const Uint64 name_hash, cute_tiled_property_t *properties, int property_count, map_t *map)
 {
     int index;
     bool prop_found = false;
 
-    for (index = 0; index < property_count; index += 1) {
-        if (name_hash == generate_hash((const unsigned char *)map->handle->properties[index].name.ptr)) {
+    for (index = 0; index < property_count; index += 1)
+    {
+        if (name_hash == generate_hash((const unsigned char *)properties[index].name.ptr))
+        {
             prop_found = true;
             break;
         }
     }
 
-    if (!prop_found) {
+    if (!prop_found)
+    {
         return;
     }
 
     // Entities are allowed to have no properties.
-    if (0 == property_count) {
+    if (0 == property_count)
+    {
         return;
     }
 
-    if (map->handle->properties[index].name.ptr) {
-        switch (map->handle->properties[index].type) {
-        case CUTE_TILED_PROPERTY_COLOR:
-        case CUTE_TILED_PROPERTY_FILE:
-        case CUTE_TILED_PROPERTY_NONE:
-            break;
-        case CUTE_TILED_PROPERTY_INT:
-            map->integer_property = map->handle->properties[index].data.integer;
-            break;
-        case CUTE_TILED_PROPERTY_BOOL:
-            map->boolean_property = (bool)map->handle->properties[index].data.boolean;
-            break;
-        case CUTE_TILED_PROPERTY_FLOAT:
-            map->decimal_property = (float)map->handle->properties[index].data.floating;
-            break;
-        case CUTE_TILED_PROPERTY_STRING:
-            map->string_property = map->handle->properties[index].data.string.ptr;
-            break;
+    if (properties[index].name.ptr)
+    {
+        switch (properties[index].type)
+        {
+            case CUTE_TILED_PROPERTY_COLOR:
+            case CUTE_TILED_PROPERTY_FILE:
+            case CUTE_TILED_PROPERTY_NONE:
+                break;
+            case CUTE_TILED_PROPERTY_INT:
+                map->integer_property = properties[index].data.integer;
+                break;
+            case CUTE_TILED_PROPERTY_BOOL:
+                map->boolean_property = (bool)properties[index].data.boolean;
+                break;
+            case CUTE_TILED_PROPERTY_FLOAT:
+                map->decimal_property = (float)properties[index].data.floating;
+                break;
+            case CUTE_TILED_PROPERTY_STRING:
+                map->string_property = properties[index].data.string.ptr;
+                break;
         }
     }
 }
@@ -364,13 +399,14 @@ static bool get_boolean_map_property(const Uint64 name_hash, map_t *map)
 {
     int prop_cnt;
 
-    if (!map) {
+    if (!map)
+    {
         return false;
     }
 
     prop_cnt = get_map_property_count(map->handle);
     map->boolean_property = false;
-    load_property(name_hash, prop_cnt, map);
+    load_property(name_hash, map->handle->properties, prop_cnt, map);
     return map->boolean_property;
 }
 
@@ -378,13 +414,14 @@ static float get_decimal_map_property(const Uint64 name_hash, map_t *map)
 {
     int prop_cnt;
 
-    if (!map) {
+    if (!map)
+    {
         return 0.0;
     }
 
     prop_cnt = get_map_property_count(map->handle);
     map->decimal_property = 0.0;
-    load_property(name_hash, prop_cnt, map);
+    load_property(name_hash, map->handle->properties, prop_cnt, map);
     return map->decimal_property;
 }
 
@@ -392,13 +429,14 @@ static int get_integer_map_property(const Uint64 name_hash, map_t *map)
 {
     int prop_cnt;
 
-    if (!map) {
+    if (!map)
+    {
         return 0;
     }
 
     prop_cnt = get_map_property_count(map->handle);
     map->integer_property = 0;
-    load_property(name_hash, prop_cnt, map);
+    load_property(name_hash, map->handle->properties, prop_cnt, map);
     return map->integer_property;
 }
 
@@ -406,41 +444,42 @@ static const char *get_string_map_property(const Uint64 name_hash, map_t *map)
 {
     int prop_cnt;
 
-    if (!map) {
+    if (!map)
+    {
         return NULL;
     }
 
     prop_cnt = get_map_property_count(map->handle);
     map->string_property = NULL;
-    load_property(name_hash, prop_cnt, map);
+    load_property(name_hash, map->handle->properties, prop_cnt, map);
     return map->string_property;
 }
 
-static bool get_boolean_property(const Uint64 name_hash, int property_count, map_t *map)
+static bool get_boolean_property(const Uint64 name_hash, cute_tiled_property_t *properties, int property_count, map_t *map)
 {
     map->boolean_property = false;
-    load_property(name_hash, property_count, map);
+    load_property(name_hash, properties, property_count, map);
     return map->boolean_property;
 }
 
-static float get_decimal_property(const Uint64 name_hash, int property_count, map_t *map)
+static float get_decimal_property(const Uint64 name_hash, cute_tiled_property_t *properties, int property_count, map_t *map)
 {
     map->decimal_property = 0.0;
-    load_property(name_hash, property_count, map);
+    load_property(name_hash, properties, property_count, map);
     return map->decimal_property;
 }
 
-static int get_integer_property(const Uint64 name_hash, int property_count, map_t *map)
+static int get_integer_property(const Uint64 name_hash, cute_tiled_property_t *properties, int property_count, map_t *map)
 {
     map->integer_property = 0;
-    load_property(name_hash, property_count, map);
+    load_property(name_hash, properties, property_count, map);
     return map->integer_property;
 }
 
-static const char *get_string_property(const Uint64 name_hash, int property_count, map_t *map)
+static const char *get_string_property(const Uint64 name_hash, cute_tiled_property_t *properties, int property_count, map_t *map)
 {
     map->string_property = NULL;
-    load_property(name_hash, property_count, map);
+    load_property(name_hash, properties, property_count, map);
     return map->string_property;
 }
 
@@ -455,29 +494,37 @@ static bool load_tiles(map_t *map)
 
     map->tile_desc_count = map->handle->height * map->handle->width;
 
-    if (map->tile_desc_count < 0) {
+    if (map->tile_desc_count < 0)
+    {
         return true;
     }
 
     map->tile_desc = (tile_desc_t *)SDL_calloc((size_t)map->tile_desc_count, sizeof(struct tile_desc));
-    if (!map->tile_desc) {
+    if (!map->tile_desc)
+    {
         return false;
     }
 
-    while (layer) {
-        if (is_layer_of_type(TILE_LAYER, layer, map)) {
-            for (int index_height = 0; index_height < map->handle->height; index_height += 1) {
-                for (int index_width = 0; index_width < map->handle->width; index_width += 1) {
+    while (layer)
+    {
+        if (is_layer_of_type(TILE_LAYER, layer, map))
+        {
+            for (int index_height = 0; index_height < map->handle->height; index_height += 1)
+            {
+                for (int index_width = 0; index_width < map->handle->width; index_width += 1)
+                {
                     cute_tiled_tileset_t *tileset = get_head_tileset(map->handle);
                     cute_tiled_tile_descriptor_t *tile = tileset->tiles;
                     int *layer_content = get_layer_content(layer);
                     int tile_index = (index_height * map->handle->width) + index_width;
                     int gid = remove_gid_flip_bits(layer_content[tile_index]);
 
-                    if (tile_has_properties(gid, &tile, map->handle)) {
+                    if (tile_has_properties(gid, &tile, map->handle))
+                    {
                         int prop_cnt = get_tile_property_count(tile);
 
-                        if (get_boolean_property(H_IS_SOLID, prop_cnt, map)) {
+                        if (get_boolean_property(H_IS_SOLID, tile->properties, prop_cnt, map))
+                        {
                             map->tile_desc[tile_index].is_solid = true;
                         }
                     }
@@ -495,15 +542,19 @@ static bool load_entities(map_t *map)
     cute_tiled_layer_t *layer = get_head_layer(map);
     cute_tiled_object_t *object = NULL;
 
-    if (map->entity_count) {
+    if (map->entity_count)
+    {
         SDL_Log("Map has no entities to load.");
         return true;
     }
 
-    while (layer) {
-        if (is_layer_of_type(OBJECT_GROUP, layer, map)) {
+    while (layer)
+    {
+        if (is_layer_of_type(OBJECT_GROUP, layer, map))
+        {
             object = get_head_object(layer, map);
-            while (object) {
+            while (object)
+            {
                 map->entity_count += 1;
                 object = object->next;
             }
@@ -511,9 +562,11 @@ static bool load_entities(map_t *map)
         layer = layer->next;
     }
 
-    if (map->entity_count) {
+    if (map->entity_count)
+    {
         map->entity = (entity_t *)SDL_calloc((size_t)map->entity_count, sizeof(struct entity));
-        if (!map->entity) {
+        if (!map->entity)
+        {
             SDL_Log("Error allocating memory for map entities");
             return false;
         }
@@ -522,11 +575,14 @@ static bool load_entities(map_t *map)
     SDL_Log("Loading %u entitie(s)", map->entity_count);
 
     layer = get_head_layer(map);
-    while (layer) {
-        if (is_layer_of_type(OBJECT_GROUP, layer, map)) {
+    while (layer)
+    {
+        if (is_layer_of_type(OBJECT_GROUP, layer, map))
+        {
             int index = 0;
             object = get_head_object(layer, map);
-            while (object) {
+            while (object)
+            {
                 entity_t *entity = &map->entity[index];
 
                 entity->handle = object;
@@ -536,7 +592,8 @@ static bool load_entities(map_t *map)
                 entity->id = (int)index + 1;
                 entity->is_gone = false;
 
-                if (H_SPAWN == generate_hash(get_object_name(object))) {
+                if (H_SPAWN == generate_hash(get_object_name(object)))
+                {
                     map->spawn_x = entity->pos_x;
                     map->spawn_y = entity->pos_y;
                 }
@@ -558,7 +615,8 @@ static bool load_tileset(map_t *map)
 
     SDL_snprintf(file_name, 16, "%s", map->handle->tilesets->image.ptr);
 
-    if (!load_surface_from_file((const char *)file_name, &map->tileset_surface)) {
+    if (!load_surface_from_file((const char *)file_name, &map->tileset_surface))
+    {
         SDL_Log("Error loading tileset image '%s'", file_name);
         exit_code = false;
     }
@@ -571,22 +629,31 @@ static bool load_animated_tiles(map_t *map)
     cute_tiled_layer_t *layer = get_head_layer(map);
     int animated_tile_count = 0;
 
-    while (layer) {
-        if (layer->visible) {
-            if (is_layer_of_type(TILE_LAYER, layer, map)) {
-                for (int index_height = 0; index_height < map->handle->height; index_height += 1) {
-                    for (int index_width = 0; index_width < map->handle->width; index_width += 1) {
+    while (layer)
+    {
+        if (layer->visible)
+        {
+            if (is_layer_of_type(TILE_LAYER, layer, map))
+            {
+                for (int index_height = 0; index_height < map->handle->height; index_height += 1)
+                {
+                    for (int index_width = 0; index_width < map->handle->width; index_width += 1)
+                    {
                         int *layer_content = get_layer_content(layer);
                         int gid = remove_gid_flip_bits(layer_content[(index_height * map->handle->width) + index_width]);
 
-                        if (is_tile_animated(gid, NULL, NULL, map->handle)) {
+                        if (is_tile_animated(gid, NULL, NULL, map->handle))
+                        {
                             animated_tile_count += 1;
                         }
                     }
                 }
-            } else if (is_layer_of_type(OBJECT_GROUP, layer, map)) {
+            }
+            else if (is_layer_of_type(OBJECT_GROUP, layer, map))
+            {
                 cute_tiled_object_t *object = get_head_object(layer, map);
-                while (object) {
+                while (object)
+                {
                     animated_tile_count += 1;
                     object = object->next;
                 }
@@ -595,15 +662,19 @@ static bool load_animated_tiles(map_t *map)
         layer = layer->next;
     }
 
-    if (animated_tile_count > 0) {
+    if (animated_tile_count > 0)
+    {
         SDL_Log("Loading %u animated tile(s)", animated_tile_count);
 
         map->animated_tile = (anim_tile_t *)SDL_calloc((size_t)animated_tile_count, sizeof(struct anim_tile));
-        if (!map->animated_tile) {
+        if (!map->animated_tile)
+        {
             SDL_Log("Error allocating memory for animated tile");
             return false;
         }
-    } else {
+    }
+    else
+    {
         return true;
     }
 
@@ -612,7 +683,8 @@ static bool load_animated_tiles(map_t *map)
 
 void destroy_map(map_t *map)
 {
-    if (!map) {
+    if (!map)
+    {
         return;
     }
 
@@ -622,7 +694,8 @@ void destroy_map(map_t *map)
     SDL_free(map->animated_tile);
 
     // [6] Tileset.
-    if (map->tileset_surface) {
+    if (map->tileset_surface)
+    {
         SDL_DestroySurface(map->tileset_surface);
         map->tileset_surface = NULL;
     }
@@ -649,7 +722,8 @@ bool load_map(const char *file_name, map_t **map, SDL_Renderer *renderer)
 {
     bool exit_code = true;
 
-    if (*map) {
+    if (*map)
+    {
         destroy_map(*map);
     }
 
@@ -659,50 +733,58 @@ bool load_map(const char *file_name, map_t **map, SDL_Renderer *renderer)
 
     // [1] Map.
     *map = (map_t *)SDL_calloc(1, sizeof(struct map));
-    if (!*map) {
+    if (!*map)
+    {
         SDL_Log("Error allocating memory for map");
         return false;
     }
 
     // [2] Tiled map.
-    if (!load_tiled_map(file_name, *map)) {
+    if (!load_tiled_map(file_name, *map))
+    {
         exit_code = false;
         goto exit;
     }
 
     // [3] Textures & Surfaces.
-    if (!create_textures(renderer, *map)) {
+    if (!create_textures(renderer, *map))
+    {
         SDL_Log("Error creating textures and surfaces for map");
         exit_code = false;
         goto exit;
     }
 
     // [4] Tiles.
-    if (!load_tiles(*map)) {
+    if (!load_tiles(*map))
+    {
         exit_code = false;
         goto exit;
     }
 
     // [5] Entities.
-    if (!load_entities(*map)) {
+    if (!load_entities(*map))
+    {
         exit_code = false;
         goto exit;
     }
 
     // [6] Tileset.
-    if (!load_tileset(*map)) {
+    if (!load_tileset(*map))
+    {
         exit_code = false;
         goto exit;
     }
 
     // [7] Animated tiles.
-    if (!load_animated_tiles(*map)) {
+    if (!load_animated_tiles(*map))
+    {
         exit_code = false;
         goto exit;
     }
 
 exit:
-    if (!exit_code) {
+    if (!exit_code)
+    {
         destroy_map(*map);
     }
 
@@ -714,33 +796,41 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
     cute_tiled_layer_t *layer;
     cute_tiled_layer_t *prev_layer = NULL;
 
-    if (!map || !renderer) {
+    if (!map || !renderer)
+    {
         SDL_Log("Invalid parameters: map or renderer is NULL.");
         return false;
     }
 
     // Static tiles have already been rendered.
-    if (map->static_tiles_rendered) {
-        if (map->animated_tile_index <= 0) {
+    if (map->static_tiles_rendered)
+    {
+        if (map->animated_tile_index <= 0)
+        {
             return true;
         }
 
         map->time_b = map->time_a;
         map->time_a = SDL_GetTicks();
 
-        if (map->time_a > map->time_b) {
+        if (map->time_a > map->time_b)
+        {
             map->delta_time = map->time_a - map->time_b;
-        } else {
+        }
+        else
+        {
             map->delta_time = map->time_b - map->time_a;
         }
 
         // Update and render animated tiles & entities.
         map->time_since_last_frame += map->delta_time;
 
-        if (map->time_since_last_frame >= (1000 / ANIM_FPS)) {
+        if (map->time_since_last_frame >= (1000 / ANIM_FPS))
+        {
             map->time_since_last_frame = 0;
 
-            for (int index = 0; map->animated_tile_index > index; index += 1) {
+            for (int index = 0; map->animated_tile_index > index; index += 1)
+            {
                 SDL_Rect dst = { 0 };
                 SDL_Rect src = { 0 };
                 int gid = map->animated_tile[index].gid;
@@ -774,7 +864,8 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
 
                 map->animated_tile[index].current_frame += 1;
 
-                if (map->animated_tile[index].current_frame >= map->animated_tile[index].anim_length) {
+                if (map->animated_tile[index].current_frame >= map->animated_tile[index].anim_length)
+                {
                     map->animated_tile[index].current_frame = 0;
                 }
 
@@ -790,18 +881,24 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
     // Static tiles have not been rendered yet. Do it once!
     layer = get_head_layer(map);
 
-    while (layer) {
+    while (layer)
+    {
         SDL_Rect dst = { 0 };
         SDL_Rect src = { 0 };
 
-        if (is_layer_of_type(TILE_LAYER, layer, map)) {
-            if (layer->visible) {
-                for (int index_height = 0; index_height < map->handle->height; index_height += 1) {
-                    for (int index_width = 0; index_width < map->handle->width; index_width += 1) {
+        if (is_layer_of_type(TILE_LAYER, layer, map))
+        {
+            if (layer->visible)
+            {
+                for (int index_height = 0; index_height < map->handle->height; index_height += 1)
+                {
+                    for (int index_width = 0; index_width < map->handle->width; index_width += 1)
+                    {
                         int *layer_content = get_layer_content(layer);
                         int gid = remove_gid_flip_bits(layer_content[(index_height * map->handle->width) + index_width]);
 
-                        if (is_gid_valid(gid, map->handle)) {
+                        if (is_gid_valid(gid, map->handle))
+                        {
                             int anim_length = 0;
                             int id = 0;
 
@@ -817,7 +914,8 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
 
                             SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
 
-                            if (is_tile_animated(gid, &anim_length, &id, map->handle)) {
+                            if (is_tile_animated(gid, &anim_length, &id, map->handle))
+                            {
                                 map->animated_tile[map->animated_tile_index].gid = get_local_id(gid, map->handle);
                                 map->animated_tile[map->animated_tile_index].id = id;
                                 map->animated_tile[map->animated_tile_index].dst_x = dst.x;
@@ -825,10 +923,12 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                                 map->animated_tile[map->animated_tile_index].current_frame = 0;
                                 map->animated_tile[map->animated_tile_index].anim_length = anim_length;
 
-                                if (prev_layer) {
+                                if (prev_layer)
+                                {
                                     int *layer_content_below = get_layer_content(prev_layer);
                                     int gid_below = remove_gid_flip_bits(layer_content_below[(index_height * map->handle->width) + index_width]);
-                                    if (is_gid_valid(gid_below, map->handle)) {
+                                    if (is_gid_valid(gid_below, map->handle))
+                                    {
                                         int tmp_x_below, tmp_y_below;
                                         get_tile_position(gid_below, &tmp_x_below, &tmp_y_below, map->handle);
                                         map->animated_tile[map->animated_tile_index].canvas_src_x = tmp_x_below;
@@ -845,14 +945,17 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                 const char *layer_name = get_layer_name(layer);
                 SDL_Log("Render map layer: %s", layer_name);
             }
-
-        } else if (is_layer_of_type(OBJECT_GROUP, layer, map)) {
+        }
+        else if (is_layer_of_type(OBJECT_GROUP, layer, map))
+        {
 
             cute_tiled_object_t *object = get_head_object(layer, map);
-            while (object) {
+            while (object)
+            {
                 int gid = remove_gid_flip_bits(object->gid);
 
-                if (is_gid_valid(gid, map->handle)) {
+                if (is_gid_valid(gid, map->handle))
+                {
                     int anim_length = 0;
                     int id = 0;
 
@@ -866,7 +969,8 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                     src.x = tmp_x;
                     src.y = tmp_y;
 
-                    if (is_tile_animated(gid, &anim_length, &id, map->handle)) {
+                    if (is_tile_animated(gid, &anim_length, &id, map->handle))
+                    {
                         map->animated_tile[map->animated_tile_index].gid = get_local_id(gid, map->handle);
                         map->animated_tile[map->animated_tile_index].id = id;
                         map->animated_tile[map->animated_tile_index].dst_x = dst.x;
@@ -875,12 +979,14 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                         map->animated_tile[map->animated_tile_index].anim_length = anim_length;
                         map->animated_tile[map->animated_tile_index].object_id = get_object_uid(object);
 
-                        if (prev_layer) {
+                        if (prev_layer)
+                        {
                             int index_height = dst.y / get_tile_height(map->handle);
                             int index_width = dst.x / get_tile_width(map->handle);
                             int *layer_content_below = get_layer_content(prev_layer);
                             int gid_below = remove_gid_flip_bits(layer_content_below[(index_height * map->handle->width) + index_width]);
-                            if (is_gid_valid(gid_below, map->handle)) {
+                            if (is_gid_valid(gid_below, map->handle))
+                            {
                                 int tmp_x_below, tmp_y_below;
                                 get_tile_position(gid_below, &tmp_x_below, &tmp_y_below, map->handle);
                                 map->animated_tile[map->animated_tile_index].canvas_src_x = tmp_x_below;
@@ -902,7 +1008,8 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
         layer = layer->next;
     }
 
-    if (!SDL_UpdateTexture(map->render_target, NULL, map->render_canvas->pixels, map->render_canvas->pitch)) {
+    if (!SDL_UpdateTexture(map->render_target, NULL, map->render_canvas->pixels, map->render_canvas->pitch))
+    {
         SDL_Log("Error updating static tile texture: %s", SDL_GetError());
         return false;
     }
@@ -919,7 +1026,8 @@ int get_tile_index(int pos_x, int pos_y, map_t *map)
     index = pos_x / get_tile_width(map->handle);
     index += (pos_y / get_tile_height(map->handle)) * map->handle->width;
 
-    if (index > (map->tile_desc_count - 1)) {
+    if (index > (map->tile_desc_count - 1))
+    {
         index = map->tile_desc_count - 1;
     }
 

@@ -23,20 +23,23 @@ bool load_surface_from_file(const char *file_name, SDL_Surface **surface)
     SDL_IOStream *asset;
     size_t file_size;
 
-    if (!file_name) {
+    if (!file_name)
+    {
         return true;
     }
     SDL_Log("Loading texture from file: %s", file_name);
 
     buffer = (Uint8 *)load_binary_file_from_path(file_name);
-    if (!buffer) {
+    if (!buffer)
+    {
         SDL_Log("Failed to load asset: %s", file_name);
         return false;
     }
 
     file_size = size_of_file(file_name);
     asset = SDL_IOFromConstMem((Uint8 *)buffer, file_size);
-    if (!asset) {
+    if (!asset)
+    {
         SDL_free(buffer);
         SDL_Log("Failed to convert asset %s: %s", file_name, SDL_GetError());
         return false;
@@ -44,7 +47,8 @@ bool load_surface_from_file(const char *file_name, SDL_Surface **surface)
 
     int width, height, bpp;
     stbi_uc *pixels = stbi_load_from_memory(buffer, file_size, &width, &height, &bpp, 4);
-    if (!pixels) {
+    if (!pixels)
+    {
         SDL_Log("Couldn't load image data: %s", stbi_failure_reason());
         SDL_free(buffer);
         return false;
@@ -52,14 +56,16 @@ bool load_surface_from_file(const char *file_name, SDL_Surface **surface)
     SDL_free(buffer);
 
     *surface = SDL_CreateSurfaceFrom(width, height, SDL_PIXELFORMAT_RGBA32, (void *)pixels, width * 4);
-    if (!*surface) {
+    if (!*surface)
+    {
         SDL_free(buffer);
         SDL_Log("Failed to load image: %s", SDL_GetError());
         return false;
     }
 
     const SDL_PixelFormatDetails *format_details = SDL_GetPixelFormatDetails((*surface)->format);
-    if (!SDL_SetSurfaceColorKey(*surface, true, SDL_MapRGB(format_details, NULL, 0xff, 0x00, 0xff))) {
+    if (!SDL_SetSurfaceColorKey(*surface, true, SDL_MapRGB(format_details, NULL, 0xff, 0x00, 0xff)))
+    {
         SDL_Log("Couldn't set surface color key: %s", SDL_GetError());
         SDL_DestroySurface(*surface);
         return false;
@@ -75,20 +81,23 @@ bool load_texture_from_file(const char *file_name, SDL_Texture **texture, SDL_Re
     SDL_Surface *surface;
     size_t file_size;
 
-    if (!file_name) {
+    if (!file_name)
+    {
         return true;
     }
     SDL_Log("Loading texture from file: %s", file_name);
 
     buffer = (Uint8 *)load_binary_file_from_path(file_name);
-    if (!buffer) {
+    if (!buffer)
+    {
         SDL_Log("Failed to load asset: %s", file_name);
         return false;
     }
 
     file_size = size_of_file(file_name);
     asset = SDL_IOFromConstMem((Uint8 *)buffer, file_size);
-    if (!asset) {
+    if (!asset)
+    {
         SDL_free(buffer);
         SDL_Log("Failed to convert asset %s: %s", file_name, SDL_GetError());
         return false;
@@ -96,7 +105,8 @@ bool load_texture_from_file(const char *file_name, SDL_Texture **texture, SDL_Re
 
     int width, height, bpp;
     stbi_uc *pixels = stbi_load_from_memory(buffer, file_size, &width, &height, &bpp, 4);
-    if (!pixels) {
+    if (!pixels)
+    {
         SDL_Log("Couldn't load image data: %s", stbi_failure_reason());
         SDL_free(buffer);
         return false;
@@ -104,27 +114,31 @@ bool load_texture_from_file(const char *file_name, SDL_Texture **texture, SDL_Re
     SDL_free(buffer);
 
     surface = SDL_CreateSurfaceFrom(width, height, SDL_PIXELFORMAT_RGBA32, (void *)pixels, width * 4);
-    if (!surface) {
+    if (!surface)
+    {
         SDL_free(buffer);
         SDL_Log("Failed to load image: %s", SDL_GetError());
         return false;
     }
 
     const SDL_PixelFormatDetails *format_details = SDL_GetPixelFormatDetails(surface->format);
-    if (!SDL_SetSurfaceColorKey(surface, true, SDL_MapRGB(format_details, NULL, 0xff, 0x00, 0xff))) {
+    if (!SDL_SetSurfaceColorKey(surface, true, SDL_MapRGB(format_details, NULL, 0xff, 0x00, 0xff)))
+    {
         SDL_Log("Couldn't set surface color key: %s", SDL_GetError());
         SDL_DestroySurface(surface);
         return false;
     }
 
     *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    if (!*texture) {
+    if (!*texture)
+    {
         SDL_Log("Could not create texture from surface: %s", SDL_GetError());
         SDL_DestroySurface(surface);
         return false;
     }
 
-    if (!SDL_SetTextureScaleMode(*texture, SDL_SCALEMODE_NEAREST)) {
+    if (!SDL_SetTextureScaleMode(*texture, SDL_SCALEMODE_NEAREST))
+    {
         SDL_Log("Couldn't set texture scale mode: %s", SDL_GetError());
     }
 
@@ -139,7 +153,8 @@ Uint64 generate_hash(const unsigned char *name)
     Uint64 hash = 5381;
     Uint32 c;
 
-    while ((c = *name++)) {
+    while ((c = *name++))
+    {
         hash = ((hash << 5) + hash) + c;
     }
 

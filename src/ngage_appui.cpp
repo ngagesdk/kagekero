@@ -28,21 +28,25 @@ CNGageAppUi::CNGageAppUi()
 
     iAppView = NULL;
 
-    if (KErrNone == Proc.Create(_L("E:\\System\\Apps\\ncore\\ncore.exe"), _L(""))) {
+    if (KErrNone == Proc.Create(_L("E:\\System\\Apps\\ncore\\ncore.exe"), _L("")))
+    {
         TRequestStatus status;
         Proc.Logon(status);
         Proc.Resume();
         User::WaitForRequest(status);
         Proc.Close();
         Exit();
-    } else {
+    }
+    else
+    {
         Exit();
     }
 }
 
 CNGageAppUi::~CNGageAppUi()
 {
-    if (iAppView) {
+    if (iAppView)
+    {
         RemoveFromStack(iAppView);
         delete iAppView;
         iAppView = NULL;
