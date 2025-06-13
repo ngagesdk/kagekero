@@ -44,10 +44,7 @@ typedef struct hero
 
     float pos_x;
     float pos_y;
-    float acceleration;
-    float deceleration;
     float velocity;
-    float max_speed;
 
     int current_frame;
     int anim_fps;

@@ -204,7 +204,7 @@ bool handle_ncore_events(ncore_t *nc)
             set_bit(&nc->btn, BTN_4);
         }
 
-        if (SDLK_5 == nc->event->key.key) {
+        if (SDLK_5 == nc->event->key.key || SDLK_SPACE == nc->event->key.key) {
             set_bit(&nc->btn, BTN_5);
         }
 
@@ -212,7 +212,7 @@ bool handle_ncore_events(ncore_t *nc)
             set_bit(&nc->btn, BTN_6);
         }
 
-        if (SDLK_7 == nc->event->key.key) {
+        if (SDLK_7 == nc->event->key.key || SDLK_LSHIFT == nc->event->key.key) {
             set_bit(&nc->btn, BTN_7);
         }
 
@@ -256,11 +256,11 @@ bool handle_ncore_events(ncore_t *nc)
             set_bit(&nc->btn, BTN_DOWN);
         }
 
-        if (SDLK_LEFT == nc->event->key.key) {
+        if (SDLK_LEFT == nc->event->key.key || SDLK_A == nc->event->key.key) {
             set_bit(&nc->btn, BTN_LEFT);
         }
 
-        if (SDLK_RIGHT == nc->event->key.key) {
+        if (SDLK_RIGHT == nc->event->key.key || SDLK_D == nc->event->key.key) {
             set_bit(&nc->btn, BTN_RIGHT);
         }
         break;
@@ -291,7 +291,7 @@ bool handle_ncore_events(ncore_t *nc)
             clear_bit(&nc->btn, BTN_4);
         }
 
-        if (SDLK_5 == nc->event->key.key) {
+        if (SDLK_5 == nc->event->key.key || SDLK_SPACE == nc->event->key.key) {
             clear_bit(&nc->btn, BTN_5);
         }
 
@@ -299,7 +299,7 @@ bool handle_ncore_events(ncore_t *nc)
             clear_bit(&nc->btn, BTN_6);
         }
 
-        if (SDLK_7 == nc->event->key.key) {
+        if (SDLK_7 == nc->event->key.key || SDLK_LSHIFT == nc->event->key.key) {
             clear_bit(&nc->btn, BTN_7);
         }
 
@@ -343,11 +343,11 @@ bool handle_ncore_events(ncore_t *nc)
             clear_bit(&nc->btn, BTN_DOWN);
         }
 
-        if (SDLK_LEFT == nc->event->key.key) {
+        if (SDLK_LEFT == nc->event->key.key || SDLK_A == nc->event->key.key) {
             clear_bit(&nc->btn, BTN_LEFT);
         }
 
-        if (SDLK_RIGHT == nc->event->key.key) {
+        if (SDLK_RIGHT == nc->event->key.key || SDLK_D == nc->event->key.key) {
             clear_bit(&nc->btn, BTN_RIGHT);
         }
         break;

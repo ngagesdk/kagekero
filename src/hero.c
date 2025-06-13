@@ -62,9 +62,6 @@ bool load_hero(hero_t **hero, map_t *map)
     (*hero)->pos_x = (float)map->spawn_x;
     (*hero)->pos_y = (float)map->spawn_y;
     (*hero)->anim_fps = 1;
-    (*hero)->acceleration = 0.0025f;
-    (*hero)->deceleration = 0.0008f;
-    (*hero)->max_speed = 0.1f;
 
     set_hero_state(*hero, STATE_IDLE);
 
@@ -73,6 +70,16 @@ bool load_hero(hero_t **hero, map_t *map)
 
 void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
 {
+    static int tile_index = 0;
+    static int prev_tile_index;
+
+    prev_tile_index = tile_index;
+    tile_index = get_tile_index((int)hero->pos_x, (int)hero->pos_y, map);
+
+    if (tile_index != prev_tile_index) {
+        SDL_Log("Debug: %u", tile_index);
+    }
+
     hero->time_b = hero->time_a;
     hero->time_a = SDL_GetTicks();
 
@@ -143,15 +150,21 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
         hero->anim_offset = 32;
 
         if (check_bit(*btn, BTN_LEFT) || check_bit(*btn, BTN_RIGHT)) {
-            hero->velocity += fp_mul(hero->acceleration, (float)hero->delta_time);
+            hero->velocity += fp_mul(ACCELERATION, (float)hero->delta_time);
 
-            if (hero->velocity > hero->max_speed) {
-                hero->velocity = hero->max_speed;
+            float max_speed = MAX_SPEED;
+
+            if (check_bit(*btn, BTN_7)) {
+                max_speed = fp_mul(max_speed, 2.f);
+            }
+
+            if (hero->velocity > max_speed) {
+                hero->velocity = max_speed;
             }
 
         } else {
             if (hero->velocity > 0.f) {
-                hero->velocity -= fp_mul(hero->deceleration, (float)hero->delta_time);
+                hero->velocity -= fp_mul(DECELERATION, (float)hero->delta_time);
             }
             if (hero->velocity < 0.f) {
                 hero->velocity = 0.f;

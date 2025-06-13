@@ -14,6 +14,9 @@
 
 #define ANIM_FPS       15
 #define METER_IN_PIXEL 16
+#define ACCELERATION   0.0025f
+#define DECELERATION   0.0008f
+#define MAX_SPEED      0.1f
 
 #define START_MAP "001.tmj"
 

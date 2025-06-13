@@ -911,3 +911,17 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
 
     return true;
 }
+
+int get_tile_index(int pos_x, int pos_y, map_t *map)
+{
+    int index;
+
+    index = pos_x / get_tile_width(map->handle);
+    index += (pos_y / get_tile_height(map->handle)) * map->handle->width;
+
+    if (index > (map->tile_desc_count - 1)) {
+        index = map->tile_desc_count - 1;
+    }
+
+    return index;
+}

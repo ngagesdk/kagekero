@@ -504,7 +504,13 @@
                          "duration":100,
                          "tileid":1495
                         }],
-                 "id":1482
+                 "id":1482,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
                 }, 
                 {
                  "animation":[
@@ -564,7 +570,13 @@
                          "duration":100,
                          "tileid":1545
                         }],
-                 "id":1532
+                 "id":1532,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
                 }, 
                 {
                  "animation":[
@@ -624,7 +636,13 @@
                          "duration":100,
                          "tileid":1595
                         }],
-                 "id":1582
+                 "id":1582,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
                 }, 
                 {
                  "animation":[
@@ -684,7 +702,13 @@
                          "duration":100,
                          "tileid":1645
                         }],
-                 "id":1632
+                 "id":1632,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
                 }, 
                 {
                  "animation":[
@@ -744,7 +768,13 @@
                          "duration":100,
                          "tileid":1695
                         }],
-                 "id":1682
+                 "id":1682,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
                 }, 
                 {
                  "animation":[
@@ -804,7 +834,13 @@
                          "duration":100,
                          "tileid":1745
                         }],
-                 "id":1732
+                 "id":1732,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
                 }, 
                 {
                  "animation":[
