@@ -124,6 +124,13 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
         hero->pos_y = (float)((int)(hero->pos_y / METER_IN_PIXEL) * (int)METER_IN_PIXEL);
     }
 
+    // Out of bounds.
+    if (hero->pos_y >= map->height + HERO_HALF)
+    {
+        hero->pos_x = (float)map->spawn_x;
+        hero->pos_y = (float)map->spawn_y;
+    }
+
     if (check_bit(*btn, BTN_LEFT))
     {
         hero->heading = 0;
