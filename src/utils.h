@@ -48,5 +48,6 @@ unsigned int toggle_bit(unsigned int *number, unsigned int n);
 bool check_bit(unsigned int number, unsigned int n);
 
 button_t get_button_from_key(SDL_Keycode key);
+button_t get_button_from_gamepad(Uint8 pad_btn);
 
 #endif // UTILS_H
