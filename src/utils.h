@@ -47,4 +47,6 @@ unsigned int clear_bit(unsigned int *number, unsigned int n);
 unsigned int toggle_bit(unsigned int *number, unsigned int n);
 bool check_bit(unsigned int number, unsigned int n);
 
+button_t get_button_from_key(SDL_Keycode key);
+
 #endif // UTILS_H

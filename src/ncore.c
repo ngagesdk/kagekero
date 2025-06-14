@@ -207,219 +207,30 @@ bool handle_ncore_events(ncore_t *nc)
                     break;
                 }
 
-                if (SDLK_BACKSPACE == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_BACKSPACE);
-                }
-
-                if (SDLK_1 == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_1);
-                }
-
-                if (SDLK_2 == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_2);
-                }
-
-                if (SDLK_3 == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_3);
-                }
-
-                if (SDLK_4 == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_4);
-                }
-
-                if (SDLK_5 == nc->event->key.key || SDLK_SPACE == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_5);
-                }
-
-                if (SDLK_6 == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_6);
-                }
-
-                if (SDLK_7 == nc->event->key.key || SDLK_LSHIFT == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_7);
-                }
-
-                if (SDLK_8 == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_8);
-                }
-
-                if (SDLK_9 == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_9);
-                }
-
-                if (SDLK_0 == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_0);
-                }
-
-                if (SDLK_ASTERISK == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_ASTERISK);
-                }
-
-                if (SDLK_HASH == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_HASH);
-                }
-
-                if (SDLK_SOFTLEFT == nc->event->key.key || SDLK_ESCAPE == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_SOFTLEFT);
-                }
-
-                if (SDLK_SOFTRIGHT == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_SOFTRIGHT);
-                }
-
-                if (SDLK_SELECT == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_SELECT);
-                }
-
-                if (SDLK_UP == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_UP);
-                }
-
-                if (SDLK_DOWN == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_DOWN);
-                }
-
-                if (SDLK_LEFT == nc->event->key.key || SDLK_A == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_LEFT);
-                }
-
-                if (SDLK_RIGHT == nc->event->key.key || SDLK_D == nc->event->key.key)
-                {
-                    set_bit(&nc->btn, BTN_RIGHT);
-                }
+                button_t button = get_button_from_key(nc->event->key.key);
+                set_bit(&nc->btn, button);
                 break;
             }
         case SDL_EVENT_KEY_UP:
             {
-                if (nc->event->key.repeat)
-                { // No key repeat.
-                    break;
-                }
-
-                if (SDLK_BACKSPACE == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_BACKSPACE);
-                }
-
-                if (SDLK_1 == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_1);
-                }
-
-                if (SDLK_2 == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_2);
-                }
-
-                if (SDLK_3 == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_3);
-                }
-
-                if (SDLK_4 == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_4);
-                }
-
-                if (SDLK_5 == nc->event->key.key || SDLK_SPACE == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_5);
-                }
-
-                if (SDLK_6 == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_6);
-                }
-
-                if (SDLK_7 == nc->event->key.key || SDLK_LSHIFT == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_7);
-                }
-
-                if (SDLK_8 == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_8);
-                }
-
-                if (SDLK_9 == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_9);
-                }
-
-                if (SDLK_0 == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_0);
-                }
-
-                if (SDLK_ASTERISK == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_ASTERISK);
-                }
-
-                if (SDLK_HASH == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_HASH);
-                }
-
-                if (SDLK_SOFTLEFT == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_SOFTLEFT);
-                }
-
-                if (SDLK_SOFTRIGHT == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_SOFTRIGHT);
-                }
-
-                if (SDLK_SELECT == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_SELECT);
-                }
-
-                if (SDLK_UP == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_UP);
-                }
-
-                if (SDLK_DOWN == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_DOWN);
-                }
-
-                if (SDLK_LEFT == nc->event->key.key || SDLK_A == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_LEFT);
-                }
-
-                if (SDLK_RIGHT == nc->event->key.key || SDLK_D == nc->event->key.key)
-                {
-                    clear_bit(&nc->btn, BTN_RIGHT);
-                }
+                button_t button = get_button_from_key(nc->event->key.key);
+                clear_bit(&nc->btn, button);
                 break;
             }
         case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
             {
                 const SDL_JoystickID which = nc->event->gbutton.which;
-                // SDL_Log("Gamepad #%" SDL_PRIu32 " button %s -> %s", which, SDL_GetGamepadStringForButton(nc->event->gbutton.button), nc->event->gbutton.down ? "PRESSED" : "RELEASED");
+
+                if (nc->event->gbutton.down)
+                {
+                    button_t button = get_button_from_gamepad(nc->event->gbutton.button);
+                    set_bit(&nc->btn, button);
+                }
+                else
+                {
+                    button_t button = get_button_from_gamepad(nc->event->gbutton.button);
+                    clear_bit(&nc->btn, button);
+                }
                 break;
             }
     }

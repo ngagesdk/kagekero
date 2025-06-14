@@ -183,3 +183,76 @@ bool check_bit(unsigned int number, unsigned int n)
 {
     return (bool)((number >> n) & 1u);
 }
+
+button_t get_button_from_key(SDL_Keycode key)
+{
+    switch (key)
+    {
+        case SDLK_BACKSPACE:
+            return BTN_BACKSPACE;
+        case SDLK_1:
+            return BTN_1;
+        case SDLK_2:
+            return BTN_2;
+        case SDLK_3:
+            return BTN_3;
+        case SDLK_4:
+            return BTN_4;
+        case SDLK_5:
+        case SDLK_SPACE:
+            return BTN_5;
+        case SDLK_6:
+            return BTN_6;
+        case SDLK_7:
+        case SDLK_LSHIFT:
+            return BTN_7;
+        case SDLK_8:
+            return BTN_8;
+        case SDLK_9:
+            return BTN_9;
+        case SDLK_0:
+            return BTN_0;
+        case SDLK_ASTERISK:
+            return BTN_ASTERISK;
+        case SDLK_HASH:
+            return BTN_HASH;
+        case SDLK_SOFTLEFT:
+        case SDLK_ESCAPE:
+            return BTN_SOFTLEFT;
+        case SDLK_SOFTRIGHT:
+            return BTN_SOFTRIGHT;
+        case SDLK_SELECT:
+            return BTN_SELECT;
+        case SDLK_UP:
+            return BTN_UP;
+        case SDLK_DOWN:
+            return BTN_DOWN;
+        case SDLK_LEFT:
+        case SDLK_A:
+            return BTN_LEFT;
+        case SDLK_RIGHT:
+        case SDLK_D:
+            return BTN_RIGHT;
+    }
+
+    return 0u;
+}
+
+button_t get_button_from_gamepad(Uint8 pad_btn)
+{
+    switch (pad_btn)
+    {
+        case SDL_GAMEPAD_BUTTON_SOUTH:
+            return BTN_5;
+        case SDL_GAMEPAD_BUTTON_DPAD_UP:
+            return BTN_UP;
+        case SDL_GAMEPAD_BUTTON_DPAD_DOWN:
+            return BTN_DOWN;
+        case SDL_GAMEPAD_BUTTON_DPAD_LEFT:
+            return BTN_LEFT;
+        case SDL_GAMEPAD_BUTTON_DPAD_RIGHT:
+            return BTN_RIGHT;
+    }
+
+    return 0u;
+}
