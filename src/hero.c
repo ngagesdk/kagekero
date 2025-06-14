@@ -188,11 +188,10 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
     }
     else if (on_solid_ground)
     {
-        // Prevent slide.
-        // if (hero->prev_state == STATE_FALL)
-        // {
-        //     hero->velocity_x = 0.f;
-        // }
+        if (STATE_FALL == hero->prev_state || STATE_JUMP == hero->prev_state)
+        {
+            hero->velocity_x = 0.f; // Stop horizontal movement when landing.
+        }
         hero->velocity_y = 0.f;
         handle_jump(hero, btn);
     }
@@ -286,14 +285,9 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
         if (check_bit(*btn, BTN_LEFT) || check_bit(*btn, BTN_RIGHT))
         {
             hero->velocity_x += fp_mul(ACCELERATION, (float)hero->delta_time);
-            float max_speed = MAX_SPEED;
-            if (check_bit(*btn, BTN_7))
+            if (hero->velocity_x > MAX_SPEED)
             {
-                max_speed = fp_mul(max_speed, 2.f);
-            }
-            if (hero->velocity_x > max_speed)
-            {
-                hero->velocity_x = max_speed;
+                hero->velocity_x = MAX_SPEED;
             }
         }
         else
