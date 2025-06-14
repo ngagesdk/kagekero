@@ -55,3 +55,15 @@ jobs:
         cmake -DCMAKE_PREFIX_PATH=${{ env.NGAGESDK }}/sdk/extras/lib/cmake -G "Ninja" -S ${{ env.NGAGESDK }}/projects/ncore -B ${{ env.NGAGESDK }}/projects/ncore/build -DCMAKE_TOOLCHAIN_FILE=${{ env.NGAGESDK }}/cmake/ngage-toolchain.cmake
         cmake --build ${{ env.NGAGESDK }}/projects/ncore/build
       shell: pwsh
+
+    - name: Archive ncore
+      uses: actions/upload-artifact@v4
+      with:
+        name: ncore-N3D.zip
+        path: |
+          build/ncore.aif
+          build/ncore.app
+          build/ncore.exe
+          build/ncore.rsc
+          export/data.pfs
+        if-no-files-found: error
