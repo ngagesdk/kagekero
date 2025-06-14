@@ -275,7 +275,7 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
     }
 
     // Running state.
-    if (STATE_RUN == hero->state)
+    if (STATE_RUN == hero->state || (hero->velocity_y != 0.f))
     {
         hero->anim_fps = 15;
         hero->anim_length = 12;
