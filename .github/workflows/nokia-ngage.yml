@@ -59,11 +59,11 @@ jobs:
     - name: Prepare ncore artifact directory
       run: |
         New-Item -ItemType Directory -Path System\Apps\ncore -Force
-        Copy-Item build\ncore.aif System\Apps\ncore\
-        Copy-Item build\ncore.app System\Apps\ncore\
-        Copy-Item build\ncore.exe System\Apps\ncore\
-        Copy-Item build\ncore.rsc System\Apps\ncore\
-        Copy-Item export\data.pfs System\Apps\ncore\
+        Copy-Item ${{ env.NGAGESDK }}\projects\ncore\build\ncore.aif System\Apps\ncore\
+        Copy-Item ${{ env.NGAGESDK }}\projects\ncore\build\ncore.app System\Apps\ncore\
+        Copy-Item ${{ env.NGAGESDK }}\projects\ncore\build\ncore.exe System\Apps\ncore\
+        Copy-Item ${{ env.NGAGESDK }}\projects\ncore\build\ncore.rsc System\Apps\ncore\
+        Copy-Item ${{ env.NGAGESDK }}\projects\ncore\export\data.pfs System\Apps\ncore\
       shell: pwsh
 
     - name: Archive ncore
