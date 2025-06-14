@@ -72,13 +72,14 @@ static void set_hero_state(hero_t *hero, hero_state_t state)
 
 static void handle_jump(hero_t *hero, unsigned int *btn)
 {
-    if (check_bit(*btn, BTN_5))
+    if (check_bit(*btn, BTN_7) && !hero->jump_lock)
     {
         if (hero->prev_state != STATE_JUMP && hero->state != STATE_JUMP)
         {
             hero->velocity_y = -JUMP_VELOCITY;
             set_hero_state(hero, STATE_JUMP);
         }
+        hero->jump_lock = true;
     }
 }
 
@@ -193,6 +194,11 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
             hero->velocity_x = 0.f; // Stop horizontal movement when landing.
         }
         hero->velocity_y = 0.f;
+
+        if (!check_bit(*btn, BTN_7))
+        {
+            hero->jump_lock = false;
+        }
         handle_jump(hero, btn);
     }
     else

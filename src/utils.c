@@ -199,12 +199,11 @@ button_t get_button_from_key(SDL_Keycode key)
         case SDLK_4:
             return BTN_4;
         case SDLK_5:
-        case SDLK_SPACE:
             return BTN_5;
         case SDLK_6:
             return BTN_6;
         case SDLK_7:
-        case SDLK_LSHIFT:
+        case SDLK_SPACE:
             return BTN_7;
         case SDLK_8:
             return BTN_8;

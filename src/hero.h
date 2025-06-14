@@ -44,6 +44,8 @@ typedef struct hero
     int sprite_offset;
     int heading;
 
+    bool jump_lock;
+
 } hero_t;
 
 void destroy_hero(hero_t *hero);
