@@ -258,7 +258,7 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
     if (hero->velocity_y < 0.f)
     {
         set_hero_state(hero, STATE_JUMP);
-        hero->anim_fps = 1;
+        hero->anim_fps = 15;
         hero->anim_length = 0;
         hero->anim_offset_x = 0;
         hero->anim_offset_y = 64;
@@ -266,7 +266,7 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
     else if (hero->velocity_y > 0.f)
     {
         set_hero_state(hero, STATE_FALL);
-        hero->anim_fps = 1;
+        hero->anim_fps = 15;
         hero->anim_length = 0;
         hero->anim_offset_x = 1;
         hero->anim_offset_y = 64;
@@ -279,15 +279,17 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
         hero->anim_offset_y = 0;
         return;
     }
-
-    // Running state.
-    if (STATE_RUN == hero->state || (hero->velocity_y != 0.f))
+    else if (STATE_RUN == hero->state)
     {
         hero->anim_fps = 15;
         hero->anim_length = 12;
         hero->anim_offset_x = 0;
         hero->anim_offset_y = 32;
+    }
 
+    // Running state.
+    if (STATE_RUN == hero->state || (hero->velocity_y != 0.f))
+    {
         if (check_bit(*btn, BTN_LEFT) || check_bit(*btn, BTN_RIGHT))
         {
             hero->velocity_x += fp_mul(ACCELERATION, (float)hero->delta_time);
