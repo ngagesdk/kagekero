@@ -56,14 +56,19 @@ jobs:
         cmake --build ${{ env.NGAGESDK }}/projects/ncore/build
       shell: pwsh
 
+    - name: Prepare ncore artifact directory
+      run: |
+        New-Item -ItemType Directory -Path System\Apps\ncore -Force
+        Copy-Item build\ncore.aif System\Apps\ncore\
+        Copy-Item build\ncore.app System\Apps\ncore\
+        Copy-Item build\ncore.exe System\Apps\ncore\
+        Copy-Item build\ncore.rsc System\Apps\ncore\
+        Copy-Item export\data.pfs System\Apps\ncore\
+      shell: pwsh
+
     - name: Archive ncore
       uses: actions/upload-artifact@v4
       with:
         name: ncore-NGAGE.zip
-        path: |
-          build/ncore.aif
-          build/ncore.app
-          build/ncore.exe
-          build/ncore.rsc
-          export/data.pfs
+        path: System
         if-no-files-found: error
