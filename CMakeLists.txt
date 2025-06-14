@@ -49,6 +49,28 @@ if(NGAGESDK)
   #target_link_libraries(ncore PRIVATE SDL3_mixer::SDL3_mixer)
   target_link_libraries(ncore PRIVATE SDL3::SDL3)
 
+  set(ncore_app_sources
+    src/ngage.cpp
+    src/ngage_application.cpp
+    src/ngage_appui.cpp
+    src/ngage_appview.cpp
+    src/ngage_document.cpp
+  )
+
+  set(ncore_app_libs
+    ${EPOC_LIB}/euser.lib
+    ${EPOC_LIB}/apparc.lib
+    ${EPOC_LIB}/cone.lib
+    ${EPOC_LIB}/eikcore.lib
+    ${EPOC_LIB}/avkon.lib)
+
+  set(res_dir "${CMAKE_CURRENT_SOURCE_DIR}/res")
+
+  add_library(ncore_app STATIC ${ncore_app_sources})
+  build_dll(ncore_app ncore app 0x1000007a 0x100039ce 0x1badc0de "${ncore_app_libs}")
+  build_aif(${res_dir} ncore 0x1badc0de)
+  build_resource(${res_dir} ncore "")
+
 else()
   target_link_libraries(ncore PRIVATE ${SDL3_LIBRARIES})
 endif()
@@ -84,7 +106,7 @@ if (NINTENDO_3DS)
     NAME "ncore"
     DESCRIPTION "A cross-platform engine with native Nokia N-Gage compatibility."
     AUTHOR "Michael Fitzmayer"
-    #ICON "${CMAKE_CURRENT_SOURCE_DIR}/icon.png"
+    ICON "${CMAKE_CURRENT_SOURCE_DIR}/icon.png"
   )
 
   ctr_create_3dsx(

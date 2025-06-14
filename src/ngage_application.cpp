@@ -10,7 +10,7 @@
 #include "ngage_application.h"
 #include "ngage_document.h"
 
-static const TUid KUidNGageApp = { UID3 };
+static const TUid KUidNGageApp = { 0x1badc0de };
 
 CApaDocument *CNGageApplication::CreateDocumentL()
 {
