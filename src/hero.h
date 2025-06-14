@@ -17,18 +17,6 @@
 #define HERO_SIZE 32
 #define HERO_HALF 16
 
-typedef enum hero_state
-{
-    STATE_IDLE = 0x00000000,
-    STATE_RUN = 0x00000001,
-    STATE_HURT = 0x00000002,
-    STATE_JUMP = 0x00000004,
-    STATE_CLIMB = 0x00000008,
-    STATE_CROUCH = 0x00000010,
-    STATE_FALL = 0x00000020
-
-} hero_state_t;
-
 typedef struct hero
 {
     SDL_Surface *sprite;
@@ -51,7 +39,8 @@ typedef struct hero
     int current_frame;
     int anim_fps;
     int anim_length;
-    int anim_offset;
+    int anim_offset_x;
+    int anim_offset_y;
     int sprite_offset;
     int heading;
 
@@ -61,6 +50,5 @@ void destroy_hero(hero_t *hero);
 bool load_hero(hero_t **hero, map_t *map);
 void update_hero(hero_t *hero, map_t *map, unsigned int *btn);
 bool render_hero(hero_t *hero, map_t *map);
-void set_hero_state(hero_t *hero, hero_state_t state);
 
 #endif // HERO_H

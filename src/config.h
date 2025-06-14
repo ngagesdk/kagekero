@@ -18,6 +18,7 @@
 #define MAX_SPEED         0.1f
 #define GRAVITY           0.00125f
 #define MAX_FALLING_SPEED 0.3f
+#define JUMP_VELOCITY     0.3f
 
 #define START_MAP "001.tmj"
 

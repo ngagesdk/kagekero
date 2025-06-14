@@ -14,6 +14,100 @@
 #include "hero.h"
 #include "utils.h"
 
+typedef enum hero_state
+{
+    STATE_IDLE = 0,
+    STATE_RUN,
+    STATE_HURT,
+    STATE_JUMP,
+    STATE_CLIMB,
+    STATE_CROUCH,
+    STATE_FALL
+
+} hero_state_t;
+
+static void update_hero_timing(hero_t *hero)
+{
+    hero->time_b = hero->time_a;
+    hero->time_a = SDL_GetTicks();
+    hero->delta_time = (hero->time_a > hero->time_b)
+                           ? hero->time_a - hero->time_b
+                           : hero->time_b - hero->time_a;
+}
+
+static void update_hero_animation(hero_t *hero)
+{
+    hero->time_since_last_frame += hero->delta_time;
+    if (hero->time_since_last_frame >= (1000 / hero->anim_fps))
+    {
+        hero->time_since_last_frame = 0;
+        hero->current_frame += 1;
+        if (hero->current_frame >= hero->anim_length - 1)
+        {
+            hero->current_frame = 0;
+        }
+    }
+}
+
+static void apply_gravity(hero_t *hero)
+{
+    hero->velocity_y += fp_mul(GRAVITY, (float)hero->delta_time);
+    if (hero->velocity_y > MAX_FALLING_SPEED)
+    {
+        hero->velocity_y = MAX_FALLING_SPEED;
+    }
+}
+
+static void set_hero_state(hero_t *hero, hero_state_t state)
+{
+    hero->prev_state = hero->state;
+    hero->state = state;
+
+    if (hero->state != hero->prev_state)
+    {
+        hero->current_frame = 0;
+        hero->time_since_last_frame = 0;
+    }
+}
+
+static void handle_jump(hero_t *hero, unsigned int *btn)
+{
+    if (check_bit(*btn, BTN_5))
+    {
+        if (hero->prev_state != STATE_JUMP && hero->state != STATE_JUMP)
+        {
+            hero->velocity_y = -JUMP_VELOCITY;
+            set_hero_state(hero, STATE_JUMP);
+        }
+    }
+}
+
+static void clamp_hero_position(hero_t *hero, map_t *map)
+{
+    if (hero->pos_y <= 0.f + HERO_HALF)
+    {
+        hero->pos_y = 0.f + HERO_HALF;
+        hero->velocity_y = 0.f;
+    }
+    if (hero->pos_x <= HERO_HALF)
+    {
+        hero->pos_x = HERO_HALF;
+    }
+    else if (hero->pos_x >= map->width - HERO_HALF)
+    {
+        hero->pos_x = (float)(map->width - HERO_HALF);
+    }
+}
+
+static void reset_hero_on_out_of_bounds(hero_t *hero, map_t *map)
+{
+    set_hero_state(hero, STATE_IDLE);
+    hero->pos_x = (float)map->spawn_x;
+    hero->pos_y = (float)map->spawn_y;
+    hero->velocity_x = 0.f;
+    hero->velocity_y = 0.f;
+}
+
 void destroy_hero(hero_t *hero)
 {
     if (hero)
@@ -40,8 +134,6 @@ void destroy_hero(hero_t *hero)
 
 bool load_hero(hero_t **hero, map_t *map)
 {
-    SDL_Log("%llx", generate_hash("offset_top"));
-
     *hero = (hero_t *)SDL_calloc(1, sizeof(hero_t));
     if (!*hero)
     {
@@ -80,57 +172,37 @@ bool load_hero(hero_t **hero, map_t *map)
 
 void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
 {
-    hero->time_b = hero->time_a;
-    hero->time_a = SDL_GetTicks();
+    update_hero_timing(hero);
+    update_hero_animation(hero);
 
-    if (hero->time_a > hero->time_b)
-    {
-        hero->delta_time = hero->time_a - hero->time_b;
-    }
-    else
-    {
-        hero->delta_time = hero->time_b - hero->time_a;
-    }
-
-    hero->time_since_last_frame += hero->delta_time;
-    if (hero->time_since_last_frame >= (1000 / hero->anim_fps))
-    {
-        hero->time_since_last_frame = 0;
-
-        hero->current_frame += 1;
-        if (hero->current_frame >= hero->anim_length - 1)
-        {
-            hero->current_frame = 0;
-        }
-    }
-
-    // Check whether the hero is on solid ground.
+    // Check ground status.
     int index = get_tile_index((int)hero->pos_x, (int)hero->pos_y, map);
     index += map->handle->width;
+    bool on_solid_ground = map->tile_desc[index].is_solid && hero->state != STATE_JUMP;
+    bool at_bottom = hero->pos_y > map->height - HERO_HALF;
 
-    if (hero->pos_y > map->height - HERO_HALF)
+    // Vertical movement.
+    if (at_bottom)
     {
-        hero->velocity_y += fp_mul(GRAVITY, (float)hero->delta_time);
-        if (hero->velocity_y > MAX_FALLING_SPEED)
-        {
-            hero->velocity_y = MAX_FALLING_SPEED;
-        }
+        apply_gravity(hero);
     }
-    else if (map->tile_desc[index].is_solid)
+    else if (on_solid_ground)
     {
-        // Hero is on solid ground.
+        // Prevent slide.
+        // if (hero->prev_state == STATE_FALL)
+        // {
+        //     hero->velocity_x = 0.f;
+        // }
         hero->velocity_y = 0.f;
+        handle_jump(hero, btn);
     }
     else
     {
-        hero->velocity_y += fp_mul(GRAVITY, (float)hero->delta_time);
-        if (hero->velocity_y > MAX_FALLING_SPEED)
-        {
-            hero->velocity_y = MAX_FALLING_SPEED;
-        }
+        apply_gravity(hero);
     }
 
-    if (hero->velocity_y > 0.f)
+    // Update Y position.
+    if (hero->velocity_y != 0.f)
     {
         hero->pos_y += fp_mul(hero->velocity_y, (float)hero->delta_time);
     }
@@ -140,92 +212,85 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
         hero->pos_y += map->tile_desc[index].offset_top;
     }
 
-    // Out of bounds.
+    // Out of bounds check.
     if (hero->pos_y >= map->height + HERO_HALF)
     {
-        set_hero_state(hero, STATE_IDLE);
-        hero->pos_x = (float)map->spawn_x;
-        hero->pos_y = (float)map->spawn_y;
-        hero->velocity_x = 0.f;
-        hero->velocity_y = 0.f;
+        reset_hero_on_out_of_bounds(hero, map);
     }
 
+    // Horizontal input and state.
     if (check_bit(*btn, BTN_LEFT))
     {
         hero->heading = 0;
-        hero->state = STATE_RUN;
+        set_hero_state(hero, STATE_RUN);
     }
     else if (check_bit(*btn, BTN_RIGHT))
     {
         hero->heading = 1;
-        hero->state = STATE_RUN;
+        set_hero_state(hero, STATE_RUN);
     }
     else if (hero->velocity_x <= 0.f)
     {
-        hero->state = STATE_IDLE;
+        set_hero_state(hero, STATE_IDLE);
     }
 
+    // Horizontal movement and sprite offset.
+    float move = fp_mul(hero->velocity_x, (float)hero->delta_time);
     if (hero->heading)
     {
         hero->sprite_offset = 0;
-
-        if (hero->velocity_x > 0.f)
-        {
-            hero->pos_x += fp_mul(hero->velocity_x, (float)hero->delta_time);
-        }
-        else
-        {
-            hero->pos_x -= fp_mul(hero->velocity_x, (float)hero->delta_time);
-        }
+        hero->pos_x += (hero->velocity_x > 0.f) ? move : -move;
     }
     else
     {
         hero->sprite_offset = 96;
-
-        if (hero->velocity_x > 0.f)
-        {
-            hero->pos_x -= fp_mul(hero->velocity_x, (float)hero->delta_time);
-        }
-        else
-        {
-            hero->pos_x += fp_mul(hero->velocity_x, (float)hero->delta_time);
-        }
+        hero->pos_x += (hero->velocity_x > 0.f) ? -move : move;
     }
 
-    if (hero->pos_x <= HERO_HALF)
+    clamp_hero_position(hero, map);
+
+    // Animation state.
+    if (hero->velocity_y < 0.f)
     {
-        hero->pos_x = HERO_HALF;
+        set_hero_state(hero, STATE_JUMP);
+        hero->anim_fps = 1;
+        hero->anim_length = 0;
+        hero->anim_offset_x = 0;
+        hero->anim_offset_y = 64;
     }
-    else if (hero->pos_x >= map->width - HERO_HALF)
+    else if (hero->velocity_y > 0.f)
     {
-        hero->pos_x = (float)(map->width - HERO_HALF);
+        set_hero_state(hero, STATE_FALL);
+        hero->anim_fps = 1;
+        hero->anim_length = 0;
+        hero->anim_offset_x = 1;
+        hero->anim_offset_y = 64;
     }
-
-    if (STATE_IDLE == hero->state)
+    else if (STATE_IDLE == hero->state)
     {
         hero->anim_fps = 15;
         hero->anim_length = 11;
-        hero->anim_offset = 0;
+        hero->anim_offset_x = 0;
+        hero->anim_offset_y = 0;
         return;
     }
 
+    // Running state.
     if (STATE_RUN == hero->state)
     {
         hero->anim_fps = 15;
         hero->anim_length = 12;
-        hero->anim_offset = 32;
+        hero->anim_offset_x = 0;
+        hero->anim_offset_y = 32;
 
         if (check_bit(*btn, BTN_LEFT) || check_bit(*btn, BTN_RIGHT))
         {
             hero->velocity_x += fp_mul(ACCELERATION, (float)hero->delta_time);
-
             float max_speed = MAX_SPEED;
-
             if (check_bit(*btn, BTN_7))
             {
                 max_speed = fp_mul(max_speed, 2.f);
             }
-
             if (hero->velocity_x > max_speed)
             {
                 hero->velocity_x = max_speed;
@@ -260,31 +325,11 @@ bool render_hero(hero_t *hero, map_t *map)
 
     SDL_BlitSurface(map->render_canvas, &src, hero->temp_canvas, NULL);
 
-    src.x = hero->current_frame * HERO_SIZE;
-    src.y = hero->anim_offset + hero->sprite_offset;
+    src.x = (hero->current_frame + hero->anim_offset_x) * HERO_SIZE;
+    src.y = hero->anim_offset_y + hero->sprite_offset;
 
     SDL_BlitSurface(hero->sprite, &src, hero->temp_canvas, NULL);
     SDL_BlitSurface(hero->temp_canvas, NULL, hero->render_canvas, NULL);
 
     return true;
-}
-
-void set_hero_state(hero_t *hero, hero_state_t state)
-{
-    hero->prev_state = hero->state;
-
-    if (STATE_IDLE == state)
-    {
-        hero->state = STATE_IDLE;
-    }
-    else
-    {
-        hero->state |= state;
-    }
-
-    if (hero->state != hero->prev_state)
-    {
-        hero->current_frame = 0;
-        hero->time_since_last_frame = 0;
-    }
 }
