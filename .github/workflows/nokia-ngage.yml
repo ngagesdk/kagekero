@@ -58,7 +58,7 @@ jobs:
 
     - name: Prepare ncore artifact directory
       run: |
-        New-Item -ItemType Directory -Path System\Apps\ncore -Force
+        New-Item -ItemType Directory -Path NGAGE\System\Apps\ncore -Force
         Copy-Item ${{ env.NGAGESDK }}\projects\ncore\build\ncore.aif System\Apps\ncore\
         Copy-Item ${{ env.NGAGESDK }}\projects\ncore\build\ncore.app System\Apps\ncore\
         Copy-Item ${{ env.NGAGESDK }}\projects\ncore\build\ncore.exe System\Apps\ncore\
@@ -70,5 +70,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ncore-NGAGE.zip
-        path: System
+        path: NGAGE
         if-no-files-found: error
