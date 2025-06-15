@@ -47,6 +47,14 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
         return false;
     }
 
+#ifdef WIN32
+    // Todo: add proper error handling.
+    SDL_DisplayID id = SDL_GetDisplays(NULL);
+    SDL_DisplayMode **mode = SDL_GetFullscreenDisplayModes(id, NULL);
+    SDL_SetWindowFullscreenMode(window, &mode[0]);
+    SDL_SetWindowFullscreen(window, true);
+#endif
+
     if (!SDL_SetRenderScale(*renderer, SCALE, SCALE))
     {
         SDL_Log("Could not apply drawing scale factor: %s", SDL_GetError());
