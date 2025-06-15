@@ -247,6 +247,7 @@ button_t get_button_from_gamepad(Uint8 pad_btn)
         case SDL_GAMEPAD_BUTTON_SOUTH:
             return BTN_7;
         case SDL_GAMEPAD_BUTTON_EAST:
+        case SDL_GAMEPAD_BUTTON_WEST:
             return BTN_5;
         case SDL_GAMEPAD_BUTTON_DPAD_UP:
             return BTN_UP;

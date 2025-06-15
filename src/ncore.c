@@ -220,17 +220,17 @@ bool handle_ncore_events(ncore_t *nc)
         case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
             {
                 const SDL_JoystickID which = nc->event->gbutton.which;
+                button_t button = get_button_from_gamepad(nc->event->gbutton.button);
+                set_bit(&nc->btn, button);
 
-                if (nc->event->gbutton.down)
-                {
-                    button_t button = get_button_from_gamepad(nc->event->gbutton.button);
-                    set_bit(&nc->btn, button);
-                }
-                else
-                {
-                    button_t button = get_button_from_gamepad(nc->event->gbutton.button);
-                    clear_bit(&nc->btn, button);
-                }
+                break;
+            }
+        case SDL_EVENT_GAMEPAD_BUTTON_UP:
+            {
+                const SDL_JoystickID which = nc->event->gbutton.which;
+                button_t button = get_button_from_gamepad(nc->event->gbutton.button);
+                clear_bit(&nc->btn, button);
+
                 break;
             }
     }

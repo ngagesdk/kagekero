@@ -156,8 +156,8 @@ static void clamp_hero_position(hero_t *hero, map_t *map)
     else
     {
         bool blocked_by_wall;
-
         int index = get_tile_index((int)hero->pos_x, (int)hero->pos_y, map);
+
         if (hero->heading)
         {
             index += 1;
@@ -265,9 +265,9 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
     }
 
     int index = get_tile_index((int)hero->pos_x, (int)hero->pos_y, map);
-    if (map->tile_desc[index].is_wall)
+    if (map->tile_desc[index].is_wall && STATE_POWER_UP == hero->state)
     {
-        // Reset hero position if inside a wall.
+        // Reset hero position if teleport ended inside a wall.
         reset_hero_on_out_of_bounds(hero, map);
         return;
     }
