@@ -33,6 +33,8 @@ typedef struct hero
 
     float pos_x;
     float pos_y;
+    float warp_x;
+    float warp_y;
     float velocity_x;
     float velocity_y;
 

@@ -224,8 +224,10 @@ button_t get_button_from_key(SDL_Keycode key)
         case SDLK_SELECT:
             return BTN_SELECT;
         case SDLK_UP:
+        case SDLK_W:
             return BTN_UP;
         case SDLK_DOWN:
+        case SDLK_S:
             return BTN_DOWN;
         case SDLK_LEFT:
         case SDLK_A:
@@ -243,6 +245,8 @@ button_t get_button_from_gamepad(Uint8 pad_btn)
     switch (pad_btn)
     {
         case SDL_GAMEPAD_BUTTON_SOUTH:
+            return BTN_7;
+        case SDL_GAMEPAD_BUTTON_EAST:
             return BTN_5;
         case SDL_GAMEPAD_BUTTON_DPAD_UP:
             return BTN_UP;

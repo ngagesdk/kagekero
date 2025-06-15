@@ -189,13 +189,24 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
         {
             hero->current_frame = 0;
             hero->time_since_last_frame = 0;
+            hero->warp_x = hero->pos_x;
+            hero->warp_y = hero->pos_y;
         }
 
-        hero->anim_fps = 10;
+        hero->anim_fps = 15;
         hero->anim_length = 7;
         hero->anim_offset_x = 2;
         hero->anim_offset_y = 64;
         hero->repeat_anim = false;
+
+        if (check_bit(*btn, BTN_LEFT))
+        {
+            hero->pos_x = hero->warp_x - 64.f;
+        }
+        else if (check_bit(*btn, BTN_RIGHT))
+        {
+            hero->pos_x = hero->warp_x + 64.f;
+        }
 
         return;
     }
