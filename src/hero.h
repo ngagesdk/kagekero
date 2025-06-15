@@ -27,6 +27,7 @@ typedef struct hero
     Uint64 time_b;
     Uint64 delta_time;
     Uint64 time_since_last_frame;
+    Uint64 power_up_timeout;
 
     Uint32 state;
     Uint32 prev_state;

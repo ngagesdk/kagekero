@@ -88,6 +88,56 @@ static void handle_jump(hero_t *hero, unsigned int *btn)
     }
 }
 
+static bool handle_power_up(hero_t *hero, button_t *btn)
+{
+    if (STATE_POWER_UP == hero->state)
+    {
+        if (check_bit(*btn, BTN_LEFT))
+        {
+            hero->pos_x = hero->warp_x - 64.f;
+        }
+        else if (check_bit(*btn, BTN_RIGHT))
+        {
+            hero->pos_x = hero->warp_x + 64.f;
+        }
+
+        // Timeout for power-up state.
+        if (SDL_GetTicks() - hero->power_up_timeout >= POWER_UP_TIMEOUT)
+        {
+            clear_bit(btn, BTN_5);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    if (check_bit(*btn, BTN_5))
+    {
+        set_hero_state(hero, STATE_POWER_UP);
+
+        if (hero->prev_state != STATE_POWER_UP)
+        {
+            hero->current_frame = 0;
+            hero->time_since_last_frame = 0;
+            hero->warp_x = hero->pos_x;
+            hero->warp_y = hero->pos_y;
+        }
+
+        hero->anim_fps = 15;
+        hero->anim_length = 7;
+        hero->anim_offset_x = 2;
+        hero->anim_offset_y = 64;
+        hero->repeat_anim = false;
+
+        hero->power_up_timeout = SDL_GetTicks();
+        return false;
+    }
+
+    hero->repeat_anim = true;
+    return true;
+}
+
 static void clamp_hero_position(hero_t *hero, map_t *map)
 {
     if (hero->pos_y <= 0.f + HERO_HALF)
@@ -181,6 +231,34 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
     update_hero_timing(hero);
     update_hero_animation(hero);
 
+    if (!handle_power_up(hero, btn))
+    {
+        return;
+    }
+
+#if 0
+    if (STATE_POWER_UP == hero->state)
+    {
+        if (check_bit(*btn, BTN_LEFT))
+        {
+            hero->pos_x = hero->warp_x - 64.f;
+        }
+        else if (check_bit(*btn, BTN_RIGHT))
+        {
+            hero->pos_x = hero->warp_x + 64.f;
+        }
+
+        // Timeout for power-up state.
+        if (SDL_GetTicks() - hero->power_up_timeout > 500)
+        {
+            clear_bit(btn, BTN_5);
+        }
+        else
+        {
+            return;
+        }
+    }
+
     if (check_bit(*btn, BTN_5))
     {
         set_hero_state(hero, STATE_POWER_UP);
@@ -199,18 +277,11 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
         hero->anim_offset_y = 64;
         hero->repeat_anim = false;
 
-        if (check_bit(*btn, BTN_LEFT))
-        {
-            hero->pos_x = hero->warp_x - 64.f;
-        }
-        else if (check_bit(*btn, BTN_RIGHT))
-        {
-            hero->pos_x = hero->warp_x + 64.f;
-        }
-
+        hero->power_up_timeout = SDL_GetTicks();
         return;
     }
     hero->repeat_anim = true;
+#endif
 
     // Check ground status.
     int index = get_tile_index((int)hero->pos_x, (int)hero->pos_y, map);
