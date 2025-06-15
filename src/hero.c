@@ -88,7 +88,7 @@ static void handle_jump(hero_t *hero, unsigned int *btn)
     }
 }
 
-static bool handle_power_up(hero_t *hero, button_t *btn)
+static bool handle_power_up(hero_t *hero, unsigned int *btn)
 {
     if (STATE_POWER_UP == hero->state)
     {
@@ -152,6 +152,34 @@ static void clamp_hero_position(hero_t *hero, map_t *map)
     else if (hero->pos_x >= map->width - HERO_HALF)
     {
         hero->pos_x = (float)(map->width - HERO_HALF);
+    }
+    else
+    {
+        bool blocked_by_wall;
+
+        int index = get_tile_index((int)hero->pos_x, (int)hero->pos_y, map);
+        if (hero->heading)
+        {
+            index += 1;
+        }
+        else
+        {
+            index -= 1;
+        }
+
+        blocked_by_wall = map->tile_desc[index].is_wall;
+        if (blocked_by_wall)
+        {
+            if (hero->heading)
+            {
+                hero->pos_x = (float)(index % map->handle->width) * map->handle->tilewidth - HERO_HALF;
+            }
+            else
+            {
+                hero->pos_x = (float)((index % map->handle->width) + 1) * map->handle->tilewidth + HERO_HALF;
+            }
+            hero->velocity_x = 0.f;
+        }
     }
 }
 
@@ -236,55 +264,15 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
         return;
     }
 
-#if 0
-    if (STATE_POWER_UP == hero->state)
+    int index = get_tile_index((int)hero->pos_x, (int)hero->pos_y, map);
+    if (map->tile_desc[index].is_wall)
     {
-        if (check_bit(*btn, BTN_LEFT))
-        {
-            hero->pos_x = hero->warp_x - 64.f;
-        }
-        else if (check_bit(*btn, BTN_RIGHT))
-        {
-            hero->pos_x = hero->warp_x + 64.f;
-        }
-
-        // Timeout for power-up state.
-        if (SDL_GetTicks() - hero->power_up_timeout > 500)
-        {
-            clear_bit(btn, BTN_5);
-        }
-        else
-        {
-            return;
-        }
-    }
-
-    if (check_bit(*btn, BTN_5))
-    {
-        set_hero_state(hero, STATE_POWER_UP);
-
-        if (hero->prev_state != STATE_POWER_UP)
-        {
-            hero->current_frame = 0;
-            hero->time_since_last_frame = 0;
-            hero->warp_x = hero->pos_x;
-            hero->warp_y = hero->pos_y;
-        }
-
-        hero->anim_fps = 15;
-        hero->anim_length = 7;
-        hero->anim_offset_x = 2;
-        hero->anim_offset_y = 64;
-        hero->repeat_anim = false;
-
-        hero->power_up_timeout = SDL_GetTicks();
+        // Reset hero position if inside a wall.
+        reset_hero_on_out_of_bounds(hero, map);
         return;
     }
-    hero->repeat_anim = true;
-#endif
 
     // Check ground status.
-    int index = get_tile_index((int)hero->pos_x, (int)hero->pos_y, map);
     index += map->handle->width;
     bool on_solid_ground = map->tile_desc[index].is_solid && hero->state != STATE_JUMP;
     bool at_bottom = hero->pos_y > map->height - HERO_HALF;

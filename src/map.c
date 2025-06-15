@@ -27,6 +27,7 @@
 
 #define H_GRAVITY     0x0000d0b30d77f26b
 #define H_IS_SOLID    0x001ae728dd16b21b
+#define H_IS_WALL     0x0000d0b3a99dccd0
 #define H_OBJECTGROUP 0xc0b9d518970be349
 #define H_OFFSET_TOP  0x727241bd0a7e257e
 #define H_SPAWN       0x00000031105f18ee
@@ -526,6 +527,10 @@ static bool load_tiles(map_t *map)
                         if (get_boolean_property(H_IS_SOLID, tile->properties, prop_cnt, map))
                         {
                             map->tile_desc[tile_index].is_solid = true;
+                        }
+                        else if (get_boolean_property(H_IS_WALL, tile->properties, prop_cnt, map))
+                        {
+                            map->tile_desc[tile_index].is_wall = true;
                         }
                         map->tile_desc[tile_index].offset_top = get_integer_property(H_OFFSET_TOP, tile->properties, prop_cnt, map);
                     }
