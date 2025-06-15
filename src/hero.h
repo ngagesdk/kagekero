@@ -44,6 +44,7 @@ typedef struct hero
     int sprite_offset;
     int heading;
 
+    bool repeat_anim;
     bool jump_lock;
 
 } hero_t;

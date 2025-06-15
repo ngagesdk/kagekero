@@ -18,11 +18,9 @@ typedef enum hero_state
 {
     STATE_IDLE = 0,
     STATE_RUN,
-    STATE_HURT,
     STATE_JUMP,
-    STATE_CLIMB,
-    STATE_CROUCH,
-    STATE_FALL
+    STATE_FALL,
+    STATE_POWER_UP
 
 } hero_state_t;
 
@@ -44,7 +42,14 @@ static void update_hero_animation(hero_t *hero)
         hero->current_frame += 1;
         if (hero->current_frame >= hero->anim_length - 1)
         {
-            hero->current_frame = 0;
+            if (hero->repeat_anim)
+            {
+                hero->current_frame = 0;
+            }
+            else
+            {
+                hero->current_frame = hero->anim_length - 1;
+            }
         }
     }
 }
@@ -175,6 +180,26 @@ void update_hero(hero_t *hero, map_t *map, unsigned int *btn)
 {
     update_hero_timing(hero);
     update_hero_animation(hero);
+
+    if (check_bit(*btn, BTN_5))
+    {
+        set_hero_state(hero, STATE_POWER_UP);
+
+        if (hero->prev_state != STATE_POWER_UP)
+        {
+            hero->current_frame = 0;
+            hero->time_since_last_frame = 0;
+        }
+
+        hero->anim_fps = 10;
+        hero->anim_length = 7;
+        hero->anim_offset_x = 2;
+        hero->anim_offset_y = 64;
+        hero->repeat_anim = false;
+
+        return;
+    }
+    hero->repeat_anim = true;
 
     // Check ground status.
     int index = get_tile_index((int)hero->pos_x, (int)hero->pos_y, map);
