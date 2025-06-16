@@ -154,6 +154,11 @@ static bool create_textures(SDL_Renderer *renderer, map_t *map)
         return false;
     }
 
+    if (!SDL_SetTextureScaleMode(map->render_target, SDL_SCALEMODE_NEAREST))
+    {
+        SDL_Log("Couldn't set texture scale mode: %s", SDL_GetError());
+    }
+
     map->render_canvas = SDL_CreateSurface(
         map->width,
         map->height,
