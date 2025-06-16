@@ -56,9 +56,6 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
 
     int window_w = WINDOW_W * max_scale;
     int window_h = WINDOW_H * max_scale;
-
-    int window_x = display_bounds.x + (display_bounds.w - window_w) / 2;
-    int window_y = display_bounds.y + (display_bounds.h - window_h) / 2;
 #else
     int window_w = WINDOW_W * SCALE;
     int window_h = WINDOW_H * SCALE;
