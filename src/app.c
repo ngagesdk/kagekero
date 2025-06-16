@@ -81,7 +81,7 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
         return false;
     }
 
-    if (!SDL_SetRenderScale(*renderer, max_scale, max_scale))
+    if (!SDL_SetRenderScale(*renderer, (float)max_scale, (float)max_scale))
     {
         SDL_Log("Could not apply drawing scale factor: %s", SDL_GetError());
         return false;
