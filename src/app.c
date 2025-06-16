@@ -90,11 +90,6 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
         return false;
     }
 
-    if (!SDL_SetTextureScaleMode(*renderer, SDL_SCALEMODE_NEAREST))
-    {
-        SDL_Log("Couldn't set scale mode: %s", SDL_GetError());
-    }
-
     if (!SDL_DisableScreenSaver())
     {
         SDL_Log("Couldn't disable screen saver: %s", SDL_GetError());
