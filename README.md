@@ -3,7 +3,7 @@
 [![Nokia N-Gage](https://github.com/ngagesdk/kagekero/actions/workflows/nokia-ngage.yml/badge.svg)](https://github.com/ngagesdk/kagekero/actions/workflows/nokia-ngage.yml)
 [![Nintendo 3DS](https://github.com/ngagesdk/kagekero/actions/workflows/n3ds.yml/badge.svg)](https://github.com/ngagesdk/kagekero/actions/workflows/n3ds.yml)
 [![Windows Build](https://github.com/ngagesdk/kagekero/actions/workflows/windows.yml/badge.svg)](https://github.com/ngagesdk/kagekero/actions/workflows/windows.yml)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/f7951adf3c234609874929575b6bfd23)](https://app.codacy.com/gh/ngagesdk/kagekero/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/f7951adf3c234609874929575b6bfd23)](https://app.codacy.com/gh/mupfdev/kagekero/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 A minimalist, cross-platform puzzle-platformer, designed especially for the
 Nokia N-Gage.
