@@ -29,7 +29,7 @@ CNGageAppUi::CNGageAppUi()
 
     iAppView = NULL;
 
-    if (KErrNone == Proc.Create(_L("E:\\System\\Apps\\ncore\\ncore.exe"), _L("")))
+    if (KErrNone == Proc.Create(_L("E:\\System\\Apps\\kagekero\\kagekero.exe"), _L("")))
     {
         TRequestStatus status;
         Proc.Logon(status);
