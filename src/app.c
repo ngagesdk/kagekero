@@ -1,6 +1,7 @@
-/** @file app.c
+﻿/** @file app.c
  *
- *  A cross-platform engine with native Nokia N-Gage compatibility.
+ *  A minimalist, cross-platform puzzle-platformer, designed
+ *  especially for the Nokia N-Gage.
  *
  *  Copyright (c) 2025, Michael Fitzmayer. All rights reserved.
  *  SPDX-License-Identifier: MIT
@@ -20,7 +21,7 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
     SDL_SetHint("SDL_RENDER_VSYNC", "1");
 #endif
     SDL_SetLogPriorities(SDL_LOG_PRIORITY_INFO);
-    SDL_SetAppMetadata("ncore", "1.0", "com.ncore.ngagesdk");
+    SDL_SetAppMetadata("kagekero", "1.0", "com.kagekero.ngagesdk");
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
     {
@@ -62,7 +63,7 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
     int max_scale = SCALE;
 #endif
 
-    window = SDL_CreateWindow("ncore", window_w, window_h, WINDOW_FLAGS);
+    window = SDL_CreateWindow("\xE5\xBD\xB1\xE3\x82\xB1\xE3\x83\xAD", window_w, window_h, WINDOW_FLAGS);
     if (!window)
     {
         SDL_Log("Couldn't create window: %s", SDL_GetError());

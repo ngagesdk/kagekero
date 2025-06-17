@@ -1,6 +1,7 @@
-/** @file ncore.c
+/** @file kagekero.c
  *
- *  A cross-platform engine with native Nokia N-Gage compatibility.
+ *  A minimalist, cross-platform puzzle-platformer, designed
+ *  especially for the Nokia N-Gage.
  *
  *  Copyright (c) 2025, Michael Fitzmayer. All rights reserved.
  *  SPDX-License-Identifier: MIT
@@ -11,15 +12,15 @@
 
 #include "app.h"
 #include "config.h"
-#include "hero.h"
+#include "kagekero.h"
+#include "kero.h"
 #include "map.h"
-#include "ncore.h"
 #include "pfs.h"
 #include "utils.h"
 
-bool init_ncore(ncore_t **nc)
+bool init_kagekero(kagekero_t **nc)
 {
-    *nc = (ncore_t *)SDL_calloc(1, sizeof(ncore_t));
+    *nc = (kagekero_t *)SDL_calloc(1, sizeof(kagekero_t));
     if (!*nc)
     {
         SDL_Log("Failed to allocate memory for engine core");
@@ -38,9 +39,9 @@ bool init_ncore(ncore_t **nc)
         return false;
     }
 
-    if (!load_hero(&(*nc)->hero, (*nc)->map))
+    if (!load_kero(&(*nc)->kero, (*nc)->map))
     {
-        SDL_Log("Failed to load hero");
+        SDL_Log("Failed to load kero");
         return false;
     }
 
@@ -60,15 +61,15 @@ bool init_ncore(ncore_t **nc)
     return true;
 }
 
-bool update_ncore(ncore_t *nc)
+bool update_kagekero(kagekero_t *nc)
 {
-    update_hero(nc->hero, nc->map, &nc->btn);
+    update_kero(nc->kero, nc->map, &nc->btn);
 
-    nc->cam_x = (int)nc->hero->pos_x - (SCREEN_W / 2);
-    nc->cam_y = (int)nc->hero->pos_y - (SCREEN_H / 2);
+    nc->cam_x = (int)nc->kero->pos_x - (SCREEN_W / 2);
+    nc->cam_y = (int)nc->kero->pos_y - (SCREEN_H / 2);
 
     render_map(nc->map, nc->renderer);
-    render_hero(nc->hero, nc->map);
+    render_kero(nc->kero, nc->map);
 
 #ifndef __SYMBIAN32__
     SDL_FRect src;
@@ -88,7 +89,7 @@ bool update_ncore(ncore_t *nc)
     return true;
 }
 
-bool draw_ncore_scene(ncore_t *nc)
+bool draw_kagekero_scene(kagekero_t *nc)
 {
     if (!SDL_SetRenderDrawColor(nc->renderer, nc->map->bg_r, nc->map->bg_g, nc->map->bg_b, 255))
     {
@@ -119,12 +120,12 @@ bool draw_ncore_scene(ncore_t *nc)
     }
 
     SDL_Rect dst_rect;
-    dst_rect.x = (int)nc->hero->pos_x - HERO_HALF;
-    dst_rect.y = (int)nc->hero->pos_y - HERO_HALF;
-    dst_rect.w = HERO_SIZE;
-    dst_rect.h = HERO_SIZE;
+    dst_rect.x = (int)nc->kero->pos_x - KERO_HALF;
+    dst_rect.y = (int)nc->kero->pos_y - KERO_HALF;
+    dst_rect.w = KERO_SIZE;
+    dst_rect.h = KERO_SIZE;
 
-    if (!SDL_UpdateTexture(nc->map->render_target, &dst_rect, nc->hero->render_canvas->pixels, nc->hero->render_canvas->pitch))
+    if (!SDL_UpdateTexture(nc->map->render_target, &dst_rect, nc->kero->render_canvas->pixels, nc->kero->render_canvas->pitch))
     {
         SDL_Log("Error updating animated tile texture: %s", SDL_GetError());
         return false;
@@ -168,7 +169,7 @@ bool draw_ncore_scene(ncore_t *nc)
     return true;
 }
 
-bool handle_ncore_events(ncore_t *nc)
+bool handle_kagekero_events(kagekero_t *nc)
 {
     switch (nc->event->type)
     {
@@ -243,14 +244,14 @@ bool handle_ncore_events(ncore_t *nc)
     return true;
 }
 
-void destroy_ncore(ncore_t *nc)
+void destroy_kagekero(kagekero_t *nc)
 {
     if (nc)
     {
-        if (nc->hero)
+        if (nc->kero)
         {
-            destroy_hero(nc->hero);
-            nc->hero = NULL;
+            destroy_kero(nc->kero);
+            nc->kero = NULL;
         }
 
         if (nc->map)

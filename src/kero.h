@@ -1,23 +1,24 @@
-/** @file hero.h
+/** @file kero.h
  *
- *  A cross-platform engine with native Nokia N-Gage compatibility.
+ *  A minimalist, cross-platform puzzle-platformer, designed
+ *  especially for the Nokia N-Gage.
  *
  *  Copyright (c) 2025, Michael Fitzmayer. All rights reserved.
  *  SPDX-License-Identifier: MIT
  *
  **/
 
-#ifndef HERO_H
-#define HERO_H
+#ifndef KERO_H
+#define KERO_H
 
 #include <SDL3/SDL.h>
 
 #include "map.h"
 
-#define HERO_SIZE 32
-#define HERO_HALF 16
+#define KERO_SIZE 32
+#define KERO_HALF 16
 
-typedef struct hero
+typedef struct kero
 {
     SDL_Surface *sprite;
     SDL_Surface *render_canvas;
@@ -50,11 +51,11 @@ typedef struct hero
     bool repeat_anim;
     bool jump_lock;
 
-} hero_t;
+} kero_t;
 
-void destroy_hero(hero_t *hero);
-bool load_hero(hero_t **hero, map_t *map);
-void update_hero(hero_t *hero, map_t *map, unsigned int *btn);
-bool render_hero(hero_t *hero, map_t *map);
+void destroy_kero(kero_t *kero);
+bool load_kero(kero_t **kero, map_t *map);
+void update_kero(kero_t *kero, map_t *map, unsigned int *btn);
+bool render_kero(kero_t *kero, map_t *map);
 
-#endif // HERO_H
+#endif // KERO_H

@@ -46,29 +46,29 @@ jobs:
       run: cmake -G "Ninja" -P ${{ env.NGAGESDK }}/setup/setup.cmake -S ${{ env.NGAGESDK }}/setup -B ${{ env.NGAGESDK }}/build
       shell: pwsh
 
-    - name: Clone ncore
-      run: git clone https://github.com/mupfdev/ncore.git ${{ env.NGAGESDK }}/projects/ncore
+    - name: Clone kagekero
+      run: git clone https://github.com/ngagesdk/kagekero.git ${{ env.NGAGESDK }}/projects/kagekero
       shell: pwsh
 
-    - name: Build ncore
+    - name: Build kagekero
       run: |
-        cmake -DCMAKE_PREFIX_PATH=${{ env.NGAGESDK }}/sdk/extras/lib/cmake -G "Ninja" -S ${{ env.NGAGESDK }}/projects/ncore -B ${{ env.NGAGESDK }}/projects/ncore/build -DCMAKE_TOOLCHAIN_FILE=${{ env.NGAGESDK }}/cmake/ngage-toolchain.cmake
-        cmake --build ${{ env.NGAGESDK }}/projects/ncore/build
+        cmake -DCMAKE_PREFIX_PATH=${{ env.NGAGESDK }}/sdk/extras/lib/cmake -G "Ninja" -S ${{ env.NGAGESDK }}/projects/kagekero -B ${{ env.NGAGESDK }}/projects/kagekero/build -DCMAKE_TOOLCHAIN_FILE=${{ env.NGAGESDK }}/cmake/ngage-toolchain.cmake
+        cmake --build ${{ env.NGAGESDK }}/projects/kagekero/build
       shell: pwsh
 
-    - name: Prepare ncore artifact directory
+    - name: Prepare kagekero artifact directory
       run: |
-        New-Item -ItemType Directory -Path NGAGE\System\Apps\ncore -Force
-        Copy-Item ${{ env.NGAGESDK }}\projects\ncore\build\ncore.aif NGAGE\System\Apps\ncore\
-        Copy-Item ${{ env.NGAGESDK }}\projects\ncore\build\ncore.app NGAGE\System\Apps\ncore\
-        Copy-Item ${{ env.NGAGESDK }}\projects\ncore\build\ncore.exe NGAGE\System\Apps\ncore\
-        Copy-Item ${{ env.NGAGESDK }}\projects\ncore\build\ncore.rsc NGAGE\System\Apps\ncore\
-        Copy-Item ${{ env.NGAGESDK }}\projects\ncore\export\data.pfs NGAGE\System\Apps\ncore\
+        New-Item -ItemType Directory -Path NGAGE\System\Apps\kagekero -Force
+        Copy-Item ${{ env.NGAGESDK }}\projects\kagekero\build\kagekero.aif NGAGE\System\Apps\kagekero\
+        Copy-Item ${{ env.NGAGESDK }}\projects\kagekero\build\kagekero.app NGAGE\System\Apps\kagekero\
+        Copy-Item ${{ env.NGAGESDK }}\projects\kagekero\build\kagekero.exe NGAGE\System\Apps\kagekero\
+        Copy-Item ${{ env.NGAGESDK }}\projects\kagekero\build\kagekero.rsc NGAGE\System\Apps\kagekero\
+        Copy-Item ${{ env.NGAGESDK }}\projects\kagekero\export\data.pfs NGAGE\System\Apps\kagekero\
       shell: pwsh
 
-    - name: Archive ncore
+    - name: Archive kagekero
       uses: actions/upload-artifact@v4
       with:
-        name: ncore-NGAGE.zip
+        name: kagekero-NGAGE.zip
         path: NGAGE
         if-no-files-found: error

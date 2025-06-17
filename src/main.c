@@ -1,6 +1,7 @@
 /** @file main.c
  *
- *  A cross-platform engine with native Nokia N-Gage compatibility.
+ *  A minimalist, cross-platform puzzle-platformer, designed
+ *  especially for the Nokia N-Gage.
  *
  *  Copyright (c) 2025, Michael Fitzmayer. All rights reserved.
  *  SPDX-License-Identifier: MIT
@@ -12,16 +13,16 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
-#include "ncore.h"
+#include "kagekero.h"
 
-ncore_t *core = NULL;
+kagekero_t *core = NULL;
 
 // This function runs once at startup.
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
-    if (!init_ncore(&core))
+    if (!init_kagekero(&core))
     {
-        SDL_Log("Failed to initialize ncore.");
+        SDL_Log("Failed to initialize kagekero.");
         return SDL_APP_FAILURE;
     }
 
@@ -40,7 +41,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         core->event = event;
     }
 
-    if (!handle_ncore_events(core))
+    if (!handle_kagekero_events(core))
     {
         return SDL_APP_SUCCESS;
     }
@@ -51,13 +52,13 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 // This function runs once per frame, and is the heart of the program.
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
-    if (!update_ncore(core))
+    if (!update_kagekero(core))
     {
         return SDL_APP_SUCCESS;
     }
-    if (!draw_ncore_scene(core))
+    if (!draw_kagekero_scene(core))
     {
-        SDL_Log("Failed to draw ncore scene");
+        SDL_Log("Failed to draw kagekero scene");
         return SDL_APP_SUCCESS;
     }
     return SDL_APP_CONTINUE;
@@ -66,6 +67,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 // This function runs once at shutdown.
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
-    destroy_ncore(core);
+    destroy_kagekero(core);
     //  SDL will clean up the window/renderer for us.
 }

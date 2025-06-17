@@ -1,6 +1,7 @@
 /** @file ngage_appview.h
  *
- *  A cross-platform engine with native Nokia N-Gage compatibility.
+ *  A minimalist, cross-platform puzzle-platformer, designed
+ *  especially for the Nokia N-Gage.
  *
  *  Copyright (c) 2025, Michael Fitzmayer. All rights reserved.
  *  SPDX-License-Identifier: MIT
