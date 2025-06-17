@@ -178,8 +178,8 @@ bool draw_kagekero_scene(kagekero_t *nc)
 #endif
 
     SDL_FRect dst;
-    dst.x = screen_offset_x;
-    dst.y = screen_offset_y;
+    dst.x = (float)screen_offset_x;
+    dst.y = (float)screen_offset_y;
     dst.w = SCREEN_W;
     dst.h = SCREEN_H;
 
