@@ -32,6 +32,33 @@ bool init_kagekero(kagekero_t **nc)
         return SDL_APP_FAILURE;
     }
 
+#ifndef __SYMBIAN32__
+    SDL_DisplayID display_id = SDL_GetPrimaryDisplay();
+    if (!display_id)
+    {
+        SDL_Log("Couldn't get primary display: %s", SDL_GetError());
+        return false;
+    }
+
+    SDL_Rect display_bounds;
+    if (!SDL_GetDisplayBounds(display_id, &display_bounds))
+    {
+        SDL_Log("Couldn't get display bounds: %s", SDL_GetError());
+        return false;
+    }
+
+    int max_scale = SDL_min(display_bounds.w / WINDOW_W, display_bounds.h / WINDOW_H);
+    if (max_scale < 1)
+    {
+        max_scale = 1;
+    }
+
+    (*nc)->frame_offset_x = ((display_bounds.w - FRAME_WIDTH * max_scale) / 2) / max_scale;
+    (*nc)->frame_offset_y = ((display_bounds.h - FRAME_HEIGHT * max_scale) / 2) / max_scale;
+    (*nc)->screen_offset_x = ((display_bounds.w - SCREEN_W * max_scale) / 2) / max_scale;
+    (*nc)->screen_offset_y = ((display_bounds.h - SCREEN_H * max_scale) / 2) / max_scale;
+#endif
+
     init_file_reader();
 
     if (!load_map("001.tmj", &(*nc)->map, (*nc)->renderer))
@@ -75,13 +102,14 @@ bool update_kagekero(kagekero_t *nc)
     SDL_FRect src;
     src.w = FRAME_WIDTH;
     src.h = FRAME_HEIGHT;
-    src.x = src.y = 0.f;
+    src.x = 0.f;
+    src.y = 0.f;
 
     SDL_FRect dst;
     dst.w = FRAME_WIDTH;
     dst.h = FRAME_HEIGHT;
-    dst.x = FRAME_OFFSET_X;
-    dst.y = FRAME_OFFSET_Y;
+    dst.x = (float)nc->frame_offset_x;
+    dst.y = (float)nc->frame_offset_y;
 
     SDL_RenderTexture(nc->renderer, nc->frame, &src, &dst);
 #endif
@@ -91,27 +119,11 @@ bool update_kagekero(kagekero_t *nc)
 
 bool draw_kagekero_scene(kagekero_t *nc)
 {
-    if (!SDL_SetRenderDrawColor(nc->renderer, nc->map->bg_r, nc->map->bg_g, nc->map->bg_b, 255))
+    if (!SDL_SetRenderDrawColor(nc->renderer, 0xff, 0x00, 0xff, 255))
     {
         SDL_Log("Error setting render draw color: %s", SDL_GetError());
         return false;
     }
-
-    SDL_FRect dst;
-#ifndef __SYMBIAN32__
-    dst.x = SCREEN_OFFSET_X;
-    dst.y = SCREEN_OFFSET_Y;
-    dst.w = SCREEN_W;
-    dst.h = SCREEN_H;
-
-    if (!SDL_RenderFillRect(nc->renderer, &dst))
-    {
-        SDL_Log("Error drawing background rect: %s", SDL_GetError());
-        return false;
-    }
-#else
-    SDL_RenderClear(nc->renderer);
-#endif
 
     if (!SDL_UpdateTexture(nc->map->render_target, NULL, nc->map->render_canvas->pixels, nc->map->render_canvas->pitch))
     {
@@ -154,8 +166,20 @@ bool draw_kagekero_scene(kagekero_t *nc)
     src.w = SCREEN_W;
     src.h = SCREEN_H;
 
-    dst.x = SCREEN_OFFSET_X;
-    dst.y = SCREEN_OFFSET_Y;
+    int screen_offset_x;
+    int screen_offset_y;
+
+#ifdef WIN32
+    screen_offset_x = nc->screen_offset_x;
+    screen_offset_y = nc->screen_offset_y;
+#else
+    screen_offset_x = SCREEN_OFFSET_X;
+    screen_offset_y = SCREEN_OFFSET_Y;
+#endif
+
+    SDL_FRect dst;
+    dst.x = screen_offset_x;
+    dst.y = screen_offset_y;
     dst.w = SCREEN_W;
     dst.h = SCREEN_H;
 

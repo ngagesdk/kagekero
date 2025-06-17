@@ -258,6 +258,8 @@ button_t get_button_from_gamepad(Uint8 pad_btn)
             return BTN_LEFT;
         case SDL_GAMEPAD_BUTTON_DPAD_RIGHT:
             return BTN_RIGHT;
+        case SDL_GAMEPAD_BUTTON_BACK:
+            return BTN_SOFTLEFT;
     }
 
     return 0u;

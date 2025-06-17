@@ -8,8 +8,6 @@
 A minimalist, cross-platform puzzle-platformer, designed especially for the
 Nokia N-Gage.
 
-![Preview](https://github.com/ngagesdk/kagekero/blob/main/media/kagekero-preview.gif)
-
 ## About
 
 Kage Kero is a calm puzzle-platformer where you guide a ninja frog through compact,

@@ -53,7 +53,7 @@
 #define SCALE           1
 #define WINDOW_W        640
 #define WINDOW_H        480
-#define WINDOW_FLAGS    0
+#define WINDOW_FLAGS    SDL_WINDOW_FULLSCREEN
 #define FRAME_OFFSET_X  0
 #define FRAME_OFFSET_Y  0
 #define SCREEN_OFFSET_X 232

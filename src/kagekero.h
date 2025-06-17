@@ -24,12 +24,17 @@ typedef struct
 
 #ifndef __SYMBIAN32__
     SDL_Texture *frame;
+    int frame_offset_x;
+    int frame_offset_y;
+    int screen_offset_x;
+    int screen_offset_y;
 #endif
     map_t *map;
     kero_t *kero;
 
     int cam_x;
     int cam_y;
+    int display_w;
 
     unsigned int btn;
 

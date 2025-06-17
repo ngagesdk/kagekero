@@ -29,11 +29,7 @@ set(kagekero_sources
   src/utils.c
 )
 
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-  add_executable(kagekero WIN32 ${kagekero_sources})
-else()
-  add_executable(kagekero ${kagekero_sources})
-endif()
+add_executable(kagekero WIN32 ${kagekero_sources})
 
 include_directories(
   "${CMAKE_CURRENT_SOURCE_DIR}/src"

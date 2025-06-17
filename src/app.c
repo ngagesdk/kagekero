@@ -55,8 +55,12 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
         max_scale = 1;
     }
 
-    int window_w = WINDOW_W * max_scale;
-    int window_h = WINDOW_H * max_scale;
+    int window_w = display_bounds.w;
+    int window_h = display_bounds.h;
+    if (!SDL_HideCursor())
+    {
+        SDL_Log("Couldn't hide cursor: %s", SDL_GetError());
+    }
 #else
     int window_w = WINDOW_W * SCALE;
     int window_h = WINDOW_H * SCALE;
@@ -72,7 +76,6 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
 
 #if WIN32
     SDL_WINDOWPOS_CENTERED_DISPLAY(display_id);
-    // SDL_SetWindowFullscreen(window, true);
 #endif
 
     *renderer = SDL_CreateRenderer(window, 0);
