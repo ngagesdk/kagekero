@@ -250,6 +250,7 @@ bool load_kero(kero_t **kero, map_t *map)
     (*kero)->pos_x = (float)map->spawn_x;
     (*kero)->pos_y = (float)map->spawn_y;
     (*kero)->anim_fps = 1;
+    (*kero)->heading = 1;
 
     set_kero_state(*kero, STATE_IDLE);
 
