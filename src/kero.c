@@ -106,6 +106,7 @@ static bool handle_power_up(kero_t *kero, unsigned int *btn)
         if (SDL_GetTicks() - kero->power_up_timeout >= POWER_UP_TIMEOUT)
         {
             clear_bit(btn, BTN_5);
+            set_kero_state(kero, kero->prev_state);
         }
         else
         {
