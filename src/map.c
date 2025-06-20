@@ -27,6 +27,8 @@
 #include "config.h"
 
 #define H_GRAVITY     0x0000d0b30d77f26b
+#define H_IS_COIN     0x0000d0b3a9931069
+#define H_IS_DEADLY   0x0377cc445c348313
 #define H_IS_SOLID    0x001ae728dd16b21b
 #define H_IS_WALL     0x0000d0b3a99dccd0
 #define H_OBJECTGROUP 0xc0b9d518970be349
@@ -530,11 +532,19 @@ static bool load_tiles(map_t *map)
                     {
                         int prop_cnt = get_tile_property_count(tile);
 
+                        if (get_boolean_property(H_IS_COIN, tile->properties, prop_cnt, map))
+                        {
+                            map->tile_desc[tile_index].is_coin = true;
+                        }
+                        if (get_boolean_property(H_IS_DEADLY, tile->properties, prop_cnt, map))
+                        {
+                            map->tile_desc[tile_index].is_deadly = true;
+                        }
                         if (get_boolean_property(H_IS_SOLID, tile->properties, prop_cnt, map))
                         {
                             map->tile_desc[tile_index].is_solid = true;
                         }
-                        else if (get_boolean_property(H_IS_WALL, tile->properties, prop_cnt, map))
+                        if (get_boolean_property(H_IS_WALL, tile->properties, prop_cnt, map))
                         {
                             map->tile_desc[tile_index].is_wall = true;
                         }

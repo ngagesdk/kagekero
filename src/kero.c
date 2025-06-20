@@ -89,6 +89,11 @@ static void handle_jump(kero_t *kero, unsigned int *btn)
     }
 }
 
+static void handle_interaction(kero_t *kero, map_t *map)
+{
+    int index = get_tile_index((int)kero->pos_x, (int)kero->pos_y, map);
+}
+
 static bool handle_power_up(kero_t *kero, unsigned int *btn)
 {
     if (STATE_POWER_UP == kero->state)
@@ -292,6 +297,11 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn)
             kero->velocity_x = 0.f; // Stop horizontal movement when landing.
         }
         kero->velocity_y = 0.f;
+
+        if (check_bit(*btn, BTN_UP))
+        {
+            handle_interaction(kero, map);
+        }
 
         if (!check_bit(*btn, BTN_7))
         {

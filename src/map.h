@@ -17,6 +17,8 @@
 
 typedef struct tile_desc
 {
+    bool is_coin;
+    bool is_deadly;
     bool is_solid;
     bool is_wall;
     int offset_top;
