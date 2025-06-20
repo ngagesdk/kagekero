@@ -4502,7 +4502,7 @@
                  "id":1200
                 }, 
                 {
-                 "id":1213,
+                 "id":1216,
                  "properties":[
                         {
                          "name":"is_door",
@@ -4511,7 +4511,7 @@
                         }]
                 }, 
                 {
-                 "id":1219,
+                 "id":1222,
                  "properties":[
                         {
                          "name":"is_door",
@@ -4612,7 +4612,7 @@
                  "id":1250
                 }, 
                 {
-                 "id":1263,
+                 "id":1266,
                  "properties":[
                         {
                          "name":"is_door",
@@ -4621,7 +4621,7 @@
                         }]
                 }, 
                 {
-                 "id":1269,
+                 "id":1272,
                  "properties":[
                         {
                          "name":"is_door",
@@ -4833,7 +4833,7 @@
                  "id":1350
                 }, 
                 {
-                 "id":1362,
+                 "id":1366,
                  "properties":[
                         {
                          "name":"is_door",
@@ -4842,43 +4842,7 @@
                         }]
                 }, 
                 {
-                 "id":1363,
-                 "properties":[
-                        {
-                         "name":"is_door",
-                         "type":"bool",
-                         "value":true
-                        }]
-                }, 
-                {
-                 "id":1364,
-                 "properties":[
-                        {
-                         "name":"is_door",
-                         "type":"bool",
-                         "value":true
-                        }]
-                }, 
-                {
-                 "id":1368,
-                 "properties":[
-                        {
-                         "name":"is_door",
-                         "type":"bool",
-                         "value":true
-                        }]
-                }, 
-                {
-                 "id":1369,
-                 "properties":[
-                        {
-                         "name":"is_door",
-                         "type":"bool",
-                         "value":true
-                        }]
-                }, 
-                {
-                 "id":1370,
+                 "id":1372,
                  "properties":[
                         {
                          "name":"is_door",
@@ -4945,8 +4909,7 @@
                          "type":"int",
                          "value":8
                         }]
-                },
-            
+                }, 
                 {
                  "id":1395,
                  "properties":[
@@ -4962,7 +4925,7 @@
                         }]
                 }, 
                 {
-                 "id":1412,
+                 "id":1416,
                  "properties":[
                         {
                          "name":"is_door",
@@ -4971,43 +4934,7 @@
                         }]
                 }, 
                 {
-                 "id":1413,
-                 "properties":[
-                        {
-                         "name":"is_door",
-                         "type":"bool",
-                         "value":true
-                        }]
-                }, 
-                {
-                 "id":1414,
-                 "properties":[
-                        {
-                         "name":"is_door",
-                         "type":"bool",
-                         "value":true
-                        }]
-                }, 
-                {
-                 "id":1418,
-                 "properties":[
-                        {
-                         "name":"is_door",
-                         "type":"bool",
-                         "value":true
-                        }]
-                }, 
-                {
-                 "id":1419,
-                 "properties":[
-                        {
-                         "name":"is_door",
-                         "type":"bool",
-                         "value":true
-                        }]
-                }, 
-                {
-                 "id":1420,
+                 "id":1422,
                  "properties":[
                         {
                          "name":"is_door",
@@ -5023,7 +4950,8 @@
                          "type":"bool",
                          "value":true
                         }]
-                }, 
+                },
+            
                 {
                  "id":1436,
                  "properties":[
@@ -5174,8 +5102,7 @@
                          "type":"bool",
                          "value":true
                         }]
-                },
-            
+                }, 
                 {
                  "id":1458,
                  "properties":[
@@ -5304,7 +5231,8 @@
                          "type":"bool",
                          "value":true
                         }]
-                }, 
+                },
+            
                 {
                  "id":1503,
                  "properties":[
@@ -5601,8 +5529,7 @@
                          "type":"bool",
                          "value":true
                         }]
-                },
-            
+                }, 
                 {
                  "id":1669,
                  "properties":[
@@ -5731,7 +5658,8 @@
                          "type":"bool",
                          "value":true
                         }]
-                }, 
+                },
+            
                 {
                  "id":1719,
                  "properties":[
@@ -5963,8 +5891,7 @@
                          "type":"bool",
                          "value":true
                         }]
-                },
-            
+                }, 
                 {
                  "id":1819,
                  "properties":[
@@ -6036,7 +5963,8 @@
                          "type":"bool",
                          "value":true
                         }]
-                }, 
+                },
+            
                 {
                  "id":1871,
                  "properties":[
