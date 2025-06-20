@@ -29,6 +29,7 @@
 #define H_GRAVITY     0x0000d0b30d77f26b
 #define H_IS_COIN     0x0000d0b3a9931069
 #define H_IS_DEADLY   0x0377cc445c348313
+#define H_IS_DOOR     0x0000d0b3a9939d94
 #define H_IS_SOLID    0x001ae728dd16b21b
 #define H_IS_WALL     0x0000d0b3a99dccd0
 #define H_OBJECTGROUP 0xc0b9d518970be349
@@ -540,6 +541,10 @@ static bool load_tiles(map_t *map)
                         {
                             map->tile_desc[tile_index].is_deadly = true;
                         }
+                        if (get_boolean_property(H_IS_DOOR, tile->properties, prop_cnt, map))
+                        {
+                            map->tile_desc[tile_index].is_door = true;
+                        }
                         if (get_boolean_property(H_IS_SOLID, tile->properties, prop_cnt, map))
                         {
                             map->tile_desc[tile_index].is_solid = true;
@@ -881,14 +886,21 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                 canvas_src.y = map->animated_tile[index].canvas_src_y;
                 SDL_BlitSurface(map->tileset_surface, &canvas_src, map->render_canvas, &dst);
 
-                // Todo: blit only if the object is not gone.
-                SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
-
-                map->animated_tile[index].current_frame += 1;
-
-                if (map->animated_tile[index].current_frame >= map->animated_tile[index].anim_length)
+                for (int n = 0; n <= map->entity_count; n += 1)
                 {
-                    map->animated_tile[index].current_frame = 0;
+                    if (map->entity[n].uid == map->animated_tile[index].object_id)
+                    {
+                        if (!map->entity[n].is_gone)
+                        {
+                            SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+
+                            map->animated_tile[index].current_frame += 1;
+                            if (map->animated_tile[index].current_frame >= map->animated_tile[index].anim_length)
+                            {
+                                map->animated_tile[index].current_frame = 0;
+                            }
+                        }
+                    }
                 }
 
                 next_tile_id = get_next_animated_tile_id(gid, map->animated_tile[index].current_frame, map->handle);
@@ -970,7 +982,6 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
         }
         else if (is_layer_of_type(OBJECT_GROUP, layer, map))
         {
-
             cute_tiled_object_t *object = get_head_object(layer, map);
             while (object)
             {

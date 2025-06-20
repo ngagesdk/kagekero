@@ -29,8 +29,8 @@ set(kagekero_sources
   src/utils.c
 )
 
-#add_executable(kagekero WIN32 ${kagekero_sources})
-add_executable(kagekero ${kagekero_sources})
+add_executable(kagekero WIN32 ${kagekero_sources})
+#add_executable(kagekero ${kagekero_sources})
 
 include_directories(
   "${CMAKE_CURRENT_SOURCE_DIR}/src"

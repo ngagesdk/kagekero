@@ -92,6 +92,7 @@ static void handle_jump(kero_t *kero, unsigned int *btn)
 static void handle_interaction(kero_t *kero, map_t *map)
 {
     int index = get_tile_index((int)kero->pos_x, (int)kero->pos_y, map);
+    // tbd.
 }
 
 static bool handle_power_up(kero_t *kero, unsigned int *btn)
@@ -358,6 +359,11 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn)
     {
         kero->sprite_offset = 96;
         kero->pos_x += (kero->velocity_x > 0.f) ? -move : move;
+    }
+
+    if (kero->wears_mask)
+    {
+        kero->sprite_offset += 192;
     }
 
     clamp_kero_position(kero, map);

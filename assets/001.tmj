@@ -265,7 +265,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":23,
+ "nextobjectid":25,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",
@@ -4502,28 +4502,22 @@
                  "id":1200
                 }, 
                 {
-                 "animation":[
+                 "id":1213,
+                 "properties":[
                         {
-                         "duration":1000,
-                         "tileid":1213
-                        }, 
-                        {
-                         "duration":1000,
-                         "tileid":1216
-                        }],
-                 "id":1213
+                         "name":"is_door",
+                         "type":"bool",
+                         "value":true
+                        }]
                 }, 
                 {
-                 "animation":[
+                 "id":1219,
+                 "properties":[
                         {
-                         "duration":1000,
-                         "tileid":1219
-                        }, 
-                        {
-                         "duration":1000,
-                         "tileid":1222
-                        }],
-                 "id":1219
+                         "name":"is_door",
+                         "type":"bool",
+                         "value":true
+                        }]
                 }, 
                 {
                  "id":1242,
@@ -4618,28 +4612,22 @@
                  "id":1250
                 }, 
                 {
-                 "animation":[
+                 "id":1263,
+                 "properties":[
                         {
-                         "duration":1000,
-                         "tileid":1263
-                        }, 
-                        {
-                         "duration":1000,
-                         "tileid":1266
-                        }],
-                 "id":1263
+                         "name":"is_door",
+                         "type":"bool",
+                         "value":true
+                        }]
                 }, 
                 {
-                 "animation":[
+                 "id":1269,
+                 "properties":[
                         {
-                         "duration":1000,
-                         "tileid":1269
-                        }, 
-                        {
-                         "duration":1000,
-                         "tileid":1272
-                        }],
-                 "id":1269
+                         "name":"is_door",
+                         "type":"bool",
+                         "value":true
+                        }]
                 }, 
                 {
                  "id":1292,
@@ -4845,6 +4833,60 @@
                  "id":1350
                 }, 
                 {
+                 "id":1362,
+                 "properties":[
+                        {
+                         "name":"is_door",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1363,
+                 "properties":[
+                        {
+                         "name":"is_door",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1364,
+                 "properties":[
+                        {
+                         "name":"is_door",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1368,
+                 "properties":[
+                        {
+                         "name":"is_door",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1369,
+                 "properties":[
+                        {
+                         "name":"is_door",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1370,
+                 "properties":[
+                        {
+                         "name":"is_door",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
                  "id":1385,
                  "properties":[
                         {
@@ -4903,7 +4945,8 @@
                          "type":"int",
                          "value":8
                         }]
-                }, 
+                },
+            
                 {
                  "id":1395,
                  "properties":[
@@ -4916,6 +4959,60 @@
                          "name":"offset_top",
                          "type":"int",
                          "value":8
+                        }]
+                }, 
+                {
+                 "id":1412,
+                 "properties":[
+                        {
+                         "name":"is_door",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1413,
+                 "properties":[
+                        {
+                         "name":"is_door",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1414,
+                 "properties":[
+                        {
+                         "name":"is_door",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1418,
+                 "properties":[
+                        {
+                         "name":"is_door",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1419,
+                 "properties":[
+                        {
+                         "name":"is_door",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1420,
+                 "properties":[
+                        {
+                         "name":"is_door",
+                         "type":"bool",
+                         "value":true
                         }]
                 }, 
                 {
@@ -4977,8 +5074,7 @@
                          "type":"int",
                          "value":5
                         }]
-                },
-            
+                }, 
                 {
                  "id":1444,
                  "properties":[
@@ -5078,7 +5174,8 @@
                          "type":"bool",
                          "value":true
                         }]
-                }, 
+                },
+            
                 {
                  "id":1458,
                  "properties":[
@@ -5300,8 +5397,7 @@
                          "type":"bool",
                          "value":true
                         }]
-                },
-            
+                }, 
                 {
                  "id":1545,
                  "properties":[
@@ -5505,7 +5601,8 @@
                          "type":"bool",
                          "value":true
                         }]
-                }, 
+                },
+            
                 {
                  "id":1669,
                  "properties":[
@@ -5670,8 +5767,7 @@
                          "type":"bool",
                          "value":true
                         }]
-                },
-            
+                }, 
                 {
                  "id":1723,
                  "properties":[
@@ -5867,7 +5963,8 @@
                          "type":"bool",
                          "value":true
                         }]
-                }, 
+                },
+            
                 {
                  "id":1819,
                  "properties":[
