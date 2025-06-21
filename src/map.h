@@ -37,19 +37,7 @@ typedef struct anim
 
 } anim_t;
 
-typedef struct entity
-{
-    cute_tiled_object_t *handle;
-    int pos_x;
-    int pos_y;
-    int uid;
-    int id;
-    int index;
-    bool is_gone;
-
-} entity_t;
-
-typedef struct anim_tile
+typedef struct obj
 {
     int dst_x;
     int dst_y;
@@ -61,7 +49,7 @@ typedef struct anim_tile
     int id;
     int object_id;
 
-} anim_tile_t;
+} obj_t;
 
 typedef struct map
 {
@@ -87,8 +75,8 @@ typedef struct map
     int integer_property;
     const char *string_property;
 
-    anim_tile_t *animated_tile;
-    int animated_tile_index;
+    obj_t *obj;
+    int obj_index;
 
     Uint8 bg_r;
     Uint8 bg_g;
@@ -98,9 +86,6 @@ typedef struct map
     Uint64 time_b;
     Uint64 delta_time;
     Uint64 time_since_last_frame;
-
-    entity_t *entity;
-    int entity_count;
 
     tile_desc_t *tile_desc;
     int tile_desc_count;

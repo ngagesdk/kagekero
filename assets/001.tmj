@@ -152,18 +152,6 @@
                  "y":80
                 }, 
                 {
-                 "gid":1633,
-                 "height":16,
-                 "id":14,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":16,
-                 "x":32,
-                 "y":80
-                }, 
-                {
                  "height":0,
                  "id":15,
                  "name":"spawn",
@@ -174,6 +162,18 @@
                  "width":0,
                  "x":16,
                  "y":112
+                }, 
+                {
+                 "gid":1483,
+                 "height":16,
+                 "id":27,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":32,
+                 "y":80
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -265,7 +265,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":25,
+ "nextobjectid":28,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",
@@ -5215,6 +5215,105 @@
                         }]
                 }, 
                 {
+                 "id":1783,
+                 "properties":[
+                        {
+                         "name":"is_coin",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1784,
+                 "properties":[
+                        {
+                         "name":"is_coin",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1785,
+                 "properties":[
+                        {
+                         "name":"is_coin",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1786,
+                 "properties":[
+                        {
+                         "name":"is_coin",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1787,
+                 "properties":[
+                        {
+                         "name":"is_coin",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1788,
+                 "properties":[
+                        {
+                         "name":"is_coin",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1789,
+                 "properties":[
+                        {
+                         "name":"is_coin",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1790,
+                 "properties":[
+                        {
+                         "name":"is_coin",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1791,
+                 "properties":[
+                        {
+                         "name":"is_coin",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1792,
+                 "properties":[
+                        {
+                         "name":"is_coin",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":1793,
+                 "properties":[
+                        {
+                         "name":"is_coin",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
                  "id":1818,
                  "properties":[
                         {
@@ -5267,7 +5366,8 @@
                          "type":"bool",
                          "value":true
                         }]
-                }, 
+                },
+            
                 {
                  "id":1868,
                  "properties":[

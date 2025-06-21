@@ -238,7 +238,7 @@ static bool is_gid_valid(int gid, cute_tiled_map_t *map)
     return false;
 }
 
-static bool is_tile_animated(int gid, int *anim_length, int *id, cute_tiled_map_t *map)
+static bool is_object_animated(int gid, int *anim_length, int *id, cute_tiled_map_t *map)
 {
     int local_id = get_local_id(gid, map);
     cute_tiled_tileset_t *tileset = map->tilesets;
@@ -329,7 +329,7 @@ static cute_tiled_tileset_t *get_head_tileset(cute_tiled_map_t *map)
     return map->tilesets;
 }
 
-static int get_next_animated_tile_id(int gid, int current_frame, cute_tiled_map_t *map)
+static int get_next_object_id(int gid, int current_frame, cute_tiled_map_t *map)
 {
     cute_tiled_tileset_t *tileset = get_head_tileset(map);
     cute_tiled_tile_descriptor_t *tile = tileset->tiles;
@@ -564,77 +564,6 @@ static bool load_tiles(map_t *map)
     return true;
 }
 
-static bool load_entities(map_t *map)
-{
-    cute_tiled_layer_t *layer = get_head_layer(map);
-    cute_tiled_object_t *object = NULL;
-
-    if (map->entity_count)
-    {
-        SDL_Log("Map has no entities to load.");
-        return true;
-    }
-
-    while (layer)
-    {
-        if (is_layer_of_type(OBJECT_GROUP, layer, map))
-        {
-            object = get_head_object(layer, map);
-            while (object)
-            {
-                map->entity_count += 1;
-                object = object->next;
-            }
-        }
-        layer = layer->next;
-    }
-
-    if (map->entity_count)
-    {
-        map->entity = (entity_t *)SDL_calloc((size_t)map->entity_count, sizeof(struct entity));
-        if (!map->entity)
-        {
-            SDL_Log("Error allocating memory for map entities");
-            return false;
-        }
-    }
-
-    SDL_Log("Loading %u entitie(s)", map->entity_count);
-
-    layer = get_head_layer(map);
-    while (layer)
-    {
-        if (is_layer_of_type(OBJECT_GROUP, layer, map))
-        {
-            int index = 0;
-            object = get_head_object(layer, map);
-            while (object)
-            {
-                entity_t *entity = &map->entity[index];
-
-                entity->handle = object;
-                entity->pos_x = (int)object->x;
-                entity->pos_y = (int)object->y;
-                entity->uid = (int)get_object_uid(object);
-                entity->id = (int)index + 1;
-                entity->is_gone = false;
-
-                if (H_SPAWN == generate_hash(get_object_name(object)))
-                {
-                    map->spawn_x = entity->pos_x;
-                    map->spawn_y = entity->pos_y;
-                }
-
-                index += 1;
-                object = object->next;
-            }
-        }
-        layer = layer->next;
-    }
-
-    return true;
-}
-
 static bool load_tileset(map_t *map)
 {
     bool exit_code = true;
@@ -651,10 +580,10 @@ static bool load_tileset(map_t *map)
     return exit_code;
 }
 
-static bool load_animated_tiles(map_t *map)
+static bool load_objects(map_t *map)
 {
     cute_tiled_layer_t *layer = get_head_layer(map);
-    int animated_tile_count = 0;
+    int object_count = 0;
 
     while (layer)
     {
@@ -669,9 +598,9 @@ static bool load_animated_tiles(map_t *map)
                         int *layer_content = get_layer_content(layer);
                         int gid = remove_gid_flip_bits(layer_content[(index_height * map->handle->width) + index_width]);
 
-                        if (is_tile_animated(gid, NULL, NULL, map->handle))
+                        if (is_object_animated(gid, NULL, NULL, map->handle))
                         {
-                            animated_tile_count += 1;
+                            object_count += 1;
                         }
                     }
                 }
@@ -681,7 +610,13 @@ static bool load_animated_tiles(map_t *map)
                 cute_tiled_object_t *object = get_head_object(layer, map);
                 while (object)
                 {
-                    animated_tile_count += 1;
+                    if (H_SPAWN == generate_hash(get_object_name(object)))
+                    {
+                        map->spawn_x = (int)object->x;
+                        map->spawn_y = (int)object->y;
+                    }
+
+                    object_count += 1;
                     object = object->next;
                 }
             }
@@ -689,12 +624,12 @@ static bool load_animated_tiles(map_t *map)
         layer = layer->next;
     }
 
-    if (animated_tile_count > 0)
+    if (object_count > 0)
     {
-        SDL_Log("Loading %u animated tile(s)", animated_tile_count);
+        SDL_Log("Loading %u object(s)", object_count);
 
-        map->animated_tile = (anim_tile_t *)SDL_calloc((size_t)animated_tile_count, sizeof(struct anim_tile));
-        if (!map->animated_tile)
+        map->obj = (obj_t *)SDL_calloc((size_t)object_count, sizeof(struct obj));
+        if (!map->obj)
         {
             SDL_Log("Error allocating memory for animated tile");
             return false;
@@ -717,23 +652,26 @@ void destroy_map(map_t *map)
 
     // Free up allocated memory in reverse order.
 
-    // [7] Animated tiles.
-    SDL_free(map->animated_tile);
+    // [6] Objects.
+    if (map->obj)
+    {
+        SDL_free(map->obj);
+        map->obj = NULL;
+    }
 
-    // [6] Tileset.
+    // [5] Tileset.
     if (map->tileset_surface)
     {
         SDL_DestroySurface(map->tileset_surface);
         map->tileset_surface = NULL;
     }
 
-    // [5] Entities.
-    SDL_free(map->entity);
-    map->entity = NULL;
-
     // [4] Tiles.
-    SDL_free(map->tile_desc);
-    map->tile_desc = NULL;
+    if (map->tile_desc)
+    {
+        SDL_free(map->tile_desc);
+        map->tile_desc = NULL;
+    }
 
     // [3] Textures & Surfaces.
     destroy_textures(map);
@@ -788,22 +726,15 @@ bool load_map(const char *file_name, map_t **map, SDL_Renderer *renderer)
         goto exit;
     }
 
-    // [5] Entities.
-    if (!load_entities(*map))
-    {
-        exit_code = false;
-        goto exit;
-    }
-
-    // [6] Tileset.
+    // [5] Tileset.
     if (!load_tileset(*map))
     {
         exit_code = false;
         goto exit;
     }
 
-    // [7] Animated tiles.
-    if (!load_animated_tiles(*map))
+    // [6] Objects.
+    if (!load_objects(*map))
     {
         exit_code = false;
         goto exit;
@@ -832,7 +763,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
     // Static tiles have already been rendered.
     if (map->static_tiles_rendered)
     {
-        if (map->animated_tile_index <= 0)
+        if (map->obj_index <= 0)
         {
             return true;
         }
@@ -849,28 +780,28 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
             map->delta_time = map->time_b - map->time_a;
         }
 
-        // Update and render animated tiles & entities.
+        // Update and render objects.
         map->time_since_last_frame += map->delta_time;
 
         if (map->time_since_last_frame >= (1000 / ANIM_FPS))
         {
             map->time_since_last_frame = 0;
 
-            for (int index = 0; map->animated_tile_index > index; index += 1)
+            for (int index = 0; map->obj_index > index; index += 1)
             {
                 SDL_Rect dst = { 0 };
                 SDL_Rect src = { 0 };
-                int gid = map->animated_tile[index].gid;
+                int gid = map->obj[index].gid;
                 int next_tile_id = 0;
                 int local_id;
 
-                local_id = map->animated_tile[index].id + 1;
+                local_id = map->obj[index].id + 1;
                 src.w = dst.w = get_tile_width(map->handle);
                 src.h = dst.h = get_tile_height(map->handle);
                 src.x = 0;
                 src.y = 0;
-                dst.x = map->animated_tile[index].dst_x;
-                dst.y = map->animated_tile[index].dst_y;
+                dst.x = map->obj[index].dst_x;
+                dst.y = map->obj[index].dst_y;
 
                 int tmp_x, tmp_y;
                 get_tile_position(local_id, &tmp_x, &tmp_y, map->handle);
@@ -882,30 +813,21 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                 SDL_Rect canvas_src = { 0 };
                 canvas_src.w = src.w;
                 canvas_src.h = src.h;
-                canvas_src.x = map->animated_tile[index].canvas_src_x;
-                canvas_src.y = map->animated_tile[index].canvas_src_y;
+                canvas_src.x = map->obj[index].canvas_src_x;
+                canvas_src.y = map->obj[index].canvas_src_y;
                 SDL_BlitSurface(map->tileset_surface, &canvas_src, map->render_canvas, &dst);
 
-                for (int n = 0; n <= map->entity_count; n += 1)
-                {
-                    if (map->entity[n].uid == map->animated_tile[index].object_id)
-                    {
-                        if (!map->entity[n].is_gone)
-                        {
-                            SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+                SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
 
-                            map->animated_tile[index].current_frame += 1;
-                            if (map->animated_tile[index].current_frame >= map->animated_tile[index].anim_length)
-                            {
-                                map->animated_tile[index].current_frame = 0;
-                            }
-                        }
-                    }
+                map->obj[index].current_frame += 1;
+                if (map->obj[index].current_frame >= map->obj[index].anim_length)
+                {
+                    map->obj[index].current_frame = 0;
                 }
 
-                next_tile_id = get_next_animated_tile_id(gid, map->animated_tile[index].current_frame, map->handle);
+                next_tile_id = get_next_object_id(gid, map->obj[index].current_frame, map->handle);
 
-                map->animated_tile[index].id = next_tile_id;
+                map->obj[index].id = next_tile_id;
             }
         }
 
@@ -948,14 +870,14 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
 
                             SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
 
-                            if (is_tile_animated(gid, &anim_length, &id, map->handle))
+                            if (is_object_animated(gid, &anim_length, &id, map->handle))
                             {
-                                map->animated_tile[map->animated_tile_index].gid = get_local_id(gid, map->handle);
-                                map->animated_tile[map->animated_tile_index].id = id;
-                                map->animated_tile[map->animated_tile_index].dst_x = dst.x;
-                                map->animated_tile[map->animated_tile_index].dst_y = dst.y;
-                                map->animated_tile[map->animated_tile_index].current_frame = 0;
-                                map->animated_tile[map->animated_tile_index].anim_length = anim_length;
+                                map->obj[map->obj_index].gid = get_local_id(gid, map->handle);
+                                map->obj[map->obj_index].id = id;
+                                map->obj[map->obj_index].dst_x = dst.x;
+                                map->obj[map->obj_index].dst_y = dst.y;
+                                map->obj[map->obj_index].current_frame = 0;
+                                map->obj[map->obj_index].anim_length = anim_length;
 
                                 if (prev_layer)
                                 {
@@ -965,12 +887,12 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                                     {
                                         int tmp_x_below, tmp_y_below;
                                         get_tile_position(gid_below, &tmp_x_below, &tmp_y_below, map->handle);
-                                        map->animated_tile[map->animated_tile_index].canvas_src_x = tmp_x_below;
-                                        map->animated_tile[map->animated_tile_index].canvas_src_y = tmp_y_below;
+                                        map->obj[map->obj_index].canvas_src_x = tmp_x_below;
+                                        map->obj[map->obj_index].canvas_src_y = tmp_y_below;
                                     }
                                 }
 
-                                map->animated_tile_index += 1;
+                                map->obj_index += 1;
                             }
                         }
                     }
@@ -1002,15 +924,15 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                     src.x = tmp_x;
                     src.y = tmp_y;
 
-                    if (is_tile_animated(gid, &anim_length, &id, map->handle))
+                    if (is_object_animated(gid, &anim_length, &id, map->handle))
                     {
-                        map->animated_tile[map->animated_tile_index].gid = get_local_id(gid, map->handle);
-                        map->animated_tile[map->animated_tile_index].id = id;
-                        map->animated_tile[map->animated_tile_index].dst_x = dst.x;
-                        map->animated_tile[map->animated_tile_index].dst_y = dst.y;
-                        map->animated_tile[map->animated_tile_index].current_frame = 0;
-                        map->animated_tile[map->animated_tile_index].anim_length = anim_length;
-                        map->animated_tile[map->animated_tile_index].object_id = get_object_uid(object);
+                        map->obj[map->obj_index].gid = get_local_id(gid, map->handle);
+                        map->obj[map->obj_index].id = id;
+                        map->obj[map->obj_index].dst_x = dst.x;
+                        map->obj[map->obj_index].dst_y = dst.y;
+                        map->obj[map->obj_index].current_frame = 0;
+                        map->obj[map->obj_index].anim_length = anim_length;
+                        map->obj[map->obj_index].object_id = get_object_uid(object);
 
                         if (prev_layer)
                         {
@@ -1022,12 +944,12 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                             {
                                 int tmp_x_below, tmp_y_below;
                                 get_tile_position(gid_below, &tmp_x_below, &tmp_y_below, map->handle);
-                                map->animated_tile[map->animated_tile_index].canvas_src_x = tmp_x_below;
-                                map->animated_tile[map->animated_tile_index].canvas_src_y = tmp_y_below;
+                                map->obj[map->obj_index].canvas_src_x = tmp_x_below;
+                                map->obj[map->obj_index].canvas_src_y = tmp_y_below;
                             }
                         }
 
-                        map->animated_tile_index += 1;
+                        map->obj_index += 1;
                     }
                 }
 

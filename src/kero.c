@@ -102,6 +102,17 @@ static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn)
     }
 }
 
+static void handle_pickup(kero_t *kero, map_t *map)
+{
+    int index = get_tile_index((int)kero->pos_x, (int)kero->pos_y, map);
+
+    if (map->tile_desc[index].is_coin)
+    {
+        SDL_Log("Picked up a coin at index %d", index);
+        kero->wears_mask = true;
+    }
+}
+
 static bool handle_power_up(kero_t *kero, unsigned int *btn)
 {
     if (STATE_POWER_UP == kero->state)
@@ -306,6 +317,7 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn)
         }
         kero->velocity_y = 0.f;
 
+        handle_pickup(kero, map);
         handle_interaction(kero, map, btn);
 
         if (!check_bit(*btn, BTN_7))
