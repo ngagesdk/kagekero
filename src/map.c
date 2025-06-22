@@ -10,6 +10,7 @@
 
 #include <SDL3/SDL.h>
 
+#include "aabb.h"
 #include "map.h"
 #include "pfs.h"
 #include "utils.h"
@@ -609,7 +610,7 @@ static bool load_objects(map_t *map)
         map->obj = (obj_t *)SDL_calloc((size_t)map->obj_count, sizeof(struct obj));
         if (!map->obj)
         {
-            SDL_Log("Error allocating memory for animated tile");
+            SDL_Log("Error allocating memory for objects");
             return false;
         }
 
@@ -631,8 +632,6 @@ static bool load_objects(map_t *map)
                         map->obj[index].y = (int)object->y;
                         index += 1;
 
-                        // DEBUG
-                        // DEBUG
                         object = object->next;
                     }
                 }
@@ -768,7 +767,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
     // Static tiles have already been rendered.
     if (map->static_tiles_rendered)
     {
-        if (!map->obj_tile_count)
+        if (!map->obj_count)
         {
             return true;
         }
@@ -792,8 +791,13 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
         {
             map->time_since_last_frame = 0;
 
-            for (int index = 0; map->obj_tile_count > index; index += 1)
+            for (int index = 0; index < map->obj_count - 1; index += 1)
             {
+                if (map->obj[index].gid <= 0)
+                {
+                    continue; // Skip invalid GIDs.
+                }
+
                 SDL_Rect dst = { 0 };
                 SDL_Rect src = { 0 };
                 int gid = map->obj[index].gid;
@@ -822,12 +826,15 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                 canvas_src.y = map->obj[index].canvas_src_y;
                 SDL_BlitSurface(map->tileset_surface, &canvas_src, map->render_canvas, &dst);
 
-                SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
-
-                map->obj[index].current_frame += 1;
-                if (map->obj[index].current_frame >= map->obj[index].anim_length)
+                if (!map->obj[index].is_hidden)
                 {
-                    map->obj[index].current_frame = 0;
+                    SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+
+                    map->obj[index].current_frame += 1;
+                    if (map->obj[index].current_frame >= map->obj[index].anim_length)
+                    {
+                        map->obj[index].current_frame = 0;
+                    }
                 }
 
                 next_tile_id = get_next_object_id(gid, map->obj[index].current_frame, map->handle);
@@ -840,6 +847,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
     }
 
     // Static tiles have not been rendered yet. Do it once!
+    int index = 0;
     layer = get_head_layer(map);
 
     while (layer)
@@ -905,13 +913,14 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                     src.y = tmp_y;
 
                     set_object_animation(gid, &anim_length, &id, map->handle);
-                    map->obj[map->obj_tile_count].gid = get_local_id(gid, map->handle);
-                    map->obj[map->obj_tile_count].id = id;
-                    map->obj[map->obj_tile_count].x = dst.x;
-                    map->obj[map->obj_tile_count].y = dst.y;
-                    map->obj[map->obj_tile_count].current_frame = 0;
-                    map->obj[map->obj_tile_count].anim_length = anim_length;
-                    map->obj[map->obj_tile_count].object_id = get_object_uid(object);
+                    map->obj[index].gid = get_local_id(gid, map->handle);
+                    map->obj[index].id = id;
+                    map->obj[index].x = dst.x;
+                    map->obj[index].y = dst.y;
+                    map->obj[index].current_frame = 0;
+                    map->obj[index].anim_length = anim_length;
+                    map->obj[index].object_id = get_object_uid(object);
+                    map->obj[index].hash = generate_hash((const char *)get_object_name(object));
 
                     if (prev_layer)
                     {
@@ -923,12 +932,12 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                         {
                             int tmp_x_below, tmp_y_below;
                             get_tile_position(gid_below, &tmp_x_below, &tmp_y_below, map->handle);
-                            map->obj[map->obj_tile_count].canvas_src_x = tmp_x_below;
-                            map->obj[map->obj_tile_count].canvas_src_y = tmp_y_below;
+                            map->obj[index].canvas_src_x = tmp_x_below;
+                            map->obj[index].canvas_src_y = tmp_y_below;
                         }
                     }
 
-                    map->obj_tile_count += 1;
+                    index += 1;
                 }
 
                 object = object->next;
@@ -950,6 +959,49 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
     map->static_tiles_rendered = true;
 
     return true;
+}
+
+bool object_intersects(aabb_t bb, map_t *map, int *index_ptr)
+{
+    cute_tiled_layer_t *layer = get_head_layer(map);
+    *index_ptr = 0;
+
+    while (layer)
+    {
+        if (layer->visible)
+        {
+            if (is_layer_of_type(OBJECT_GROUP, layer, map))
+            {
+                cute_tiled_object_t *object = get_head_object(layer, map);
+                while (object)
+                {
+                    int gid = remove_gid_flip_bits(object->gid);
+
+                    if (is_gid_valid(gid, map->handle))
+                    {
+                        aabb_t object_aabb;
+                        int obj_half_width = (int)(object->width / 2);
+                        int obj_half_height = (int)(object->height / 2);
+                        object_aabb.left = object->x - obj_half_width;
+                        object_aabb.right = object->x + obj_half_width;
+                        object_aabb.top = object->y - obj_half_height;
+                        object_aabb.bottom = object->y + obj_half_height;
+
+                        if (do_intersect(bb, object_aabb))
+                        {
+                            return true;
+                        }
+                        *index_ptr += 1;
+                    }
+                    object = object->next;
+                }
+            }
+        }
+        layer = layer->next;
+    }
+
+    *index_ptr = -1;
+    return false;
 }
 
 int get_tile_index(int pos_x, int pos_y, map_t *map)

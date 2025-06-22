@@ -13,7 +13,10 @@
 
 #include <SDL3/SDL.h>
 
+#include "aabb.h"
 #include "cute_tiled.h"
+
+#define H_COIN 0x000000017c953f2e
 
 typedef struct tile_desc
 {
@@ -48,6 +51,10 @@ typedef struct obj
     int id;
     int object_id;
 
+    Uint64 hash;
+
+    bool is_hidden;
+
 } obj_t;
 
 typedef struct map
@@ -75,7 +82,6 @@ typedef struct map
     const char *string_property;
 
     obj_t *obj;
-    int obj_tile_count;
     int obj_count;
 
     Uint8 bg_r;
@@ -103,5 +109,6 @@ void destroy_map(map_t *map);
 bool load_map(const char *file_name, map_t **map, SDL_Renderer *renderer);
 bool render_map(map_t *map, SDL_Renderer *renderer);
 int get_tile_index(int pos_x, int pos_y, map_t *map);
+bool object_intersects(aabb_t bb, map_t *map, int *index_ptr);
 
 #endif // MAP_H

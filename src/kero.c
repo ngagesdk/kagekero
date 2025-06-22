@@ -10,6 +10,7 @@
 
 #include "SDL3/SDL.h"
 
+#include "aabb.h"
 #include "config.h"
 #include "fixedp.h"
 #include "kero.h"
@@ -104,12 +105,20 @@ static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn)
 
 static void handle_pickup(kero_t *kero, map_t *map)
 {
-    int index = get_tile_index((int)kero->pos_x, (int)kero->pos_y, map);
+    aabb_t kero_bb;
+    kero_bb.top = kero->pos_y - KERO_HALF;
+    kero_bb.bottom = kero->pos_y + KERO_HALF;
+    kero_bb.left = kero->pos_x - KERO_HALF;
+    kero_bb.right = kero->pos_x + KERO_HALF;
 
-    // if (map->tile_desc[index].is_coin)
+    int index = -1;
+
+    if (object_intersects(kero_bb, map, &index))
     {
-        // SDL_Log("Picked up a coin at index %d", index);
-        // kero->wears_mask = true;
+        if (H_COIN == map->obj[index].hash)
+        {
+            map->obj[index].is_hidden = true;
+        }
     }
 }
 
@@ -286,6 +295,8 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn)
     update_kero_timing(kero);
     update_kero_animation(kero);
 
+    handle_pickup(kero, map);
+
     if (!handle_power_up(kero, btn))
     {
         return;
@@ -317,7 +328,6 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn)
         }
         kero->velocity_y = 0.f;
 
-        handle_pickup(kero, map);
         handle_interaction(kero, map, btn);
 
         if (!check_bit(*btn, BTN_7))
