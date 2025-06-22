@@ -106,10 +106,10 @@ static void handle_pickup(kero_t *kero, map_t *map)
 {
     int index = get_tile_index((int)kero->pos_x, (int)kero->pos_y, map);
 
-    if (map->tile_desc[index].is_coin)
+    // if (map->tile_desc[index].is_coin)
     {
-        SDL_Log("Picked up a coin at index %d", index);
-        kero->wears_mask = true;
+        // SDL_Log("Picked up a coin at index %d", index);
+        // kero->wears_mask = true;
     }
 }
 

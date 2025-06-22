@@ -17,7 +17,6 @@
 
 typedef struct tile_desc
 {
-    bool is_coin;
     bool is_deadly;
     bool is_door;
     bool is_solid;
@@ -76,7 +75,8 @@ typedef struct map
     const char *string_property;
 
     obj_t *obj;
-    int obj_index;
+    int obj_tile_count;
+    int obj_count;
 
     Uint8 bg_r;
     Uint8 bg_g;
