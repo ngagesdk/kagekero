@@ -40,6 +40,6 @@ jobs:
       - name: Archive kagekero
         uses: actions/upload-artifact@v4
         with:
-          name: kagekero-N3DS.zip
+          name: kagekero-N3DS
           path: build/kagekero.3dsx
           if-no-files-found: error
