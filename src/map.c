@@ -868,9 +868,6 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
 
                         if (is_gid_valid(gid, map->handle))
                         {
-                            int anim_length = 0;
-                            int id = 0;
-
                             src.w = dst.w = get_tile_width(map->handle);
                             src.h = dst.h = get_tile_height(map->handle);
                             dst.x = index_width * get_tile_width(map->handle);
