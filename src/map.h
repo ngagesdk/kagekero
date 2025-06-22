@@ -39,8 +39,8 @@ typedef struct anim
 
 typedef struct obj
 {
-    int dst_x;
-    int dst_y;
+    int x;
+    int y;
     int canvas_src_x;
     int canvas_src_y;
     int anim_length;

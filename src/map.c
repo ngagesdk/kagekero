@@ -589,23 +589,7 @@ static bool load_objects(map_t *map)
     {
         if (layer->visible)
         {
-            if (is_layer_of_type(TILE_LAYER, layer, map))
-            {
-                for (int index_height = 0; index_height < map->handle->height; index_height += 1)
-                {
-                    for (int index_width = 0; index_width < map->handle->width; index_width += 1)
-                    {
-                        int *layer_content = get_layer_content(layer);
-                        int gid = remove_gid_flip_bits(layer_content[(index_height * map->handle->width) + index_width]);
-
-                        if (is_object_animated(gid, NULL, NULL, map->handle))
-                        {
-                            object_count += 1;
-                        }
-                    }
-                }
-            }
-            else if (is_layer_of_type(OBJECT_GROUP, layer, map))
+            if (is_layer_of_type(OBJECT_GROUP, layer, map))
             {
                 cute_tiled_object_t *object = get_head_object(layer, map);
                 while (object)
@@ -633,6 +617,29 @@ static bool load_objects(map_t *map)
         {
             SDL_Log("Error allocating memory for animated tile");
             return false;
+        }
+
+        // Initialise objects.
+        int index = 0;
+        while (layer)
+        {
+            if (layer->visible)
+            {
+                if (is_layer_of_type(OBJECT_GROUP, layer, map))
+                {
+                    cute_tiled_object_t *object = get_head_object(layer, map);
+                    while (object)
+                    {
+                        map->obj[index].gid = remove_gid_flip_bits(object->gid);
+                        map->obj[index].id = get_local_id(map->obj[index].gid, map->handle);
+                        map->obj[index].x = (int)object->x;
+                        map->obj[index].y = (int)object->y;
+                        index += 1;
+                        object = object->next;
+                    }
+                }
+            }
+            layer = layer->next;
         }
     }
     else
@@ -800,8 +807,8 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                 src.h = dst.h = get_tile_height(map->handle);
                 src.x = 0;
                 src.y = 0;
-                dst.x = map->obj[index].dst_x;
-                dst.y = map->obj[index].dst_y;
+                dst.x = map->obj[index].x;
+                dst.y = map->obj[index].y;
 
                 int tmp_x, tmp_y;
                 get_tile_position(local_id, &tmp_x, &tmp_y, map->handle);
@@ -869,31 +876,6 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                             src.y = tmp_y;
 
                             SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
-
-                            if (is_object_animated(gid, &anim_length, &id, map->handle))
-                            {
-                                map->obj[map->obj_index].gid = get_local_id(gid, map->handle);
-                                map->obj[map->obj_index].id = id;
-                                map->obj[map->obj_index].dst_x = dst.x;
-                                map->obj[map->obj_index].dst_y = dst.y;
-                                map->obj[map->obj_index].current_frame = 0;
-                                map->obj[map->obj_index].anim_length = anim_length;
-
-                                if (prev_layer)
-                                {
-                                    int *layer_content_below = get_layer_content(prev_layer);
-                                    int gid_below = remove_gid_flip_bits(layer_content_below[(index_height * map->handle->width) + index_width]);
-                                    if (is_gid_valid(gid_below, map->handle))
-                                    {
-                                        int tmp_x_below, tmp_y_below;
-                                        get_tile_position(gid_below, &tmp_x_below, &tmp_y_below, map->handle);
-                                        map->obj[map->obj_index].canvas_src_x = tmp_x_below;
-                                        map->obj[map->obj_index].canvas_src_y = tmp_y_below;
-                                    }
-                                }
-
-                                map->obj_index += 1;
-                            }
                         }
                     }
                 }
@@ -928,8 +910,8 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                     {
                         map->obj[map->obj_index].gid = get_local_id(gid, map->handle);
                         map->obj[map->obj_index].id = id;
-                        map->obj[map->obj_index].dst_x = dst.x;
-                        map->obj[map->obj_index].dst_y = dst.y;
+                        map->obj[map->obj_index].x = dst.x;
+                        map->obj[map->obj_index].y = dst.y;
                         map->obj[map->obj_index].current_frame = 0;
                         map->obj[map->obj_index].anim_length = anim_length;
                         map->obj[map->obj_index].object_id = get_object_uid(object);
