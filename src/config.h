@@ -45,7 +45,7 @@
 #define WINDOW_W        640
 #define WINDOW_H        480
 #define WINDOW_FLAGS    SDL_WINDOW_FULLSCREEN
-#define FRAME_OFFSET_X   64
+#define FRAME_OFFSET_X  64
 #define FRAME_OFFSET_Y  -12
 #define SCREEN_OFFSET_X 232
 #define SCREEN_OFFSET_Y 136
@@ -63,7 +63,7 @@
 #define SCREEN_W 176
 #define SCREEN_H 208
 
-#if __DREAMCAST__
+#if defined __DREAMCAST__
 #define FRAME_WIDTH  512
 #define FRAME_HEIGHT 512
 #else
