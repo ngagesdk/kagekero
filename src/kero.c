@@ -107,8 +107,22 @@ static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn, SDL_
     {
         if (map->tile_desc[index].is_door)
         {
-            load_map("002.tmj", &map, renderer);
-            reset_kero_on_out_of_bounds(kero, map);
+            char next_map[8] = { 0 };
+            kero->level += 1;
+
+            SDL_snprintf(next_map, 8, "%03d.tmj", kero->level);
+            if (!load_map(next_map, &map, renderer))
+            {
+                SDL_Log("Failed to load next map: %s", next_map);
+                reset_kero_on_out_of_bounds(kero, map);
+            }
+            else
+            {
+                kero->pos_x = (float)map->spawn_x;
+                kero->pos_y = (float)map->spawn_y;
+                kero->velocity_x = 0.f;
+                kero->velocity_y = 0.f;
+            }
         }
     }
 }
@@ -285,6 +299,7 @@ bool load_kero(kero_t **kero, map_t *map)
     (*kero)->pos_y = (float)map->spawn_y;
     (*kero)->anim_fps = 1;
     (*kero)->heading = 1;
+    (*kero)->level = 1;
 
     set_kero_state(*kero, STATE_IDLE);
 

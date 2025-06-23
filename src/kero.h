@@ -47,6 +47,7 @@ typedef struct kero
     int anim_offset_y;
     int sprite_offset;
     int heading;
+    int level;
 
     bool repeat_anim;
     bool jump_lock;
