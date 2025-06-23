@@ -106,6 +106,7 @@ endif()
 if(PACK_ASSETS)
   set(assets
     "001.tmj"
+    "002.tmj"
     "frame.png"
     "kero.png"
     "tileset.png"
