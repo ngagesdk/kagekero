@@ -68,6 +68,25 @@ if(NGAGESDK)
   build_aif(${res_dir} kagekero 0x1badc0de)
   build_resource(${res_dir} kagekero "")
 
+elseif(DREAMCAST)
+
+  target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES} GL pthread)
+
+  # Set up romdisk directory and copy data.pfs.
+  set(KOS_ROMDISK_DIR "${CMAKE_CURRENT_BINARY_DIR}/romdisk_kagekero")
+  file(MAKE_DIRECTORY "${KOS_ROMDISK_DIR}")
+  file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/export/data.pfs DESTINATION ${KOS_ROMDISK_DIR})
+
+  # Add romdisk to the executable.
+  kos_add_romdisk(kagekero "${KOS_ROMDISK_DIR}" kagekero)
+
+  # Create output directory and copy final executable.
+  set(OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/dc-kagekero")
+  file(MAKE_DIRECTORY "${OUTPUT_DIR}")
+  add_custom_command(TARGET kagekero POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:kagekero>" "${OUTPUT_DIR}/kagekero.elf"
+  )
+
 else()
   target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES})
 endif()
