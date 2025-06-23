@@ -90,7 +90,7 @@ bool init_kagekero(kagekero_t **nc)
 
 bool update_kagekero(kagekero_t *nc)
 {
-    update_kero(nc->kero, nc->map, &nc->btn);
+    update_kero(nc->kero, nc->map, &nc->btn, nc->renderer);
 
     nc->cam_x = (int)nc->kero->pos_x - (SCREEN_W / 2);
     nc->cam_y = (int)nc->kero->pos_y - (SCREEN_H / 2);

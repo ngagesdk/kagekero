@@ -42,9 +42,25 @@ static cute_tiled_layer_t *get_head_layer(map_t *map)
     return map->handle->layers;
 }
 
+static void destroy_tiled_map(map_t *map)
+{
+    map->hash_id_objectgroup = 0;
+    map->hash_id_tilelayer = 0;
+
+    if (map->handle)
+    {
+        cute_tiled_free_map(map->handle);
+    }
+}
+
 static bool load_tiled_map(const char *file_name, map_t *map)
 {
     Uint8 *buffer;
+
+    if (map->handle)
+    {
+        destroy_tiled_map(map);
+    }
 
     buffer = (Uint8 *)load_binary_file_from_path(file_name);
     if (!buffer)
@@ -93,17 +109,6 @@ static bool load_tiled_map(const char *file_name, map_t *map)
     return true;
 }
 
-static void destroy_tiled_map(map_t *map)
-{
-    map->hash_id_objectgroup = 0;
-    map->hash_id_tilelayer = 0;
-
-    if (map->handle)
-    {
-        cute_tiled_free_map(map->handle);
-    }
-}
-
 static const int get_object_uid(cute_tiled_object_t *object)
 {
     return object->id;
@@ -134,12 +139,32 @@ static int get_tile_height(cute_tiled_map_t *map)
     return map->tilesets->tileheight;
 }
 
+static void destroy_textures(map_t *map)
+{
+    if (map->render_canvas)
+    {
+        SDL_DestroySurface(map->render_canvas);
+        map->render_canvas = NULL;
+    }
+
+    if (map->render_target)
+    {
+        SDL_DestroyTexture(map->render_target);
+        map->render_target = NULL;
+    }
+}
+
 static bool create_textures(SDL_Renderer *renderer, map_t *map)
 {
     if (!renderer || !map || !map->handle)
     {
         SDL_Log("Invalid parameters for creating textures.");
         return false;
+    }
+
+    if (map->render_target || map->render_canvas)
+    {
+        destroy_textures(map);
     }
 
     map->height = map->handle->height * get_tile_height(map->handle);
@@ -175,21 +200,6 @@ static bool create_textures(SDL_Renderer *renderer, map_t *map)
     }
 
     return true;
-}
-
-static void destroy_textures(map_t *map)
-{
-    if (map->render_canvas)
-    {
-        SDL_DestroySurface(map->render_canvas);
-        map->render_canvas = NULL;
-    }
-
-    if (map->render_target)
-    {
-        SDL_DestroyTexture(map->render_target);
-        map->render_target = NULL;
-    }
 }
 
 static int get_first_gid(cute_tiled_map_t *map)
@@ -500,6 +510,12 @@ static int get_tile_property_count(cute_tiled_tile_descriptor_t *tile)
 
 static bool load_tiles(map_t *map)
 {
+    if (map->tile_desc)
+    {
+        SDL_free(map->tile_desc);
+        map->tile_desc = NULL;
+    }
+
     cute_tiled_layer_t *layer = get_head_layer(map);
 
     map->tile_desc_count = map->handle->height * map->handle->width;
@@ -567,10 +583,17 @@ static bool load_tileset(map_t *map)
 
     SDL_snprintf(file_name, 16, "%s", map->handle->tilesets->image.ptr);
 
-    if (!load_surface_from_file((const char *)file_name, &map->tileset_surface))
+    map->tileset_hash = generate_hash((const unsigned char *)file_name);
+
+    if (map->tileset_hash != map->prev_tileset_hash)
     {
-        SDL_Log("Error loading tileset image '%s'", file_name);
-        exit_code = false;
+        map->prev_tileset_hash = map->tileset_hash;
+
+        if (!load_surface_from_file((const char *)file_name, &map->tileset_surface))
+        {
+            SDL_Log("Error loading tileset image '%s'", file_name);
+            exit_code = false;
+        }
     }
 
     return exit_code;
@@ -578,6 +601,12 @@ static bool load_tileset(map_t *map)
 
 static bool load_objects(map_t *map)
 {
+    if (map->obj)
+    {
+        SDL_free(map->obj);
+        map->obj = NULL;
+    }
+
     cute_tiled_layer_t *layer = get_head_layer(map);
 
     while (layer)
@@ -691,21 +720,31 @@ bool load_map(const char *file_name, map_t **map, SDL_Renderer *renderer)
 {
     bool exit_code = true;
 
-    if (*map)
-    {
-        destroy_map(*map);
-    }
-
     SDL_Log("Loading map: %s", file_name);
 
     // Load map file and allocate required memory.
 
     // [1] Map.
-    *map = (map_t *)SDL_calloc(1, sizeof(struct map));
     if (!*map)
     {
-        SDL_Log("Error allocating memory for map");
-        return false;
+        *map = (map_t *)SDL_calloc(1, sizeof(struct map));
+        if (!*map)
+        {
+            SDL_Log("Error allocating memory for map");
+            return false;
+        }
+    }
+    else
+    {
+        (*map)->obj_count = 0;
+        (*map)->layer_count = 0;
+        (*map)->spawn_x = 0;
+        (*map)->spawn_y = 0;
+        (*map)->static_tiles_rendered = false;
+        (*map)->time_a = 0;
+        (*map)->time_b = 0;
+        (*map)->delta_time = 0;
+        (*map)->time_since_last_frame = 0;
     }
 
     // [2] Tiled map.

@@ -93,6 +93,9 @@ typedef struct map
     Uint64 delta_time;
     Uint64 time_since_last_frame;
 
+    Uint64 tileset_hash;
+    Uint64 prev_tileset_hash;
+
     tile_desc_t *tile_desc;
     int tile_desc_count;
 

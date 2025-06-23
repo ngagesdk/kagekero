@@ -90,7 +90,16 @@ static void handle_jump(kero_t *kero, unsigned int *btn)
     }
 }
 
-static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn)
+static void reset_kero_on_out_of_bounds(kero_t *kero, map_t *map)
+{
+    set_kero_state(kero, STATE_IDLE);
+    kero->pos_x = (float)map->spawn_x;
+    kero->pos_y = (float)map->spawn_y;
+    kero->velocity_x = 0.f;
+    kero->velocity_y = 0.f;
+}
+
+static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *renderer)
 {
     int index = get_tile_index((int)kero->pos_x, (int)kero->pos_y, map);
 
@@ -98,7 +107,8 @@ static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn)
     {
         if (map->tile_desc[index].is_door)
         {
-            // tbd.
+            load_map("002.tmj", &map, renderer);
+            reset_kero_on_out_of_bounds(kero, map);
         }
     }
 }
@@ -218,15 +228,6 @@ static void clamp_kero_position(kero_t *kero, map_t *map)
     }
 }
 
-static void reset_kero_on_out_of_bounds(kero_t *kero, map_t *map)
-{
-    set_kero_state(kero, STATE_IDLE);
-    kero->pos_x = (float)map->spawn_x;
-    kero->pos_y = (float)map->spawn_y;
-    kero->velocity_x = 0.f;
-    kero->velocity_y = 0.f;
-}
-
 void destroy_kero(kero_t *kero)
 {
     if (kero)
@@ -290,7 +291,7 @@ bool load_kero(kero_t **kero, map_t *map)
     return true;
 }
 
-void update_kero(kero_t *kero, map_t *map, unsigned int *btn)
+void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *renderer)
 {
     update_kero_timing(kero);
     update_kero_animation(kero);
@@ -328,7 +329,7 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn)
         }
         kero->velocity_y = 0.f;
 
-        handle_interaction(kero, map, btn);
+        handle_interaction(kero, map, btn, renderer);
 
         if (!check_bit(*btn, BTN_7))
         {
