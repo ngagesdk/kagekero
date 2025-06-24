@@ -89,21 +89,26 @@ elseif(DREAMCAST)
 
 elseif(UNIX)
   target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES} m)
+
+  if(PACK_ASSETS)
+    add_executable(packer tools/packer.cpp)
+    set_target_properties(packer PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/tools"
+    )
+  endif()
 else()
   target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES})
 endif()
 
-if(WIN32)
-  function(pack_assets asset_dir assets)
-    add_custom_target(data.pfs ALL
-      WORKING_DIRECTORY ${asset_dir}
-      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/packer ${assets}
-      COMMAND ${CMAKE_COMMAND} -E copy
-        ${asset_dir}/data.pfs
-        ${EXPORT_DIR}/data.pfs
-    )
-  endfunction()
-endif()
+function(pack_assets asset_dir assets)
+  add_custom_target(data.pfs ALL
+    WORKING_DIRECTORY ${asset_dir}
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/packer ${assets}
+    COMMAND ${CMAKE_COMMAND} -E copy
+      ${asset_dir}/data.pfs
+      ${EXPORT_DIR}/data.pfs
+  )
+endfunction()
 
 if(PACK_ASSETS)
   set(assets
