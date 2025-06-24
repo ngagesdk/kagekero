@@ -148,13 +148,19 @@ static void handle_pickup(kero_t *kero, map_t *map)
 
 static bool handle_dash(kero_t *kero, unsigned int *btn)
 {
+    if (!kero->jump_lock)
+    {
+        // Only allow dash while jumping or falling.
+        return true;
+    }
+
     if (STATE_DASH == kero->state)
     {
-        if (check_bit(*btn, BTN_LEFT))
+        if (!kero->heading)
         {
             kero->pos_x = kero->warp_x - 64.f;
         }
-        else if (check_bit(*btn, BTN_RIGHT))
+        else
         {
             kero->pos_x = kero->warp_x + 64.f;
         }
