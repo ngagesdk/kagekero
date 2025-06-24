@@ -20,7 +20,7 @@
 #define GRAVITY           0.00125f
 #define MAX_FALLING_SPEED 0.2f
 #define JUMP_VELOCITY     0.25f
-#define POWER_UP_TIMEOUT  500
+#define DASH_TIMEOUT      500
 
 #define START_MAP "001.tmj"
 

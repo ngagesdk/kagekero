@@ -22,7 +22,7 @@ typedef enum kero_state
     STATE_RUN,
     STATE_JUMP,
     STATE_FALL,
-    STATE_POWER_UP
+    STATE_DASH
 
 } kero_state_t;
 
@@ -146,9 +146,9 @@ static void handle_pickup(kero_t *kero, map_t *map)
     }
 }
 
-static bool handle_power_up(kero_t *kero, unsigned int *btn)
+static bool handle_dash(kero_t *kero, unsigned int *btn)
 {
-    if (STATE_POWER_UP == kero->state)
+    if (STATE_DASH == kero->state)
     {
         if (check_bit(*btn, BTN_LEFT))
         {
@@ -159,8 +159,8 @@ static bool handle_power_up(kero_t *kero, unsigned int *btn)
             kero->pos_x = kero->warp_x + 64.f;
         }
 
-        // Timeout for power-up state.
-        if (SDL_GetTicks() - kero->power_up_timeout >= POWER_UP_TIMEOUT)
+        // Timeout for state.
+        if (SDL_GetTicks() - kero->dash_timeout >= DASH_TIMEOUT)
         {
             clear_bit(btn, BTN_5);
             set_kero_state(kero, kero->prev_state);
@@ -173,9 +173,9 @@ static bool handle_power_up(kero_t *kero, unsigned int *btn)
 
     if (check_bit(*btn, BTN_5))
     {
-        set_kero_state(kero, STATE_POWER_UP);
+        set_kero_state(kero, STATE_DASH);
 
-        if (kero->prev_state != STATE_POWER_UP)
+        if (kero->prev_state != STATE_DASH)
         {
             kero->current_frame = 0;
             kero->time_since_last_frame = 0;
@@ -189,7 +189,7 @@ static bool handle_power_up(kero_t *kero, unsigned int *btn)
         kero->anim_offset_y = 64;
         kero->repeat_anim = false;
 
-        kero->power_up_timeout = SDL_GetTicks();
+        kero->dash_timeout = SDL_GetTicks();
         return false;
     }
 
@@ -313,13 +313,13 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
 
     handle_pickup(kero, map);
 
-    if (!handle_power_up(kero, btn))
+    if (!handle_dash(kero, btn))
     {
         return;
     }
 
     int index = get_tile_index((int)kero->pos_x, (int)kero->pos_y, map);
-    if (map->tile_desc[index].is_wall && STATE_POWER_UP == kero->state)
+    if (map->tile_desc[index].is_wall && STATE_DASH == kero->state)
     {
         // Reset kero position if teleport ended inside a wall.
         reset_kero_on_out_of_bounds(kero, map);
