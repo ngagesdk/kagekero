@@ -189,8 +189,10 @@ button_t get_button_from_key(SDL_Keycode key)
 {
     switch (key)
     {
+        case SDLK_5:
         case SDLK_X:
             return BTN_5;
+        case SDLK_7:
         case SDLK_Y:
         case SDLK_Z:
             return BTN_7;
