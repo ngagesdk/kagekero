@@ -22,8 +22,6 @@
 #define JUMP_VELOCITY     0.25f
 #define DASH_TIMEOUT      500
 
-#define DESKTOP (defined SDL_PLATFORM_WINDOWS || defined SDL_PLATFORM_LINUX || defined SDL_PLATFORM_UNIX || defined SDL_PLATFORM_MACOS)
-
 #ifdef __SYMBIAN32__
 #define SCALE           1
 #define WINDOW_W        176

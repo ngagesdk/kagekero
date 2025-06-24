@@ -169,7 +169,7 @@ bool draw_kagekero_scene(kagekero_t *nc)
     int screen_offset_x;
     int screen_offset_y;
 
-#ifdef DESKTOP
+#ifndef __SYMBIAN32__
     screen_offset_x = nc->screen_offset_x;
     screen_offset_y = nc->screen_offset_y;
 #else
