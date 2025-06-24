@@ -22,7 +22,7 @@
 #define JUMP_VELOCITY     0.25f
 #define DASH_TIMEOUT      500
 
-#define START_MAP "001.tmj"
+#define DESKTOP (SDL_PLATFORM_WINDOWS || SDL_PLATFORM_LINUX || SDL_PLATFORM_UNIX || SDL_PLATFORM_MACOS)
 
 #ifdef __SYMBIAN32__
 #define SCALE           1

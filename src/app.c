@@ -17,7 +17,7 @@ static SDL_AudioDeviceID audio_device;
 
 bool init_app(SDL_Renderer **renderer, SDL_Window *window)
 {
-#ifdef WIN32
+#ifdef DESKTOP
     SDL_SetHint("SDL_RENDER_VSYNC", "1");
 #endif
     SDL_SetLogPriorities(SDL_LOG_PRIORITY_INFO);
@@ -34,7 +34,7 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
         SDL_Log("Couldn't initialize gamepad subsystem: %s", SDL_GetError());
     }
 
-#ifdef WIN32
+#ifdef DESKTOP
     SDL_DisplayID display_id = SDL_GetPrimaryDisplay();
     if (!display_id)
     {
@@ -74,7 +74,7 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
         return false;
     }
 
-#if WIN32
+#if DESKTOP
     SDL_WINDOWPOS_CENTERED_DISPLAY(display_id);
 #endif
 

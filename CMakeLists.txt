@@ -87,6 +87,8 @@ elseif(DREAMCAST)
     COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:kagekero>" "${OUTPUT_DIR}/kagekero.elf"
   )
 
+elseif(UNIX)
+  target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES} m)
 else()
   target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES})
 endif()
