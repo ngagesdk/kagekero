@@ -28,7 +28,6 @@ typedef struct kero
     Uint64 time_b;
     Uint64 delta_time;
     Uint64 time_since_last_frame;
-    Uint64 dash_timeout;
 
     Uint32 state;
     Uint32 prev_state;

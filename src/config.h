@@ -14,13 +14,13 @@
 #include "SDL3/SDL.h"
 
 #define ANIM_FPS          15
+#define ACCELERATION_DASH 0.035f
 #define ACCELERATION      0.0025f
 #define DECELERATION      0.0025f
 #define MAX_SPEED         0.1f
 #define GRAVITY           0.00125f
 #define MAX_FALLING_SPEED 0.2f
-#define JUMP_VELOCITY     0.25f
-#define DASH_TIMEOUT      500
+#define JUMP_VELOCITY     0.3f
 
 #ifdef __SYMBIAN32__
 #define SCALE           1

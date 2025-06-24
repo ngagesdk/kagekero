@@ -58,7 +58,15 @@ static void update_kero_animation(kero_t *kero)
 
 static void apply_gravity(kero_t *kero)
 {
-    kero->velocity_y += fp_mul(GRAVITY, (float)kero->delta_time);
+    if (STATE_DASH == kero->state)
+    {
+        kero->velocity_y += fp_mul(fp_div(GRAVITY, 2.f), (float)kero->delta_time);
+    }
+    else
+    {
+        kero->velocity_y += fp_mul(GRAVITY, (float)kero->delta_time);
+    }
+
     if (kero->velocity_y > MAX_FALLING_SPEED)
     {
         kero->velocity_y = MAX_FALLING_SPEED;
@@ -148,33 +156,10 @@ static void handle_pickup(kero_t *kero, map_t *map)
 
 static bool handle_dash(kero_t *kero, unsigned int *btn)
 {
-    if (!kero->jump_lock)
+    if (!kero->jump_lock && !kero->velocity_y)
     {
         // Only allow dash while jumping or falling.
         return true;
-    }
-
-    if (STATE_DASH == kero->state)
-    {
-        if (!kero->heading)
-        {
-            kero->pos_x = kero->warp_x - 64.f;
-        }
-        else
-        {
-            kero->pos_x = kero->warp_x + 64.f;
-        }
-
-        // Timeout for state.
-        if (SDL_GetTicks() - kero->dash_timeout >= DASH_TIMEOUT)
-        {
-            clear_bit(btn, BTN_5);
-            set_kero_state(kero, kero->prev_state);
-        }
-        else
-        {
-            return false;
-        }
     }
 
     if (check_bit(*btn, BTN_5))
@@ -185,21 +170,17 @@ static bool handle_dash(kero_t *kero, unsigned int *btn)
         {
             kero->current_frame = 0;
             kero->time_since_last_frame = 0;
-            kero->warp_x = kero->pos_x;
-            kero->warp_y = kero->pos_y;
+            kero->velocity_x = fp_mul(ACCELERATION_DASH, (float)kero->delta_time);
         }
 
         kero->anim_fps = 15;
         kero->anim_length = 7;
         kero->anim_offset_x = 2;
         kero->anim_offset_y = 64;
-        kero->repeat_anim = false;
 
-        kero->dash_timeout = SDL_GetTicks();
         return false;
     }
 
-    kero->repeat_anim = true;
     return true;
 }
 
@@ -348,6 +329,12 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
         {
             kero->velocity_x = 0.f; // Stop horizontal movement when landing.
         }
+        else if (STATE_DASH == kero->prev_state)
+        {
+            // Reset dash state when landing.
+            set_kero_state(kero, STATE_IDLE);
+            kero->velocity_x = 0.f;
+        }
         kero->velocity_y = 0.f;
 
         handle_interaction(kero, map, btn, renderer);
@@ -381,15 +368,22 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
     }
 
     // Horizontal input and state.
-    if (check_bit(*btn, BTN_LEFT))
+    if (STATE_DASH != kero->state)
     {
-        kero->heading = 0;
-        set_kero_state(kero, STATE_RUN);
-    }
-    else if (check_bit(*btn, BTN_RIGHT))
-    {
-        kero->heading = 1;
-        set_kero_state(kero, STATE_RUN);
+        if (check_bit(*btn, BTN_LEFT))
+        {
+            kero->heading = 0;
+            set_kero_state(kero, STATE_RUN);
+        }
+        else if (check_bit(*btn, BTN_RIGHT))
+        {
+            kero->heading = 1;
+            set_kero_state(kero, STATE_RUN);
+        }
+        else if (kero->velocity_x <= 0.f)
+        {
+            set_kero_state(kero, STATE_IDLE);
+        }
     }
     else if (kero->velocity_x <= 0.f)
     {
@@ -419,7 +413,10 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
     // Animation state.
     if (kero->velocity_y < 0.f)
     {
-        set_kero_state(kero, STATE_JUMP);
+        if (STATE_DASH != kero->state)
+        {
+            set_kero_state(kero, STATE_JUMP);
+        }
         kero->anim_fps = 15;
         kero->anim_length = 0;
         kero->anim_offset_x = 0;
@@ -427,7 +424,10 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
     }
     else if (kero->velocity_y > 0.f)
     {
-        set_kero_state(kero, STATE_FALL);
+        if (STATE_DASH != kero->state)
+        {
+            set_kero_state(kero, STATE_FALL);
+        }
         kero->anim_fps = 15;
         kero->anim_length = 0;
         kero->anim_offset_x = 1;
@@ -452,7 +452,7 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
     // Running state.
     if (STATE_RUN == kero->state || (kero->velocity_y != 0.f))
     {
-        if (check_bit(*btn, BTN_LEFT) || check_bit(*btn, BTN_RIGHT))
+        if ((check_bit(*btn, BTN_LEFT) || check_bit(*btn, BTN_RIGHT)) && STATE_DASH != kero->state)
         {
             kero->velocity_x += fp_mul(ACCELERATION, (float)kero->delta_time);
             if (kero->velocity_x > MAX_SPEED)
