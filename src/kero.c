@@ -116,7 +116,7 @@ static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn, SDL_
             if (!load_map(next_map, &map, renderer))
             {
                 SDL_Log("Failed to load next map: %s", next_map);
-                reset_kero_on_out_of_bounds(kero, map);
+                return;
             }
             else
             {

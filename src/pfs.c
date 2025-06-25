@@ -87,6 +87,8 @@ uint8_t *load_binary_file_from_path(const char *path)
         }
     }
 
+    return NULL;
+
 found:
     if (offset == 0)
     {

@@ -51,6 +51,7 @@ static void destroy_tiled_map(map_t *map)
     {
         cute_tiled_free_map(map->handle);
     }
+    map->handle = NULL;
 }
 
 static bool load_tiled_map(const char *file_name, map_t *map)
