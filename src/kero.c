@@ -167,11 +167,9 @@ static bool handle_dash(kero_t *kero, unsigned int *btn)
         }
 
         kero->anim_fps = 15;
-        kero->anim_length = 7;
+        kero->anim_length = 6;
         kero->anim_offset_x = 2;
         kero->anim_offset_y = 64;
-
-        return false;
     }
 
     return true;
@@ -409,22 +407,22 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
         if (STATE_DASH != kero->state)
         {
             set_kero_state(kero, STATE_JUMP);
+            kero->anim_fps = 15;
+            kero->anim_length = 0;
+            kero->anim_offset_x = 0;
+            kero->anim_offset_y = 64;
         }
-        kero->anim_fps = 15;
-        kero->anim_length = 0;
-        kero->anim_offset_x = 0;
-        kero->anim_offset_y = 64;
     }
     else if (kero->velocity_y > 0.f)
     {
         if (STATE_DASH != kero->state)
         {
             set_kero_state(kero, STATE_FALL);
+            kero->anim_fps = 15;
+            kero->anim_length = 0;
+            kero->anim_offset_x = 1;
+            kero->anim_offset_y = 64;
         }
-        kero->anim_fps = 15;
-        kero->anim_length = 0;
-        kero->anim_offset_x = 1;
-        kero->anim_offset_y = 64;
     }
     else if (STATE_IDLE == kero->state)
     {
