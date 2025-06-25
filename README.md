@@ -11,8 +11,14 @@ Nokia N-Gage.
 
 ## About
 
-影ケロ is a calm puzzle-platformer where you guide a ninja frog through compact, handcrafted levels.  There’s no combat—just
-clever movement, timing-based puzzles, and the occasional tricky jump. Think ahead, move with purpose, and master the flow.
+影ケロ is a puzzle-platformer where you guide Kero, a ninja frog, through a series of compact, handcrafted levels.
+There’s no combat—just movement, timing, and problem-solving. Each level is designed around precision and planning,
+requiring you to think ahead and move deliberately to reach the goal.
+
+The game was originally built with the Nokia N-Gage in mind, making use of its screen layout, controls, and
+technical quirks.  That said, it runs on other platforms too, staying true to its design roots without compromising
+the experience.  Whether you're playing on original hardware or something modern, 影ケロ keeps its focus on tight
+level design, clean mechanics, and a steady challenge curve.
 
 ## Status
 
@@ -21,5 +27,4 @@ This project is currently in development.
 ## License
 
 This project's source code is, unless stated otherwise, licensed under
-the "The MIT License".  
-See the file [LICENSE.md](LICENSE.md) for details.
+the "The MIT License".  See the file [LICENSE.md](LICENSE.md) for details.
