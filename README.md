@@ -11,9 +11,8 @@ Nokia N-Gage.
 
 ## About
 
-Kage Kero is a calm puzzle-platformer where you guide a ninja frog through compact,
-handcrafted levels. There’s no combat, no tricky jumps—just clever movement and
-timing-based puzzles.  Think ahead, move with purpose, and master the flow.
+影ケロ is a calm puzzle-platformer where you guide a ninja frog through compact, handcrafted levels.  There’s no combat—just
+clever movement, timing-based puzzles, and the occasional tricky jump. Think ahead, move with purpose, and master the flow.
 
 ## Status
 
