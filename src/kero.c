@@ -58,14 +58,7 @@ static void update_kero_animation(kero_t *kero)
 
 static void apply_gravity(kero_t *kero)
 {
-    if (STATE_DASH == kero->state)
-    {
-        kero->velocity_y += fp_mul(fp_div(GRAVITY, 2.f), (float)kero->delta_time);
-    }
-    else
-    {
-        kero->velocity_y += fp_mul(GRAVITY, (float)kero->delta_time);
-    }
+    kero->velocity_y += fp_mul(GRAVITY, (float)kero->delta_time);
 
     if (kero->velocity_y > MAX_FALLING_SPEED)
     {
@@ -170,7 +163,7 @@ static bool handle_dash(kero_t *kero, unsigned int *btn)
         {
             kero->current_frame = 0;
             kero->time_since_last_frame = 0;
-            kero->velocity_x = fp_mul(ACCELERATION_DASH, (float)kero->delta_time);
+            kero->velocity_x = ACCELERATION_DASH;
         }
 
         kero->anim_fps = 15;

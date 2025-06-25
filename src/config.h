@@ -14,7 +14,7 @@
 #include "SDL3/SDL.h"
 
 #define ANIM_FPS          15
-#define ACCELERATION_DASH 0.035f
+#define ACCELERATION_DASH 0.6f
 #define ACCELERATION      0.0025f
 #define DECELERATION      0.0025f
 #define MAX_SPEED         0.1f
