@@ -22,7 +22,8 @@ typedef enum kero_state
     STATE_RUN,
     STATE_JUMP,
     STATE_FALL,
-    STATE_DASH
+    STATE_DASH,
+    STATE_DEAD
 
 } kero_state_t;
 
@@ -276,6 +277,7 @@ bool load_kero(kero_t **kero, map_t *map)
     (*kero)->pos_x = (float)map->spawn_x;
     (*kero)->pos_y = (float)map->spawn_y;
     (*kero)->anim_fps = 1;
+    (*kero)->repeat_anim = true;
     (*kero)->heading = 1;
     (*kero)->level = 1;
 
@@ -288,6 +290,17 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
 {
     update_kero_timing(kero);
     update_kero_animation(kero);
+
+    if (STATE_DEAD == kero->state)
+    {
+        if (check_bit(*btn, BTN_SOFTRIGHT))
+        {
+            reset_kero_on_out_of_bounds(kero, map);
+            kero->repeat_anim = true;
+        }
+
+        return;
+    }
 
     handle_pickup(kero, map);
 
@@ -305,12 +318,25 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
     }
 
     // Check ground status.
+    bool on_deadly_ground = map->tile_desc[index].is_deadly;
     index += map->handle->width;
     bool on_solid_ground = map->tile_desc[index].is_solid && kero->state != STATE_JUMP;
     bool at_bottom = kero->pos_y > map->height - KERO_HALF;
 
     // Vertical movement.
-    if (at_bottom)
+    if (on_deadly_ground)
+    {
+        // Reset kero position if on deadly ground.
+        set_kero_state(kero, STATE_DEAD);
+
+        kero->anim_fps = 15;
+        kero->anim_length = 3;
+        kero->anim_offset_x = 8;
+        kero->anim_offset_y = 64;
+        kero->repeat_anim = false;
+        return;
+    }
+    else if (at_bottom)
     {
         apply_gravity(kero);
     }

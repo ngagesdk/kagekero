@@ -4128,16 +4128,6 @@
                          "name":"is_deadly",
                          "type":"bool",
                          "value":true
-                        }, 
-                        {
-                         "name":"is_solid",
-                         "type":"bool",
-                         "value":true
-                        }, 
-                        {
-                         "name":"offset_top",
-                         "type":"int",
-                         "value":12
                         }]
                 }, 
                 {
