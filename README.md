@@ -21,5 +21,5 @@ This project is currently in development.
 ## License
 
 This project's source code is, unless stated otherwise, licensed under
-the "The MIT License".  See the file [LICENSE.md](LICENSE.md) for
-details.
+the "The MIT License".  
+See the file [LICENSE.md](LICENSE.md) for details.
