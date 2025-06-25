@@ -156,7 +156,7 @@ static bool handle_dash(kero_t *kero, unsigned int *btn)
         return true;
     }
 
-    if (check_bit(*btn, BTN_5))
+    if (check_bit(*btn, BTN_5) && STATE_DEAD != kero->prev_state)
     {
         set_kero_state(kero, STATE_DASH);
 
