@@ -293,7 +293,7 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
 
     if (STATE_DEAD == kero->state)
     {
-        if (check_bit(*btn, BTN_SOFTRIGHT))
+        if (check_bit(*btn, BTN_7))
         {
             reset_kero_on_out_of_bounds(kero, map);
             kero->repeat_anim = true;
