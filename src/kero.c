@@ -107,23 +107,37 @@ static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn, SDL_
 
     if (check_bit(*btn, BTN_UP))
     {
-        if (map->tile_desc[index].is_door)
-        {
-            char next_map[8] = { 0 };
-            kero->level += 1;
+        aabb_t kero_bb;
+        kero_bb.top = kero->pos_y - KERO_HALF;
+        kero_bb.bottom = kero->pos_y + KERO_HALF;
+        kero_bb.left = kero->pos_x - KERO_HALF;
+        kero_bb.right = kero->pos_x + KERO_HALF;
 
-            SDL_snprintf(next_map, 8, "%03d.tmj", kero->level);
-            if (!load_map(next_map, &map, renderer))
+        int index = -1;
+
+        if (object_intersects(kero_bb, map, &index))
+        {
+            if (H_DOOR == map->obj[index].hash)
             {
-                SDL_Log("Failed to load next map: %s", next_map);
-                return;
-            }
-            else
-            {
-                kero->pos_x = (float)map->spawn_x;
-                kero->pos_y = (float)map->spawn_y;
-                kero->velocity_x = 0.f;
-                kero->velocity_y = 0.f;
+                if (1 == map->obj[index].start_frame) // Door is open.
+                {
+                    char next_map[8] = { 0 };
+                    kero->level += 1;
+
+                    SDL_snprintf(next_map, 8, "%03d.tmj", kero->level);
+                    if (!load_map(next_map, &map, renderer))
+                    {
+                        SDL_Log("Failed to load next map: %s", next_map);
+                        return;
+                    }
+                    else
+                    {
+                        kero->pos_x = (float)map->spawn_x;
+                        kero->pos_y = (float)map->spawn_y;
+                        kero->velocity_x = 0.f;
+                        kero->velocity_y = 0.f;
+                    }
+                }
             }
         }
     }
@@ -143,6 +157,10 @@ static void handle_pickup(kero_t *kero, map_t *map)
     {
         if (H_COIN == map->obj[index].hash)
         {
+            if (!map->obj[index].is_hidden)
+            {
+                map->coin_count -= 1;
+            }
             map->obj[index].is_hidden = true;
         }
     }

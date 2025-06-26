@@ -102,6 +102,30 @@
                  "width":16,
                  "x":32,
                  "y":80
+                }, 
+                {
+                 "gid":1264,
+                 "height":16,
+                 "id":30,
+                 "name":"door",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":224,
+                 "y":80
+                }, 
+                {
+                 "gid":1214,
+                 "height":16,
+                 "id":31,
+                 "name":"door",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":224,
+                 "y":64
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -113,8 +137,8 @@
          "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1166, 1167, 1168, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1216, 1217, 1218, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1266, 1267, 1268, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1216, 0, 1218, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1266, 0, 1268, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1128, 1129, 1630, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1928, 1929, 1680, 1830, 0, 0, 0, 1283, 0, 0,
             0, 0, 0, 531, 0, 0, 0, 0, 0, 0, 0, 0, 1978, 1979, 1730, 0, 0, 0, 0, 1283, 0, 0,
@@ -205,7 +229,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":30,
+ "nextobjectid":32,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",
@@ -3773,22 +3797,28 @@
                  "id":1200
                 }, 
                 {
-                 "id":1216,
-                 "properties":[
+                 "animation":[
                         {
-                         "name":"is_door",
-                         "type":"bool",
-                         "value":true
-                        }]
+                         "duration":0,
+                         "tileid":1213
+                        }, 
+                        {
+                         "duration":100,
+                         "tileid":1216
+                        }],
+                 "id":1213
                 }, 
                 {
-                 "id":1222,
-                 "properties":[
+                 "animation":[
                         {
-                         "name":"is_door",
-                         "type":"bool",
-                         "value":true
-                        }]
+                         "duration":0,
+                         "tileid":1219
+                        }, 
+                        {
+                         "duration":0,
+                         "tileid":1222
+                        }],
+                 "id":1219
                 }, 
                 {
                  "id":1242,
@@ -3883,22 +3913,28 @@
                  "id":1250
                 }, 
                 {
-                 "id":1266,
-                 "properties":[
+                 "animation":[
                         {
-                         "name":"is_door",
-                         "type":"bool",
-                         "value":true
-                        }]
+                         "duration":0,
+                         "tileid":1263
+                        }, 
+                        {
+                         "duration":100,
+                         "tileid":1266
+                        }],
+                 "id":1263
                 }, 
                 {
-                 "id":1272,
-                 "properties":[
+                 "animation":[
                         {
-                         "name":"is_door",
-                         "type":"bool",
-                         "value":true
-                        }]
+                         "duration":0,
+                         "tileid":1269
+                        }, 
+                        {
+                         "duration":1000,
+                         "tileid":1272
+                        }],
+                 "id":1269
                 }, 
                 {
                  "id":1292,
@@ -4104,24 +4140,6 @@
                  "id":1350
                 }, 
                 {
-                 "id":1366,
-                 "properties":[
-                        {
-                         "name":"is_door",
-                         "type":"bool",
-                         "value":true
-                        }]
-                }, 
-                {
-                 "id":1372,
-                 "properties":[
-                        {
-                         "name":"is_door",
-                         "type":"bool",
-                         "value":true
-                        }]
-                }, 
-                {
                  "id":1385,
                  "properties":[
                         {
@@ -4193,24 +4211,6 @@
                          "name":"offset_top",
                          "type":"int",
                          "value":8
-                        }]
-                }, 
-                {
-                 "id":1416,
-                 "properties":[
-                        {
-                         "name":"is_door",
-                         "type":"bool",
-                         "value":true
-                        }]
-                }, 
-                {
-                 "id":1422,
-                 "properties":[
-                        {
-                         "name":"is_door",
-                         "type":"bool",
-                         "value":true
                         }]
                 }, 
                 {
@@ -4318,8 +4318,7 @@
                          "type":"bool",
                          "value":true
                         }]
-                },
-            
+                }, 
                 {
                  "id":1452,
                  "properties":[
@@ -4355,7 +4354,8 @@
                          "type":"bool",
                          "value":true
                         }]
-                }, 
+                },
+            
                 {
                  "id":1456,
                  "properties":[
@@ -4631,8 +4631,7 @@
                          "type":"bool",
                          "value":true
                         }]
-                },
-            
+                }, 
                 {
                  "id":1553,
                  "properties":[
@@ -4725,7 +4724,8 @@
                          "type":"bool",
                          "value":true
                         }]
-                }, 
+                },
+            
                 {
                  "animation":[
                         {
@@ -5058,8 +5058,7 @@
                          "type":"bool",
                          "value":true
                         }]
-                },
-            
+                }, 
                 {
                  "id":1770,
                  "properties":[
@@ -5095,7 +5094,8 @@
                          "type":"bool",
                          "value":true
                         }]
-                }, 
+                },
+            
                 {
                  "animation":[
                         {

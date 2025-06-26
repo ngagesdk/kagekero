@@ -17,27 +17,16 @@
 #include "cute_tiled.h"
 
 #define H_COIN 0x000000017c953f2e
+#define H_DOOR 0x000000017c95cc59
 
 typedef struct tile_desc
 {
     bool is_deadly;
-    bool is_door;
     bool is_solid;
     bool is_wall;
     int offset_top;
 
 } tile_desc_t;
-
-typedef struct anim
-{
-    Uint64 time_since_last_anim_frame;
-    int current_frame;
-    int first_frame;
-    int fps;
-    int length;
-    int offset_y;
-
-} anim_t;
 
 typedef struct obj
 {
@@ -46,6 +35,7 @@ typedef struct obj
     int canvas_src_x;
     int canvas_src_y;
     int anim_length;
+    int start_frame;
     int current_frame;
     int gid;
     int id;
@@ -83,6 +73,7 @@ typedef struct map
 
     obj_t *obj;
     int obj_count;
+    int coin_count;
 
     Uint8 bg_r;
     Uint8 bg_g;

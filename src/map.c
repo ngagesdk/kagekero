@@ -29,7 +29,6 @@
 
 #define H_GRAVITY     0x0000d0b30d77f26b
 #define H_IS_DEADLY   0x0377cc445c348313
-#define H_IS_DOOR     0x0000d0b3a9939d94
 #define H_IS_SOLID    0x001ae728dd16b21b
 #define H_IS_WALL     0x0000d0b3a99dccd0
 #define H_OBJECTGROUP 0xc0b9d518970be349
@@ -554,10 +553,6 @@ static bool load_tiles(map_t *map)
                         {
                             map->tile_desc[tile_index].is_deadly = true;
                         }
-                        if (get_boolean_property(H_IS_DOOR, tile->properties, prop_cnt, map))
-                        {
-                            map->tile_desc[tile_index].is_door = true;
-                        }
                         if (get_boolean_property(H_IS_SOLID, tile->properties, prop_cnt, map))
                         {
                             map->tile_desc[tile_index].is_solid = true;
@@ -619,6 +614,11 @@ static bool load_objects(map_t *map)
                 cute_tiled_object_t *object = get_head_object(layer, map);
                 while (object)
                 {
+                    if (H_COIN == generate_hash(get_object_name(object)))
+                    {
+                        map->coin_count += 1;
+                    }
+
                     if (H_SPAWN == generate_hash(get_object_name(object)))
                     {
                         map->spawn_x = (int)object->x;
@@ -738,6 +738,7 @@ bool load_map(const char *file_name, map_t **map, SDL_Renderer *renderer)
     else
     {
         (*map)->obj_count = 0;
+        (*map)->coin_count = 0;
         (*map)->layer_count = 0;
         (*map)->spawn_x = 0;
         (*map)->spawn_y = 0;
@@ -838,6 +839,12 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                     continue; // Skip invalid GIDs.
                 }
 
+                if (H_DOOR == map->obj[index].hash && !map->coin_count)
+                {
+                    map->obj[index].start_frame = 1;
+                    map->obj[index].current_frame = 1;
+                }
+
                 SDL_Rect dst = { 0 };
                 SDL_Rect src = { 0 };
                 int gid = map->obj[index].gid;
@@ -870,10 +877,13 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                 {
                     SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
 
-                    map->obj[index].current_frame += 1;
-                    if (map->obj[index].current_frame >= map->obj[index].anim_length)
+                    if (map->obj[index].anim_length)
                     {
-                        map->obj[index].current_frame = 0;
+                        map->obj[index].current_frame += 1;
+                        if (map->obj[index].current_frame >= map->obj[index].anim_length + map->obj[index].start_frame)
+                        {
+                            map->obj[index].current_frame = map->obj[index].start_frame;
+                        }
                     }
                 }
 
@@ -958,6 +968,11 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                     map->obj[index].anim_length = anim_length;
                     map->obj[index].object_id = get_object_uid(object);
                     map->obj[index].hash = generate_hash((const char *)get_object_name(object));
+
+                    if (H_DOOR == map->obj[index].hash)
+                    {
+                        map->obj[index].anim_length = 0;
+                    }
 
                     if (prev_layer)
                     {
