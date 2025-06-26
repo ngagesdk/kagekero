@@ -81,7 +81,7 @@ static void set_kero_state(kero_t *kero, kero_state_t state)
 
 static void handle_jump(kero_t *kero, unsigned int *btn)
 {
-    if (check_bit(*btn, BTN_7) && !kero->jump_lock)
+    if (check_bit(*btn, BTN_7) && !check_bit(*btn, BTN_5) && !kero->jump_lock)
     {
         if (kero->prev_state != STATE_JUMP && kero->state != STATE_JUMP)
         {

@@ -5,6 +5,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 project(kagekero C CXX)
 
 option(PACK_ASSETS "Pack game assets into data.pfs" OFF)
+option(BUILD_FULL_VERSION "Build full version" OFF)
 
 set(EXPORT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/export)
 
@@ -111,14 +112,29 @@ function(pack_assets asset_dir assets)
 endfunction()
 
 if(PACK_ASSETS)
-  set(assets
-    "001.tmj"
-    "002.tmj"
-    "frame.png"
-    "kero.png"
-    "tileset.png"
-  )
-  pack_assets("${CMAKE_CURRENT_SOURCE_DIR}/assets" "${assets}")
+
+  if(BUILD_FULL_VERSION)
+    set(assets
+      "001.tmj"
+      "002.tmj"
+      "frame.png"
+      "kero.png"
+      "tileset.png"
+    )
+    pack_assets("${CMAKE_CURRENT_SOURCE_DIR}/full-assets" "${assets}")
+
+  else()
+    set(assets
+      "001.tmj"
+      "002.tmj"
+      "frame.png"
+      "kero.png"
+      "tileset.png"
+    )
+    pack_assets("${CMAKE_CURRENT_SOURCE_DIR}/assets" "${assets}")
+
+  endif()
+
 endif()
 
 if (NINTENDO_3DS)

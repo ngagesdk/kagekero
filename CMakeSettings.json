@@ -7,7 +7,7 @@
       "inheritEnvironments": [ "msvc_x64_x64" ],
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "-DCMAKE_PREFIX_PATH=${env.NGAGESDK}/sdk/extras/lib/cmake -DPACK_ASSETS=ON",
+      "cmakeCommandArgs": "-DCMAKE_PREFIX_PATH=${env.NGAGESDK}/sdk/extras/lib/cmake -DPACK_ASSETS=ON -DBUILD_FULL_VERSION=ON",
       "buildCommandArgs": "-v -j 1",
       "ctestCommandArgs": "",
       "variables": [
@@ -24,7 +24,7 @@
       "configurationType": "RelWithDebInfo",
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "-DPACK_ASSETS=ON",
+      "cmakeCommandArgs": "-DPACK_ASSETS=ON -DBUILD_FULL_VERSION=ON",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x86" ]
@@ -35,7 +35,7 @@
       "configurationType": "Debug",
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "-DPACK_ASSETS=ON",
+      "cmakeCommandArgs": "-DPACK_ASSETS=ON -DBUILD_FULL_VERSION=ON",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x86" ]
