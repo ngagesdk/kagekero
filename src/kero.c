@@ -170,7 +170,7 @@ static bool handle_dash(kero_t *kero, unsigned int *btn)
         kero->anim_fps = 15;
         kero->anim_length = 6;
         kero->anim_offset_x = 2;
-        kero->anim_offset_y = 64;
+        kero->anim_offset_y = 2;
     }
 
     return true;
@@ -333,7 +333,7 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
         kero->anim_fps = 15;
         kero->anim_length = 3;
         kero->anim_offset_x = 8;
-        kero->anim_offset_y = 64;
+        kero->anim_offset_y = 2;
         kero->repeat_anim = false;
         return;
     }
@@ -417,13 +417,13 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
     }
     else
     {
-        kero->sprite_offset = 96;
+        kero->sprite_offset = 3;
         kero->pos_x += (kero->velocity_x > 0.f) ? -move : move;
     }
 
     if (kero->wears_mask)
     {
-        kero->sprite_offset += 192;
+        kero->sprite_offset += 6;
     }
 
     clamp_kero_position(kero, map);
@@ -437,7 +437,7 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
             kero->anim_fps = 15;
             kero->anim_length = 0;
             kero->anim_offset_x = 0;
-            kero->anim_offset_y = 64;
+            kero->anim_offset_y = 2;
         }
     }
     else if (kero->velocity_y > 0.f)
@@ -448,7 +448,7 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
             kero->anim_fps = 15;
             kero->anim_length = 0;
             kero->anim_offset_x = 1;
-            kero->anim_offset_y = 64;
+            kero->anim_offset_y = 2;
         }
     }
     else if (STATE_IDLE == kero->state)
@@ -464,7 +464,7 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
         kero->anim_fps = 15;
         kero->anim_length = 12;
         kero->anim_offset_x = 0;
-        kero->anim_offset_y = 32;
+        kero->anim_offset_y = 1;
     }
 
     // Running state.
@@ -508,7 +508,7 @@ bool render_kero(kero_t *kero, map_t *map)
     SDL_BlitSurface(map->render_canvas, &src, kero->temp_canvas, NULL);
 
     src.x = (kero->current_frame + kero->anim_offset_x) * KERO_SIZE;
-    src.y = kero->anim_offset_y + kero->sprite_offset;
+    src.y = (kero->anim_offset_y + kero->sprite_offset) * KERO_SIZE;
 
     SDL_BlitSurface(kero->sprite, &src, kero->temp_canvas, NULL);
     SDL_BlitSurface(kero->temp_canvas, NULL, kero->render_canvas, NULL);
