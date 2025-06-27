@@ -166,7 +166,7 @@ if(PACK_ASSETS)
         "kero.png"
         "tileset.png"
       )
-      compress_maps("${CMAKE_CURRENT_SOURCE_DIR}/full-assets")
+      compress_maps("${CMAKE_CURRENT_SOURCE_DIR}/assets")
     else()
       set(assets
         "001.tmj"
