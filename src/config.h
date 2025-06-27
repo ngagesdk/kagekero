@@ -34,8 +34,8 @@
 #define WINDOW_W        400
 #define WINDOW_H        240
 #define WINDOW_FLAGS    0
-#define FRAME_OFFSET_X  -120
-#define FRAME_OFFSET_Y  -120
+#define FRAME_OFFSET_X  0
+#define FRAME_OFFSET_Y  0
 #define SCREEN_OFFSET_X 112
 #define SCREEN_OFFSET_Y 16
 #elif defined __DREAMCAST__
@@ -61,7 +61,10 @@
 #define SCREEN_W 176
 #define SCREEN_H 208
 
-#if defined __DREAMCAST__
+#if defined __3DS__
+#define FRAME_WIDTH  400
+#define FRAME_HEIGHT 240
+#elif defined __DREAMCAST__
 #define FRAME_WIDTH  512
 #define FRAME_HEIGHT 512
 #else

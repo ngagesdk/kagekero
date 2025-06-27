@@ -34,7 +34,11 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
         SDL_Log("Couldn't initialize gamepad subsystem: %s", SDL_GetError());
     }
 
-#ifndef __SYMBIAN32__
+#ifdef __3DS__
+    int window_w = WINDOW_W;
+    int window_h = WINDOW_H;
+
+#elif !defined __SYMBIAN32__
     SDL_DisplayID display_id = SDL_GetPrimaryDisplay();
     if (!display_id)
     {
@@ -61,6 +65,7 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
     {
         SDL_Log("Couldn't hide cursor: %s", SDL_GetError());
     }
+
 #else
     int window_w = WINDOW_W * SCALE;
     int window_h = WINDOW_H * SCALE;
@@ -74,7 +79,8 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
         return false;
     }
 
-#ifndef __SYMBIAN32__
+#ifdef __3DS__
+#elif !defined __SYMBIAN32__
     SDL_WINDOWPOS_CENTERED_DISPLAY(display_id);
 #endif
 
@@ -85,11 +91,13 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
         return false;
     }
 
+#ifndef __3DS__
     if (!SDL_SetRenderScale(*renderer, (float)max_scale, (float)max_scale))
     {
         SDL_Log("Could not apply drawing scale factor: %s", SDL_GetError());
         return false;
     }
+#endif
 
     if (!SDL_DisableScreenSaver())
     {
