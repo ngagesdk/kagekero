@@ -117,8 +117,10 @@ if(PACK_ASSETS)
     set(assets
       "001.tmj"
       "002.tmj"
+      "003.tmj"
       "frame.png"
       "frame_400x240.png"
+      "frame_512x512.png"
       "kero.png"
       "tileset.png"
     )
@@ -130,6 +132,7 @@ if(PACK_ASSETS)
       "002.tmj"
       "frame.png"
       "frame_400x240.png"
+      "frame_512x512.png"
       "kero.png"
       "tileset.png"
     )

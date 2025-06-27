@@ -78,13 +78,8 @@ bool init_kagekero(kagekero_t **nc)
         return false;
     }
 
-#if __3DS__
-    if (!load_texture_from_file("frame_400x240.png", &(*nc)->frame, (*nc)->renderer))
-    {
-        return false;
-    }
-#elif !defined __SYMBIAN32__
-    if (!load_texture_from_file("frame.png", &(*nc)->frame, (*nc)->renderer))
+#if !defined __SYMBIAN32__
+    if (!load_texture_from_file(FRAME_IMAGE, &(*nc)->frame, (*nc)->renderer))
     {
         return false;
     }
@@ -103,8 +98,16 @@ bool update_kagekero(kagekero_t *nc)
     render_map(nc->map, nc->renderer);
     render_kero(nc->kero, nc->map);
 
-#ifdef _3DS
+#if defined __3DS__
     SDL_RenderTexture(nc->renderer, nc->frame, NULL, NULL);
+#elif defined __DREAMCAST__
+    SDL_FRect dst;
+    dst.w = FRAME_WIDTH;
+    dst.h = FRAME_HEIGHT;
+    dst.x = FRAME_OFFSET_X;
+    dst.y = FRAME_OFFSET_Y;
+
+    SDL_RenderTexture(nc->renderer, nc->frame, NULL, &dst);
 #elif !defined __SYMBIAN32__
     SDL_FRect src;
     src.w = FRAME_WIDTH;
@@ -176,7 +179,7 @@ bool draw_kagekero_scene(kagekero_t *nc)
     int screen_offset_x;
     int screen_offset_y;
 
-#ifdef __3DS__
+#if defined __3DS__ || defined __DREAMCAST__
     screen_offset_x = SCREEN_OFFSET_X;
     screen_offset_y = SCREEN_OFFSET_Y;
 #elif !defined __SYMBIAN32__

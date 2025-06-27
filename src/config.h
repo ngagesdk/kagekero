@@ -38,6 +38,7 @@
 #define FRAME_OFFSET_Y  0
 #define SCREEN_OFFSET_X 112
 #define SCREEN_OFFSET_Y 16
+#define FRAME_IMAGE     "frame_400x240.png"
 #elif defined __DREAMCAST__
 #define SCALE           1
 #define WINDOW_W        640
@@ -47,6 +48,7 @@
 #define FRAME_OFFSET_Y  -12
 #define SCREEN_OFFSET_X 232
 #define SCREEN_OFFSET_Y 136
+#define FRAME_IMAGE     "frame_512x512.png"
 #else
 #define SCALE           1
 #define WINDOW_W        640
@@ -56,6 +58,7 @@
 #define FRAME_OFFSET_Y  0
 #define SCREEN_OFFSET_X 232
 #define SCREEN_OFFSET_Y 136
+#define FRAME_IMAGE     "frame.png"
 #endif
 
 #define SCREEN_W 176

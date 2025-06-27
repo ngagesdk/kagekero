@@ -34,7 +34,7 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
         SDL_Log("Couldn't initialize gamepad subsystem: %s", SDL_GetError());
     }
 
-#ifdef __3DS__
+#if defined __3DS__ || defined __DREAMCAST__
     int window_w = WINDOW_W;
     int window_h = WINDOW_H;
 
@@ -79,7 +79,7 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
         return false;
     }
 
-#ifdef __3DS__
+#if defined __3DS__ || defined __DREAMCAST__
 #elif !defined __SYMBIAN32__
     SDL_WINDOWPOS_CENTERED_DISPLAY(display_id);
 #endif
@@ -91,7 +91,7 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
         return false;
     }
 
-#ifndef __3DS__
+#if !defined __3DS__ && !defined __DREAMCAST__
     if (!SDL_SetRenderScale(*renderer, (float)max_scale, (float)max_scale))
     {
         SDL_Log("Could not apply drawing scale factor: %s", SDL_GetError());
