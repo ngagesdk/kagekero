@@ -103,8 +103,6 @@ static void reset_kero_on_out_of_bounds(kero_t *kero, map_t *map)
 
 static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *renderer)
 {
-    int index = get_tile_index((int)kero->pos_x, (int)kero->pos_y, map);
-
     if (check_bit(*btn, BTN_UP))
     {
         aabb_t kero_bb;
@@ -166,12 +164,12 @@ static void handle_pickup(kero_t *kero, map_t *map)
     }
 }
 
-static bool handle_dash(kero_t *kero, unsigned int *btn)
+static void handle_dash(kero_t *kero, unsigned int *btn)
 {
     if (!kero->jump_lock && !kero->velocity_y)
     {
         // Only allow dash while jumping or falling.
-        return true;
+        return;
     }
 
     if (check_bit(*btn, BTN_5) && STATE_DEAD != kero->prev_state)
@@ -190,8 +188,6 @@ static bool handle_dash(kero_t *kero, unsigned int *btn)
         kero->anim_offset_x = 2;
         kero->anim_offset_y = 2;
     }
-
-    return true;
 }
 
 static void clamp_kero_position(kero_t *kero, map_t *map)
@@ -322,11 +318,7 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
     }
 
     handle_pickup(kero, map);
-
-    if (!handle_dash(kero, btn))
-    {
-        return;
-    }
+    handle_dash(kero, btn);
 
     int index = get_tile_index((int)kero->pos_x, (int)kero->pos_y, map);
     if (map->tile_desc[index].is_wall && STATE_DASH == kero->state)
