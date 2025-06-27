@@ -57,6 +57,7 @@ static void destroy_tiled_map(map_t *map)
     map->handle = NULL;
 }
 
+#if defined __SYMBIAN32__
 static bool decompress_gz_buffer(Uint8 *compressed_data, size_t compressed_size, Uint8 **out_decompressed_data, uLongf *out_decompressed_size)
 {
     const size_t CHUNK_SIZE = 16384;
@@ -113,6 +114,7 @@ static bool decompress_gz_buffer(Uint8 *compressed_data, size_t compressed_size,
 
     return true;
 }
+#endif
 
 static bool load_tiled_map(const char *file_name, map_t *map)
 {
