@@ -293,7 +293,7 @@ bool load_kero(kero_t **kero, map_t *map)
     (*kero)->anim_fps = 1;
     (*kero)->repeat_anim = true;
     (*kero)->heading = 1;
-    (*kero)->level = 1;
+    (*kero)->level = FIRST_LEVEL;
 
     set_kero_state(*kero, STATE_IDLE);
 

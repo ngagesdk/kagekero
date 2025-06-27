@@ -61,7 +61,9 @@ bool init_kagekero(kagekero_t **nc)
 
     init_file_reader();
 
-    if (!load_map("001.tmj", &(*nc)->map, (*nc)->renderer))
+    char first_map[8] = { 0 };
+    SDL_snprintf(first_map, 8, "%03d.tmj", FIRST_LEVEL);
+    if (!load_map(first_map, &(*nc)->map, (*nc)->renderer))
     {
         return false;
     }
