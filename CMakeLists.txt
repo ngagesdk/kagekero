@@ -46,6 +46,7 @@ if(NGAGESDK)
 
   #target_link_libraries(kagekero PRIVATE SDL3_mixer::SDL3_mixer)
   target_link_libraries(kagekero PRIVATE SDL3::SDL3)
+  target_link_libraries(kagekero PRIVATE ${EPOC_EXTRAS}/lib/zlib.lib)
 
   set(kagekero_app_sources
     src/ngage.cpp
@@ -111,35 +112,73 @@ function(pack_assets asset_dir assets)
   )
 endfunction()
 
-if(PACK_ASSETS)
+function(compress_maps asset_dir)
+  add_custom_target(001.tmj.gz ALL
+    WORKING_DIRECTORY ${asset_dir}
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/gzip -k -f *.tmj
+  )
+endfunction()
 
+if(PACK_ASSETS)
   if(BUILD_FULL_VERSION)
-    set(assets
-      "001.tmj"
-      "002.tmj"
-      "003.tmj"
-      "004.tmj"
-      "005.tmj"
-      "006.tmj"
-      "007.tmj"
-      "frame.png"
-      "frame_400x240.png"
-      "frame_512x512.png"
-      "kero.png"
-      "tileset.png"
-    )
+    if(NGAGESDK)
+      set(assets
+        "001.tmj.gz"
+        "002.tmj.gz"
+        "003.tmj.gz"
+        "004.tmj.gz"
+        "005.tmj.gz"
+        "006.tmj.gz"
+        "007.tmj.gz"
+        "frame.png"
+        "frame_400x240.png"
+        "frame_512x512.png"
+        "kero.png"
+        "tileset.png"
+      )
+      compress_maps("${CMAKE_CURRENT_SOURCE_DIR}/full-assets")
+    else()
+      set(assets
+        "001.tmj"
+        "002.tmj"
+        "003.tmj"
+        "004.tmj"
+        "005.tmj"
+        "006.tmj"
+        "007.tmj"
+        "frame.png"
+        "frame_400x240.png"
+        "frame_512x512.png"
+        "kero.png"
+        "tileset.png"
+      )
+    endif()
     pack_assets("${CMAKE_CURRENT_SOURCE_DIR}/full-assets" "${assets}")
 
   else()
-    set(assets
-      "001.tmj"
-      "002.tmj"
-      "frame.png"
-      "frame_400x240.png"
-      "frame_512x512.png"
-      "kero.png"
-      "tileset.png"
-    )
+    if (NGAGESDK)
+      set(assets
+        "001.tmj.gz"
+        "002.tmj.gz"
+        "frame.png"
+        "frame_400x240.png"
+        "frame_512x512.png"
+        "kero.png"
+        "tileset.png"
+      )
+      compress_maps("${CMAKE_CURRENT_SOURCE_DIR}/full-assets")
+    else()
+      set(assets
+        "001.tmj"
+        "002.tmj"
+        "frame.png"
+        "frame_400x240.png"
+        "frame_512x512.png"
+        "kero.png"
+        "tileset.png"
+      )
+    endif()
+
     pack_assets("${CMAKE_CURRENT_SOURCE_DIR}/assets" "${assets}")
 
   endif()

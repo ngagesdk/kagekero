@@ -16,6 +16,10 @@
 #include "utils.h"
 
 #if defined __SYMBIAN32__
+#include "zlib.h"
+#endif
+
+#if defined __SYMBIAN32__
 #define CUTE_TILED_SNPRINTF(ARGS...) (void)(ARGS)
 #define CUTE_TILED_STRTOLL           strtol
 #define CUTE_TILED_STRTOULL          strtoul
@@ -53,6 +57,63 @@ static void destroy_tiled_map(map_t *map)
     map->handle = NULL;
 }
 
+static bool decompress_gz_buffer(Uint8 *compressed_data, size_t compressed_size, Uint8 **out_decompressed_data, uLongf *out_decompressed_size)
+{
+    const size_t CHUNK_SIZE = 16384;
+    Uint8 *output = NULL;
+    size_t output_capacity = 0;
+    size_t output_size = 0;
+
+    z_stream strm = { 0 };
+    strm.next_in = compressed_data;
+    strm.avail_in = compressed_size;
+
+    if (inflateInit2(&strm, 16 + MAX_WBITS) != Z_OK)
+    {
+        SDL_Log("inflateInit2 failed");
+        return false;
+    }
+
+    int ret;
+    do
+    {
+        if (output_size + CHUNK_SIZE > output_capacity)
+        {
+            output_capacity += CHUNK_SIZE;
+            Uint8 *new_output = (Uint8 *)SDL_realloc(output, output_capacity);
+            if (!new_output)
+            {
+                SDL_Log("Failed to allocate memory during decompression");
+                SDL_free(output);
+                inflateEnd(&strm);
+                return false;
+            }
+            output = new_output;
+        }
+
+        strm.next_out = output + output_size;
+        strm.avail_out = CHUNK_SIZE;
+
+        ret = inflate(&strm, Z_NO_FLUSH);
+        if (ret != Z_OK && ret != Z_STREAM_END)
+        {
+            SDL_Log("inflate failed with code: %d", ret);
+            SDL_free(output);
+            inflateEnd(&strm);
+            return false;
+        }
+
+        output_size += (CHUNK_SIZE - strm.avail_out);
+    } while (ret != Z_STREAM_END);
+
+    inflateEnd(&strm);
+
+    *out_decompressed_data = output;
+    *out_decompressed_size = output_size;
+
+    return true;
+}
+
 static bool load_tiled_map(const char *file_name, map_t *map)
 {
     Uint8 *buffer;
@@ -69,7 +130,28 @@ static bool load_tiled_map(const char *file_name, map_t *map)
         return false;
     }
 
-    map->handle = cute_tiled_load_map_from_memory((const void *)buffer, size_of_file(file_name), NULL);
+    int buffer_size = 0;
+#if defined __SYMBIAN32__
+    Uint8 *decompressed_data = NULL;
+    uLongf decompressed_size = 0;
+
+    if (decompress_gz_buffer(buffer, size_of_file(file_name), &decompressed_data, &decompressed_size))
+    {
+        // Success — `decompressed_data` contains result, size in `decompressed_size`
+        SDL_Log("Decompressed to %lu bytes", decompressed_size);
+        SDL_free(buffer); // free original .gz buffer
+        buffer = decompressed_data;
+        buffer_size = decompressed_size;
+    }
+    else
+    {
+        SDL_Log("Decompression failed");
+    }
+#else
+    buffer_size = size_of_file(file_name);
+#endif
+
+    map->handle = cute_tiled_load_map_from_memory((const void *)buffer, buffer_size, NULL);
     if (!map->handle)
     {
         SDL_free(buffer);
