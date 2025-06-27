@@ -52,7 +52,7 @@ jobs:
 
     - name: Build kagekero
       run: |
-        cmake -DCMAKE_PREFIX_PATH=${{ env.NGAGESDK }}/sdk/extras/lib/cmake -G "Ninja" -S ${{ env.NGAGESDK }}/projects/kagekero -B ${{ env.NGAGESDK }}/projects/kagekero/build -DCMAKE_TOOLCHAIN_FILE=${{ env.NGAGESDK }}/cmake/ngage-toolchain.cmake
+        cmake -DPACK_ASSETS=ON -DCMAKE_PREFIX_PATH=${{ env.NGAGESDK }}/sdk/extras/lib/cmake -G "Ninja" -S ${{ env.NGAGESDK }}/projects/kagekero -B ${{ env.NGAGESDK }}/projects/kagekero/build -DCMAKE_TOOLCHAIN_FILE=${{ env.NGAGESDK }}/cmake/ngage-toolchain.cmake
         cmake --build ${{ env.NGAGESDK }}/projects/kagekero/build
       shell: pwsh
 

@@ -19,7 +19,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -G "Ninja" -B build -DCMAKE_BUILD_TYPE=Release
+          cmake -G "Ninja" -B build -DCMAKE_BUILD_TYPE=Release -DPACK_ASSETS=ON
           cmake --build build
 
       - name: Archive kagekero
