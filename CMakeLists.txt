@@ -44,6 +44,7 @@ set_property(TARGET kagekero PROPERTY C_STANDARD 99)
 if(NGAGESDK)
   target_link_libraries(kagekero PRIVATE SDL3::SDL3)
   target_link_options(kagekero PRIVATE "SHELL:-s UID1=0x1000007a" "SHELL:-s UID2=0x100039ce" "SHELL:-s UID3=0x1000c37e")
+  target_link_libraries(kagekero PRIVATE ${EPOC_EXTRAS}/lib/zlib.lib)
 
   set(kagekero_app_sources
     src/ngage.cpp src/ngage_application.cpp
@@ -59,10 +60,10 @@ endif()
 
 # 🖥️ Host-only: build packer and pack data.pfs
 if(PACK_ASSETS)
-  # Use system CMake in a subprocess to build the packer tool with host compiler
   set(PACKER_BINARY_DIR ${CMAKE_BINARY_DIR}/host-tools)
-
   file(MAKE_DIRECTORY ${PACKER_BINARY_DIR})
+
+  # 🔧 Build packer using system CMake for host
   execute_process(
     COMMAND cmake -S ${CMAKE_SOURCE_DIR}/tools -B ${PACKER_BINARY_DIR}
     RESULT_VARIABLE packer_cmake_result
