@@ -131,29 +131,7 @@ bool update_kagekero(kagekero_t *nc)
 
 bool draw_kagekero_scene(kagekero_t *nc)
 {
-    if (!SDL_SetRenderDrawColor(nc->renderer, 0xff, 0x00, 0xff, 255))
-    {
-        SDL_Log("Error setting render draw color: %s", SDL_GetError());
-        return false;
-    }
-
-    if (!SDL_UpdateTexture(nc->map->render_target, NULL, nc->map->render_canvas->pixels, nc->map->render_canvas->pitch))
-    {
-        SDL_Log("Error updating animated tile texture: %s", SDL_GetError());
-        return false;
-    }
-
-    SDL_Rect dst_rect;
-    dst_rect.x = (int)nc->kero->pos_x - KERO_HALF;
-    dst_rect.y = (int)nc->kero->pos_y - KERO_HALF;
-    dst_rect.w = KERO_SIZE;
-    dst_rect.h = KERO_SIZE;
-
-    if (!SDL_UpdateTexture(nc->map->render_target, &dst_rect, nc->kero->render_canvas->pixels, nc->kero->render_canvas->pitch))
-    {
-        SDL_Log("Error updating animated tile texture: %s", SDL_GetError());
-        return false;
-    }
+    SDL_Rect visible_area;
 
     if (nc->cam_x <= 0)
     {
@@ -171,6 +149,28 @@ bool draw_kagekero_scene(kagekero_t *nc)
     {
         nc->cam_y = nc->map->height - SCREEN_H;
     }
+
+    visible_area.x = nc->cam_x;
+    visible_area.y = nc->cam_y;
+    visible_area.w = SCREEN_W;
+    visible_area.h = SCREEN_H;
+
+    SDL_Surface *temp;
+    if (!SDL_LockTextureToSurface(nc->map->render_target, NULL, &temp))
+    {
+        SDL_Log("Error locking animated tile texture: %s", SDL_GetError());
+        return false;
+    }
+    SDL_BlitSurface(nc->map->render_canvas, &visible_area, temp, &visible_area);
+
+    SDL_Rect dst_rect;
+    dst_rect.x = (int)nc->kero->pos_x - KERO_HALF;
+    dst_rect.y = (int)nc->kero->pos_y - KERO_HALF;
+    dst_rect.w = KERO_SIZE;
+    dst_rect.h = KERO_SIZE;
+
+    SDL_BlitSurface(nc->kero->render_canvas, NULL, temp, &dst_rect);
+    SDL_UnlockTexture(nc->map->render_target);
 
     SDL_FRect src;
     src.x = (float)(0 + nc->cam_x);
