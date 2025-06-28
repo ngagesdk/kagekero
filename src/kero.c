@@ -119,10 +119,10 @@ static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn, SDL_
             {
                 if (1 == map->obj[index].start_frame) // Door is open.
                 {
-                    char next_map[8] = { 0 };
+                    char next_map[11] = { 0 };
                     kero->level += 1;
 
-                    SDL_snprintf(next_map, 8, "%03d.tmj", kero->level);
+                    SDL_snprintf(next_map, 11, "%03d.tmj%s", kero->level, MAP_PREFIX);
                     if (!load_map(next_map, &map, renderer))
                     {
                         SDL_Log("Failed to load next map: %s", next_map);

@@ -24,6 +24,7 @@
 #define JUMP_VELOCITY     0.3f
 
 #ifdef __SYMBIAN32__
+#define MAP_PREFIX      ".gz"
 #define SCALE           1
 #define WINDOW_W        176
 #define WINDOW_H        208
@@ -74,6 +75,10 @@
 #else
 #define FRAME_WIDTH  640
 #define FRAME_HEIGHT 480
+#endif
+
+#ifndef MAP_PREFIX
+#define MAP_PREFIX ""
 #endif
 
 #endif // CONFIG_H
