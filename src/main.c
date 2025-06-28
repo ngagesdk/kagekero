@@ -61,6 +61,10 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         SDL_Log("Failed to draw kagekero scene");
         return SDL_APP_SUCCESS;
     }
+
+#if !defined __SYMBIAN32__
+    SDL_Delay(1);
+#endif
     return SDL_APP_CONTINUE;
 }
 

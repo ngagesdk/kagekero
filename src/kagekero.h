@@ -34,9 +34,11 @@ typedef struct
 
     int cam_x;
     int cam_y;
+
     int display_w;
 
     unsigned int btn;
+    bool has_updated;
 
 } kagekero_t;
 

@@ -63,32 +63,46 @@ if(PACK_ASSETS)
   set(PACKER_BINARY_DIR ${CMAKE_BINARY_DIR}/host-tools)
   file(MAKE_DIRECTORY ${PACKER_BINARY_DIR})
 
-# 🔧 Build packer using system CMake for host
-execute_process(
-  COMMAND cmake -S ${CMAKE_SOURCE_DIR}/tools -B ${PACKER_BINARY_DIR}
-  RESULT_VARIABLE packer_cmake_result
-)
-if(NOT packer_cmake_result EQUAL 0)
-  message(FATAL_ERROR "Failed to configure host packer tool")
-endif()
-
 if(WIN32)
-  # Add --config Release only for MSVC builds
+  # 🪟 Use default compiler and build config for MSVC
   execute_process(
-    COMMAND cmake --build ${PACKER_BINARY_DIR} --config Release
+    COMMAND ${CMAKE_COMMAND}
+      -S ${CMAKE_SOURCE_DIR}/tools
+      -B ${PACKER_BINARY_DIR}
+    RESULT_VARIABLE packer_cmake_result
+  )
+
+  execute_process(
+    COMMAND ${CMAKE_COMMAND}
+      --build ${PACKER_BINARY_DIR} --config Release
     RESULT_VARIABLE packer_build_result
   )
+
   set(PACKER_EXECUTABLE ${PACKER_BINARY_DIR}/Release/packer.exe)
+
 else()
+  # 🐧 Use host system compilers (avoid cross-compilers like KOS or devkitPro)
   execute_process(
-    COMMAND cmake --build ${PACKER_BINARY_DIR}
+    COMMAND ${CMAKE_COMMAND}
+      -S ${CMAKE_SOURCE_DIR}/tools
+      -B ${PACKER_BINARY_DIR}
+      -DCMAKE_SYSTEM_NAME=Generic
+      -DCMAKE_C_COMPILER=/usr/bin/cc
+      -DCMAKE_CXX_COMPILER=/usr/bin/c++
+    RESULT_VARIABLE packer_cmake_result
+  )
+
+  execute_process(
+    COMMAND ${CMAKE_COMMAND}
+      --build ${PACKER_BINARY_DIR}
     RESULT_VARIABLE packer_build_result
   )
+
   set(PACKER_EXECUTABLE ${PACKER_BINARY_DIR}/packer)
 endif()
 
-if(NOT packer_build_result EQUAL 0)
-  message(FATAL_ERROR "Failed to build host packer tool")
+if(NOT packer_cmake_result EQUAL 0 OR NOT packer_build_result EQUAL 0)
+  message(FATAL_ERROR "❌ Failed to configure or build host packer tool")
 endif()
 
   if(BUILD_FULL_VERSION)
