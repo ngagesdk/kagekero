@@ -10,7 +10,7 @@ option(DREAMCAST "Build for Dreamcast" OFF)
 set(EXPORT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/export)
 set(ASSET_OUTPUT ${EXPORT_DIR}/data.pfs)
 
-# SDL3 setup
+# SDL3 setup.
 if (NGAGESDK)
   find_package(SDL3 REQUIRED)
 else()
@@ -19,7 +19,7 @@ else()
   get_SDL3("3.2.16")
 endif()
 
-# Game source files
+# Game source files.
 set(kagekero_sources
   src/aabb.c
   src/app.c
@@ -40,83 +40,112 @@ include_directories(
 )
 set_property(TARGET kagekero PROPERTY C_STANDARD 99)
 
-# 📱 NGAGE-specific
+# NGAGE-specific.
 if(NGAGESDK)
   target_link_libraries(kagekero PRIVATE SDL3::SDL3)
   target_link_options(kagekero PRIVATE "SHELL:-s UID1=0x1000007a" "SHELL:-s UID2=0x100039ce" "SHELL:-s UID3=0x1000c37e")
   target_link_libraries(kagekero PRIVATE ${EPOC_EXTRAS}/lib/zlib.lib)
 
   set(kagekero_app_sources
-    src/ngage.cpp src/ngage_application.cpp
-    src/ngage_appui.cpp src/ngage_appview.cpp
+    src/ngage.cpp
+    src/ngage_application.cpp
+    src/ngage_appui.cpp
+    src/ngage_appview.cpp
     src/ngage_document.cpp
   )
 
+  set(kagekero_app_libs
+    ${EPOC_LIB}/euser.lib
+    ${EPOC_LIB}/apparc.lib
+    ${EPOC_LIB}/cone.lib
+    ${EPOC_LIB}/eikcore.lib
+    ${EPOC_LIB}/avkon.lib
+  )
+
   add_library(kagekero_app STATIC ${kagekero_app_sources})
-  build_dll(kagekero_app kagekero app 0x1000007a 0x100039ce 0x1badc0de "")
+  build_dll(kagekero_app kagekero app 0x1000007a 0x100039ce 0x1badc0de "${kagekero_app_libs}")
   build_aif(${CMAKE_CURRENT_SOURCE_DIR}/res kagekero 0x1badc0de)
   build_resource(${CMAKE_CURRENT_SOURCE_DIR}/res kagekero "")
 endif()
 
-# 🖥️ Host-only: build packer and pack data.pfs
+# Host-only: build packer and pack data.pfs
 if(PACK_ASSETS)
   set(PACKER_BINARY_DIR ${CMAKE_BINARY_DIR}/host-tools)
   file(MAKE_DIRECTORY ${PACKER_BINARY_DIR})
 
-if(WIN32)
-  # 🪟 Use default compiler and build config for MSVC
-  execute_process(
-    COMMAND ${CMAKE_COMMAND}
-      -S ${CMAKE_SOURCE_DIR}/tools
-      -B ${PACKER_BINARY_DIR}
-    RESULT_VARIABLE packer_cmake_result
-  )
+  if(NGAGESDK)
 
-  execute_process(
-    COMMAND ${CMAKE_COMMAND}
-      --build ${PACKER_BINARY_DIR} --config Release
-    RESULT_VARIABLE packer_build_result
-  )
+  set(PACKER_EXECUTABLE ${CMAKE_CURRENT_SOURCE_DIR}/tools/packer.exe)
 
-  set(PACKER_EXECUTABLE ${PACKER_BINARY_DIR}/Release/packer.exe)
+  elseif(WIN32)
+    # Use default compiler and build config for MSVC.
+    execute_process(
+      COMMAND ${CMAKE_COMMAND}
+        -S ${CMAKE_SOURCE_DIR}/tools
+        -B ${PACKER_BINARY_DIR}
+      RESULT_VARIABLE packer_cmake_result
+    )
 
-else()
-  # 🐧 Use host system compilers (avoid cross-compilers like KOS or devkitPro)
-  execute_process(
-    COMMAND ${CMAKE_COMMAND}
-      -S ${CMAKE_SOURCE_DIR}/tools
-      -B ${PACKER_BINARY_DIR}
-      -DCMAKE_SYSTEM_NAME=Generic
-      -DCMAKE_C_COMPILER=/usr/bin/cc
-      -DCMAKE_CXX_COMPILER=/usr/bin/c++
-    RESULT_VARIABLE packer_cmake_result
-  )
+    execute_process(
+      COMMAND ${CMAKE_COMMAND}
+        --build ${PACKER_BINARY_DIR} --config Release
+      RESULT_VARIABLE packer_build_result
+    )
 
-  execute_process(
-    COMMAND ${CMAKE_COMMAND}
-      --build ${PACKER_BINARY_DIR}
-    RESULT_VARIABLE packer_build_result
-  )
+    set(PACKER_EXECUTABLE ${PACKER_BINARY_DIR}/Release/packer.exe)
 
-  set(PACKER_EXECUTABLE ${PACKER_BINARY_DIR}/packer)
-endif()
+  else()
+    # Use host system compilers (avoid cross-compilers like KOS or devkitPro).
+    execute_process(
+      COMMAND ${CMAKE_COMMAND}
+        -S ${CMAKE_SOURCE_DIR}/tools
+        -B ${PACKER_BINARY_DIR}
+        -DCMAKE_SYSTEM_NAME=Generic
+        -DCMAKE_C_COMPILER=/usr/bin/cc
+        -DCMAKE_CXX_COMPILER=/usr/bin/c++
+      RESULT_VARIABLE packer_cmake_result
+    )
 
-if(NOT packer_cmake_result EQUAL 0 OR NOT packer_build_result EQUAL 0)
-  message(FATAL_ERROR "❌ Failed to configure or build host packer tool")
-endif()
+    execute_process(
+      COMMAND ${CMAKE_COMMAND}
+        --build ${PACKER_BINARY_DIR}
+      RESULT_VARIABLE packer_build_result
+    )
+
+    set(PACKER_EXECUTABLE ${PACKER_BINARY_DIR}/packer)
+  endif()
+
+  if(NOT NGAGESDK)
+    if(NOT packer_cmake_result EQUAL 0 OR NOT packer_build_result EQUAL 0)
+      message(FATAL_ERROR "Failed to configure or build host packer tool")
+    endif()
+  endif()
 
   if(BUILD_FULL_VERSION)
     set(ASSET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/full-assets")
     set(ASSET_LIST
-      001.tmj 002.tmj 003.tmj
-      frame.png frame_400x240.png
-      frame_512x512.png kero.png tileset.png)
+      001.tmj
+      002.tmj
+      003.tmj
+      004.tmj
+      005.tmj
+      006.tmj
+      007.tmj
+      frame.png
+      frame_400x240.png
+      frame_512x512.png
+      kero.png
+      tileset.png)
   else()
     set(ASSET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets")
     set(ASSET_LIST
-      001.tmj 002.tmj
-      frame.png frame_400x240.png
-      frame_512x512.png kero.png tileset.png)
+      001.tmj
+      002.tmj
+      frame.png
+      frame_400x240.png
+      frame_512x512.png
+      kero.png
+      tileset.png)
   endif()
 
   add_custom_command(
@@ -125,7 +154,7 @@ endif()
     COMMAND ${PACKER_EXECUTABLE} ${ASSET_LIST}
     COMMAND ${CMAKE_COMMAND} -E copy ${ASSET_DIR}/data.pfs ${ASSET_OUTPUT}
     DEPENDS ${PACKER_EXECUTABLE}
-    COMMENT "📦 Packing assets into data.pfs"
+    COMMENT "Packing assets into data.pfs"
   )
 
   add_custom_target(data.pfs ALL DEPENDS ${ASSET_OUTPUT})
@@ -144,7 +173,7 @@ else()
   target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES})
 endif()
 
-# 🕹️ Dreamcast-specific setup
+# Dreamcast-specific setup.
 if(DREAMCAST)
   target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES} GL pthread)
 
@@ -169,7 +198,7 @@ if(DREAMCAST)
     COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:kagekero>" "${OUTPUT_DIR}/kagekero.elf")
 endif()
 
-# 🎮 3DS-specific
+# 3DS-specific.
 if(NINTENDO_3DS)
   set(ROMFS_DIR "${CMAKE_CURRENT_BINARY_DIR}/romfs")
   file(COPY ${ASSET_OUTPUT} DESTINATION ${ROMFS_DIR})
