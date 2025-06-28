@@ -40,11 +40,6 @@
 #define H_SPAWN       0x00000031105f18ee
 #define H_TILELAYER   0x0377d9f70e844fb0
 
-static cute_tiled_layer_t *get_head_layer(map_t *map)
-{
-    return map->handle->layers;
-}
-
 static void destroy_tiled_map(map_t *map)
 {
     map->hash_id_objectgroup = 0;
@@ -167,7 +162,7 @@ static bool load_tiled_map(const char *file_name, map_t *map)
     map->bg_g = (argb_color >> 8) & 0xFF;
     map->bg_b = argb_color & 0xFF;
 
-    cute_tiled_layer_t *layer = get_head_layer(map);
+    cute_tiled_layer_t *layer = map->handle->layers;
     while (layer)
     {
         if (H_TILELAYER == generate_hash((const unsigned char *)layer->type.ptr))
@@ -191,36 +186,6 @@ static bool load_tiled_map(const char *file_name, map_t *map)
     }
 
     return true;
-}
-
-static const int get_object_uid(cute_tiled_object_t *object)
-{
-    return object->id;
-}
-
-static const char *get_object_name(cute_tiled_object_t *object)
-{
-    return object->name.ptr;
-}
-
-static int get_object_property_count(cute_tiled_object_t *object)
-{
-    return object->property_count;
-}
-
-static const char *get_object_type_name(cute_tiled_object_t *object)
-{
-    return object->type.ptr;
-}
-
-static int get_tile_width(cute_tiled_map_t *map)
-{
-    return map->tilesets->tilewidth;
-}
-
-static int get_tile_height(cute_tiled_map_t *map)
-{
-    return map->tilesets->tileheight;
 }
 
 static void destroy_textures(map_t *map)
@@ -251,8 +216,8 @@ static bool create_textures(SDL_Renderer *renderer, map_t *map)
         destroy_textures(map);
     }
 
-    map->height = map->handle->height * get_tile_height(map->handle);
-    map->width = map->handle->width * get_tile_width(map->handle);
+    map->height = map->handle->height * map->handle->tilesets->tileheight;
+    map->width = map->handle->width * map->handle->tilesets->tilewidth;
 
 #ifndef __DREAMCAST__
     map->render_target = SDL_CreateTexture(
@@ -299,24 +264,9 @@ static bool create_textures(SDL_Renderer *renderer, map_t *map)
     return true;
 }
 
-static int get_first_gid(cute_tiled_map_t *map)
-{
-    return map->tilesets->firstgid;
-}
-
-static const char *get_layer_name(cute_tiled_layer_t *layer)
-{
-    return layer->name.ptr;
-}
-
-static int get_layer_property_count(cute_tiled_layer_t *layer)
-{
-    return layer->property_count;
-}
-
 static int get_local_id(int gid, cute_tiled_map_t *map)
 {
-    int local_id = gid - get_first_gid(map);
+    int local_id = gid - map->tilesets->firstgid;
     return local_id >= 0 ? local_id : 0;
 }
 
@@ -325,8 +275,8 @@ static void get_tile_position(int gid, int *pos_x, int *pos_y, cute_tiled_map_t 
     cute_tiled_tileset_t *tileset = map->tilesets;
     int local_id = get_local_id(gid, map);
 
-    *pos_x = (local_id % tileset->columns) * get_tile_width(map);
-    *pos_y = (local_id / tileset->columns) * get_tile_height(map);
+    *pos_x = (local_id % tileset->columns) * map->tilesets->tilewidth;
+    *pos_y = (local_id / tileset->columns) * map->tilesets->tileheight;
 }
 
 static void get_frame_position(int frame_index, int width, int height, int *pos_x, int *pos_y, int column_count)
@@ -383,7 +333,7 @@ static bool tile_has_properties(int gid, cute_tiled_tile_descriptor_t **tile, cu
 {
     int local_id;
 
-    local_id = gid - get_first_gid(map);
+    local_id = gid - map->tilesets->firstgid;
 
     while ((*tile))
     {
@@ -431,14 +381,9 @@ cute_tiled_object_t *get_head_object(cute_tiled_layer_t *layer, map_t *map)
     return NULL;
 }
 
-static cute_tiled_tileset_t *get_head_tileset(cute_tiled_map_t *map)
-{
-    return map->tilesets;
-}
-
 static int get_next_object_id(int gid, int current_frame, cute_tiled_map_t *map)
 {
-    cute_tiled_tileset_t *tileset = get_head_tileset(map);
+    cute_tiled_tileset_t *tileset = map->tilesets;
     cute_tiled_tile_descriptor_t *tile = tileset->tiles;
 
     while (tile)
@@ -451,16 +396,6 @@ static int get_next_object_id(int gid, int current_frame, cute_tiled_map_t *map)
     }
 
     return 0;
-}
-
-static int *get_layer_content(cute_tiled_layer_t *layer)
-{
-    return layer->data;
-}
-
-static int get_map_property_count(cute_tiled_map_t *map)
-{
-    return map->property_count;
 }
 
 static void load_property(const Uint64 name_hash, cute_tiled_property_t *properties, int property_count, map_t *map)
@@ -512,66 +447,6 @@ static void load_property(const Uint64 name_hash, cute_tiled_property_t *propert
     }
 }
 
-static bool get_boolean_map_property(const Uint64 name_hash, map_t *map)
-{
-    int prop_cnt;
-
-    if (!map)
-    {
-        return false;
-    }
-
-    prop_cnt = get_map_property_count(map->handle);
-    map->boolean_property = false;
-    load_property(name_hash, map->handle->properties, prop_cnt, map);
-    return map->boolean_property;
-}
-
-static float get_decimal_map_property(const Uint64 name_hash, map_t *map)
-{
-    int prop_cnt;
-
-    if (!map)
-    {
-        return 0.0;
-    }
-
-    prop_cnt = get_map_property_count(map->handle);
-    map->decimal_property = 0.0;
-    load_property(name_hash, map->handle->properties, prop_cnt, map);
-    return map->decimal_property;
-}
-
-static int get_integer_map_property(const Uint64 name_hash, map_t *map)
-{
-    int prop_cnt;
-
-    if (!map)
-    {
-        return 0;
-    }
-
-    prop_cnt = get_map_property_count(map->handle);
-    map->integer_property = 0;
-    load_property(name_hash, map->handle->properties, prop_cnt, map);
-    return map->integer_property;
-}
-
-static const char *get_string_map_property(const Uint64 name_hash, map_t *map)
-{
-    int prop_cnt;
-
-    if (!map)
-    {
-        return NULL;
-    }
-
-    prop_cnt = get_map_property_count(map->handle);
-    map->string_property = NULL;
-    load_property(name_hash, map->handle->properties, prop_cnt, map);
-    return map->string_property;
-}
-
 static bool get_boolean_property(const Uint64 name_hash, cute_tiled_property_t *properties, int property_count, map_t *map)
 {
     map->boolean_property = false;
@@ -613,7 +488,7 @@ static bool load_tiles(map_t *map)
         map->tile_desc = NULL;
     }
 
-    cute_tiled_layer_t *layer = get_head_layer(map);
+    cute_tiled_layer_t *layer = map->handle->layers;
 
     map->tile_desc_count = map->handle->height * map->handle->width;
 
@@ -636,9 +511,9 @@ static bool load_tiles(map_t *map)
             {
                 for (int index_width = 0; index_width < map->handle->width; index_width += 1)
                 {
-                    cute_tiled_tileset_t *tileset = get_head_tileset(map->handle);
+                    cute_tiled_tileset_t *tileset = map->handle->tilesets;
                     cute_tiled_tile_descriptor_t *tile = tileset->tiles;
-                    int *layer_content = get_layer_content(layer);
+                    int *layer_content = layer->data;
                     int tile_index = (index_height * map->handle->width) + index_width;
                     int gid = remove_gid_flip_bits(layer_content[tile_index]);
 
@@ -700,7 +575,7 @@ static bool load_objects(map_t *map)
         map->obj = NULL;
     }
 
-    cute_tiled_layer_t *layer = get_head_layer(map);
+    cute_tiled_layer_t *layer = map->handle->layers;
 
     while (layer)
     {
@@ -711,12 +586,12 @@ static bool load_objects(map_t *map)
                 cute_tiled_object_t *object = get_head_object(layer, map);
                 while (object)
                 {
-                    if (H_COIN == generate_hash(get_object_name(object)))
+                    if (H_COIN == generate_hash(object->name.ptr))
                     {
                         map->coin_count += 1;
                     }
 
-                    if (H_SPAWN == generate_hash(get_object_name(object)))
+                    if (H_SPAWN == generate_hash(object->name.ptr))
                     {
                         map->spawn_x = (int)object->x;
                         map->spawn_y = (int)object->y;
@@ -743,7 +618,7 @@ static bool load_objects(map_t *map)
 
         // Initialise objects.
         int index = 0;
-        layer = get_head_layer(map);
+        layer = map->handle->layers;
         while (layer)
         {
             if (layer->visible)
@@ -754,7 +629,7 @@ static bool load_objects(map_t *map)
                     while (object)
                     {
                         map->obj[index].gid = remove_gid_flip_bits(object->gid);
-                        map->obj[index].object_id = get_object_uid(object);
+                        map->obj[index].object_id = object->id;
                         map->obj[index].x = (int)object->x;
                         map->obj[index].y = (int)object->y;
                         index += 1;
@@ -949,8 +824,8 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                 int local_id;
 
                 local_id = map->obj[index].id + 1;
-                src.w = dst.w = get_tile_width(map->handle);
-                src.h = dst.h = get_tile_height(map->handle);
+                src.w = dst.w = map->handle->tilesets->tilewidth;
+                src.h = dst.h = map->handle->tilesets->tileheight;
                 src.x = 0;
                 src.y = 0;
                 dst.x = map->obj[index].x;
@@ -995,7 +870,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
 
     // Static tiles have not been rendered yet. Do it once!
     int index = 0;
-    layer = get_head_layer(map);
+    layer = map->handle->layers;
 
     while (layer)
     {
@@ -1010,15 +885,15 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                 {
                     for (int index_width = 0; index_width < map->handle->width; index_width += 1)
                     {
-                        int *layer_content = get_layer_content(layer);
+                        int *layer_content = layer->data;
                         int gid = remove_gid_flip_bits(layer_content[(index_height * map->handle->width) + index_width]);
 
                         if (is_gid_valid(gid, map->handle))
                         {
-                            src.w = dst.w = get_tile_width(map->handle);
-                            src.h = dst.h = get_tile_height(map->handle);
-                            dst.x = index_width * get_tile_width(map->handle);
-                            dst.y = index_height * get_tile_height(map->handle);
+                            src.w = dst.w = map->handle->tilesets->tilewidth;
+                            src.h = dst.h = map->handle->tilesets->tileheight;
+                            dst.x = index_width * map->handle->tilesets->tilewidth;
+                            dst.y = index_height * map->handle->tilesets->tileheight;
 
                             int tmp_x, tmp_y;
                             get_tile_position(gid, &tmp_x, &tmp_y, map->handle);
@@ -1030,7 +905,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                     }
                 }
 
-                const char *layer_name = get_layer_name(layer);
+                const char *layer_name = layer->name.ptr;
                 SDL_Log("Render map layer: %s", layer_name);
             }
         }
@@ -1046,10 +921,10 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                     int anim_length = 0;
                     int id = 0;
 
-                    src.w = dst.w = get_tile_width(map->handle);
-                    src.h = dst.h = get_tile_height(map->handle);
+                    src.w = dst.w = map->handle->tilesets->tilewidth;
+                    src.h = dst.h = map->handle->tilesets->tileheight;
                     dst.x = (int)object->x;
-                    dst.y = (int)object->y - get_tile_height(map->handle);
+                    dst.y = (int)object->y - map->handle->tilesets->tileheight;
 
                     int tmp_x, tmp_y;
                     get_tile_position(gid, &tmp_x, &tmp_y, map->handle);
@@ -1063,8 +938,8 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                     map->obj[index].y = dst.y;
                     map->obj[index].current_frame = 0;
                     map->obj[index].anim_length = anim_length;
-                    map->obj[index].object_id = get_object_uid(object);
-                    map->obj[index].hash = generate_hash((const char *)get_object_name(object));
+                    map->obj[index].object_id = object->id;
+                    map->obj[index].hash = generate_hash((const char *)object->name.ptr);
 
                     if (H_DOOR == map->obj[index].hash)
                     {
@@ -1073,9 +948,9 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
 
                     if (prev_layer)
                     {
-                        int index_height = dst.y / get_tile_height(map->handle);
-                        int index_width = dst.x / get_tile_width(map->handle);
-                        int *layer_content_below = get_layer_content(prev_layer);
+                        int index_width = dst.x / map->handle->tilesets->tilewidth;
+                        int index_height = dst.y / map->handle->tilesets->tileheight;
+                        int *layer_content_below = prev_layer->data;
                         int gid_below = remove_gid_flip_bits(layer_content_below[(index_height * map->handle->width) + index_width]);
                         if (is_gid_valid(gid_below, map->handle))
                         {
@@ -1092,7 +967,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
                 object = object->next;
             }
 
-            const char *layer_name = get_layer_name(layer);
+            const char *layer_name = layer->name.ptr;
             SDL_Log("Render obj layer: %s", layer_name);
         }
         prev_layer = layer;
@@ -1112,7 +987,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
 
 bool object_intersects(aabb_t bb, map_t *map, int *index_ptr)
 {
-    cute_tiled_layer_t *layer = get_head_layer(map);
+    cute_tiled_layer_t *layer = map->handle->layers;
     *index_ptr = 0;
 
     while (layer)
@@ -1157,8 +1032,8 @@ int get_tile_index(int pos_x, int pos_y, map_t *map)
 {
     int index;
 
-    index = pos_x / get_tile_width(map->handle);
-    index += (pos_y / get_tile_height(map->handle)) * map->handle->width;
+    index = pos_x / map->handle->tilesets->tilewidth;
+    index += (pos_y / map->handle->tilesets->tileheight) * map->handle->width;
 
     if (index > (map->tile_desc_count - 1))
     {
