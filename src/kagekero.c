@@ -186,8 +186,42 @@ bool draw_kagekero_scene(kagekero_t *nc)
 
         int screen_offset_x;
         int screen_offset_y;
+#if defined __DREAMCAST__
 
-#if defined __3DS__ || defined __DREAMCAST__
+    screen_offset_x = SCREEN_OFFSET_X;
+    screen_offset_y = SCREEN_OFFSET_Y;
+
+    // Clear the canvas to transparent
+// const SDL_PixelFormatDetails *fmt_details =
+//     SDL_GetPixelFormatDetails(nc->map->render_canvas->format);
+
+    // Redraw the static background tiles every frame
+    nc->map->static_tiles_rendered = false;
+    if (!render_map(nc->map, nc->renderer, &nc->has_updated))
+    {
+        SDL_Log("Error rendering map");
+        return false;
+    }
+
+    // Overlay character sprite (with transparency)
+    // SDL_Rect dst_rect;
+    dst_rect.x = (int)nc->kero->pos_x - KERO_HALF;
+    dst_rect.y = (int)nc->kero->pos_y - KERO_HALF;
+    dst_rect.w = KERO_SIZE;
+    dst_rect.h = KERO_SIZE;
+
+    SDL_BlitSurface(nc->kero->render_canvas, NULL, nc->map->render_canvas, &dst_rect);
+
+    // Upload canvas to texture
+    if (!SDL_UpdateTexture(nc->map->render_target, NULL,
+                           nc->map->render_canvas->pixels,
+                           nc->map->render_canvas->pitch))
+    {
+        SDL_Log("Error uploading render texture: %s", SDL_GetError());
+        return false;
+    }
+#endif
+#if defined __3DS__ 
         screen_offset_x = SCREEN_OFFSET_X;
         screen_offset_y = SCREEN_OFFSET_Y;
 #elif !defined __SYMBIAN32__

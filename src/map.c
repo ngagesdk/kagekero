@@ -134,7 +134,7 @@ static bool load_tiled_map(const char *file_name, map_t *map)
 
     if (decompress_gz_buffer(buffer, size_of_file(file_name), &decompressed_data, &decompressed_size))
     {
-        // Success — `decompressed_data` contains result, size in `decompressed_size`
+        // Success ï¿½ `decompressed_data` contains result, size in `decompressed_size`
         SDL_Log("Decompressed to %lu bytes", decompressed_size);
         SDL_free(buffer); // free original .gz buffer
         buffer = decompressed_data;
@@ -219,13 +219,21 @@ static bool create_textures(SDL_Renderer *renderer, map_t *map)
     map->height = map->handle->height * map->handle->tilesets->tileheight;
     map->width = map->handle->width * map->handle->tilesets->tilewidth;
 
+#ifndef __DREAMCAST__
     map->render_target = SDL_CreateTexture(
         renderer,
         SDL_PIXELFORMAT_XRGB4444,
         SDL_TEXTUREACCESS_STREAMING,
         map->width,
         map->height);
-
+#else
+    map->render_target = SDL_CreateTexture(
+        renderer,
+        SDL_PIXELFORMAT_ARGB1555,
+        SDL_TEXTUREACCESS_STREAMING,
+        map->width,
+        map->height);
+#endif
     if (!map->render_target)
     {
         SDL_Log("Error creating texture: %s", SDL_GetError());
@@ -236,12 +244,17 @@ static bool create_textures(SDL_Renderer *renderer, map_t *map)
     {
         SDL_Log("Couldn't set texture scale mode: %s", SDL_GetError());
     }
-
+#ifndef __DREAMCAST__
     map->render_canvas = SDL_CreateSurface(
         map->width,
         map->height,
         SDL_PIXELFORMAT_XRGB4444);
-
+#else
+    map->render_canvas = SDL_CreateSurface(
+        map->width,
+        map->height,
+        SDL_PIXELFORMAT_ARGB1555);
+#endif
     if (!map->render_canvas)
     {
         SDL_Log("Error creating temporary surface: %s", SDL_GetError());
