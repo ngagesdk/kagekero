@@ -121,26 +121,48 @@ if(PACK_ASSETS)
     endif()
   endif()
 
+  if(NGAGESDK)
+    set(MAP_PREFIX ".gz")
+
+    function(compress_maps asset_dir)
+      add_custom_target(001.tmj.gz ALL
+        WORKING_DIRECTORY ${asset_dir}
+        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/gzip -k -f *.tmj
+      )
+    endfunction()
+  endif()
+
   if(BUILD_FULL_VERSION)
     set(ASSET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/full-assets")
+
+    if(NGAGESDK)
+      compress_maps("${ASSET_DIR}")
+    endif()
+
     set(ASSET_LIST
-      001.tmj
-      002.tmj
-      003.tmj
-      004.tmj
-      005.tmj
-      006.tmj
-      007.tmj
+      001.tmj${MAP_PREFIX}
+      002.tmj${MAP_PREFIX}
+      003.tmj${MAP_PREFIX}
+      004.tmj${MAP_PREFIX}
+      005.tmj${MAP_PREFIX}
+      006.tmj${MAP_PREFIX}
+      007.tmj${MAP_PREFIX}
       frame.png
       frame_400x240.png
       frame_512x512.png
       kero.png
       tileset.png)
   else()
+
     set(ASSET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets")
+
+    if(NGAGESDK)
+      compress_maps("${ASSET_DIR}")
+    endif()
+
     set(ASSET_LIST
-      001.tmj
-      002.tmj
+      001.tmj${MAP_PREFIX}
+      002.tmj${MAP_PREFIX}
       frame.png
       frame_400x240.png
       frame_512x512.png
