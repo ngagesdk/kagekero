@@ -108,6 +108,19 @@ if(PACK_ASSETS)
   add_custom_target(data.pfs ALL DEPENDS ${ASSET_OUTPUT})
 endif()
 
+if(UNIX)
+  target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES} m)
+
+  if(PACK_ASSETS)
+    add_executable(packer tools/packer.cpp)
+    set_target_properties(packer PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/tools"
+    )
+  endif()
+else()
+  target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES})
+endif()
+
 # 🕹️ Dreamcast-specific setup
 if(DREAMCAST)
   target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES} GL pthread)
