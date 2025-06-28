@@ -274,14 +274,21 @@ bool load_kero(kero_t **kero, map_t *map)
         return false;
     }
 
-    (*kero)->render_canvas = SDL_CreateSurface(KERO_SIZE, KERO_SIZE, SDL_PIXELFORMAT_XRGB4444);
+#ifndef __DREAMCAST__
+        (*kero)->render_canvas = SDL_CreateSurface(KERO_SIZE, KERO_SIZE, SDL_PIXELFORMAT_XRGB4444);
+#else
+    (*kero)->render_canvas = SDL_CreateSurface(KERO_SIZE, KERO_SIZE, SDL_PIXELFORMAT_ARGB1555);
+#endif    
     if (!(*kero)->render_canvas)
     {
         SDL_Log("Error creating temporary surface: %s", SDL_GetError());
         return false;
     }
-
+#ifndef __DREAMCAST__
     (*kero)->temp_canvas = SDL_CreateSurface(KERO_SIZE, KERO_SIZE, SDL_PIXELFORMAT_XRGB4444);
+#else
+    (*kero)->temp_canvas = SDL_CreateSurface(KERO_SIZE, KERO_SIZE, SDL_PIXELFORMAT_ARGB1555);
+#endif    
     if (!(*kero)->temp_canvas)
     {
         SDL_Log("Error creating temporary surface: %s", SDL_GetError());
