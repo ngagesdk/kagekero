@@ -101,7 +101,7 @@ typedef enum
 
 void destroy_map(map_t *map);
 bool load_map(const char *file_name, map_t **map, SDL_Renderer *renderer);
-bool render_map(map_t *map, SDL_Renderer *renderer);
+bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated);
 int get_tile_index(int pos_x, int pos_y, map_t *map);
 bool object_intersects(aabb_t bb, map_t *map, int *index_ptr);
 

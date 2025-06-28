@@ -753,10 +753,11 @@ exit:
     return exit_code;
 }
 
-bool render_map(map_t *map, SDL_Renderer *renderer)
+bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated)
 {
     cute_tiled_layer_t *layer;
     cute_tiled_layer_t *prev_layer = NULL;
+    *has_updated = false;
 
     if (!map || !renderer)
     {
@@ -790,6 +791,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
         if (map->time_since_last_frame >= (1000 / ANIM_FPS))
         {
             map->time_since_last_frame = 0;
+            *has_updated = true;
 
             for (int index = 0; index < map->obj_count - 1; index += 1)
             {
@@ -968,6 +970,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer)
     }
 
     map->static_tiles_rendered = true;
+    *has_updated = true;
 
     return true;
 }

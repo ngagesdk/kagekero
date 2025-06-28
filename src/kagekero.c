@@ -74,7 +74,7 @@ bool init_kagekero(kagekero_t **nc)
         return false;
     }
 
-    if (!render_map((*nc)->map, (*nc)->renderer))
+    if (!render_map((*nc)->map, (*nc)->renderer, &(*nc)->has_updated))
     {
         SDL_Log("Failed to render map");
         return false;
@@ -92,12 +92,12 @@ bool init_kagekero(kagekero_t **nc)
 
 bool update_kagekero(kagekero_t *nc)
 {
-    update_kero(nc->kero, nc->map, &nc->btn, nc->renderer);
+    update_kero(nc->kero, nc->map, &nc->btn, nc->renderer, &nc->has_updated);
 
     nc->cam_x = (int)nc->kero->pos_x - (SCREEN_W / 2);
     nc->cam_y = (int)nc->kero->pos_y - (SCREEN_H / 2);
 
-    render_map(nc->map, nc->renderer);
+    render_map(nc->map, nc->renderer, &nc->has_updated);
     render_kero(nc->kero, nc->map);
 
 #if defined __3DS__
@@ -150,59 +150,66 @@ bool draw_kagekero_scene(kagekero_t *nc)
         nc->cam_y = nc->map->height - SCREEN_H;
     }
 
-    visible_area.x = nc->cam_x;
-    visible_area.y = nc->cam_y;
-    visible_area.w = SCREEN_W;
-    visible_area.h = SCREEN_H;
-
-    SDL_Surface *temp;
-    if (!SDL_LockTextureToSurface(nc->map->render_target, NULL, &temp))
-    {
-        SDL_Log("Error locking animated tile texture: %s", SDL_GetError());
-        return false;
-    }
-    SDL_BlitSurface(nc->map->render_canvas, &visible_area, temp, &visible_area);
-
-    SDL_Rect dst_rect;
-    dst_rect.x = (int)nc->kero->pos_x - KERO_HALF;
-    dst_rect.y = (int)nc->kero->pos_y - KERO_HALF;
-    dst_rect.w = KERO_SIZE;
-    dst_rect.h = KERO_SIZE;
-
-    SDL_BlitSurface(nc->kero->render_canvas, NULL, temp, &dst_rect);
-    SDL_UnlockTexture(nc->map->render_target);
-
     SDL_FRect src;
-    src.x = (float)(0 + nc->cam_x);
-    src.y = (float)(0 + nc->cam_y);
-    src.w = SCREEN_W;
-    src.h = SCREEN_H;
+    SDL_FRect dst;
 
-    int screen_offset_x;
-    int screen_offset_y;
+#ifdef __SYMBIAN32__
+    if (!nc->has_updated)
+#endif
+    {
+        visible_area.x = nc->cam_x;
+        visible_area.y = nc->cam_y;
+        visible_area.w = SCREEN_W;
+        visible_area.h = SCREEN_H;
+
+        SDL_Surface *temp;
+        if (!SDL_LockTextureToSurface(nc->map->render_target, NULL, &temp))
+        {
+            SDL_Log("Error locking animated tile texture: %s", SDL_GetError());
+            return false;
+        }
+        SDL_BlitSurface(nc->map->render_canvas, &visible_area, temp, &visible_area);
+
+        SDL_Rect dst_rect;
+        dst_rect.x = (int)nc->kero->pos_x - KERO_HALF;
+        dst_rect.y = (int)nc->kero->pos_y - KERO_HALF;
+        dst_rect.w = KERO_SIZE;
+        dst_rect.h = KERO_SIZE;
+
+        SDL_BlitSurface(nc->kero->render_canvas, NULL, temp, &dst_rect);
+        SDL_UnlockTexture(nc->map->render_target);
+
+        src.x = (float)(0 + nc->cam_x);
+        src.y = (float)(0 + nc->cam_y);
+        src.w = SCREEN_W;
+        src.h = SCREEN_H;
+
+        int screen_offset_x;
+        int screen_offset_y;
 
 #if defined __3DS__ || defined __DREAMCAST__
-    screen_offset_x = SCREEN_OFFSET_X;
-    screen_offset_y = SCREEN_OFFSET_Y;
+        screen_offset_x = SCREEN_OFFSET_X;
+        screen_offset_y = SCREEN_OFFSET_Y;
 #elif !defined __SYMBIAN32__
-    screen_offset_x = nc->screen_offset_x;
-    screen_offset_y = nc->screen_offset_y;
+        screen_offset_x = nc->screen_offset_x;
+        screen_offset_y = nc->screen_offset_y;
 #else
-    screen_offset_x = SCREEN_OFFSET_X;
-    screen_offset_y = SCREEN_OFFSET_Y;
+        screen_offset_x = SCREEN_OFFSET_X;
+        screen_offset_y = SCREEN_OFFSET_Y;
 #endif
 
-    SDL_FRect dst;
-    dst.x = (float)screen_offset_x;
-    dst.y = (float)screen_offset_y;
-    dst.w = SCREEN_W;
-    dst.h = SCREEN_H;
+        dst.x = (float)screen_offset_x;
+        dst.y = (float)screen_offset_y;
+        dst.w = SCREEN_W;
+        dst.h = SCREEN_H;
 
-    if (!SDL_RenderTexture(nc->renderer, nc->map->render_target, &src, &dst))
-    {
-        SDL_Log("Error rendering texture: %s", SDL_GetError());
-        return false;
+        if (!SDL_RenderTexture(nc->renderer, nc->map->render_target, &src, &dst))
+        {
+            SDL_Log("Error rendering texture: %s", SDL_GetError());
+            return false;
+        }
     }
+
     SDL_RenderPresent(nc->renderer);
 
     return true;

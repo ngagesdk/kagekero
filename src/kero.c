@@ -36,11 +36,14 @@ static void update_kero_timing(kero_t *kero)
                            : kero->time_b - kero->time_a;
 }
 
-static void update_kero_animation(kero_t *kero)
+static void update_kero_animation(kero_t *kero, bool *has_updated)
 {
+    *has_updated = false;
+
     kero->time_since_last_frame += kero->delta_time;
     if (kero->time_since_last_frame >= (1000 / kero->anim_fps))
     {
+        *has_updated = true;
         kero->time_since_last_frame = 0;
         kero->current_frame += 1;
         if (kero->current_frame >= kero->anim_length - 1)
@@ -300,10 +303,10 @@ bool load_kero(kero_t **kero, map_t *map)
     return true;
 }
 
-void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *renderer)
+void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *renderer, bool *has_updated)
 {
     update_kero_timing(kero);
-    update_kero_animation(kero);
+    update_kero_animation(kero, has_updated);
 
     if (STATE_DEAD == kero->state)
     {
@@ -515,13 +518,26 @@ bool render_kero(kero_t *kero, map_t *map)
         src.x = 0;
     }
 
-    SDL_BlitSurface(map->render_canvas, &src, kero->temp_canvas, NULL);
+    if (!SDL_BlitSurface(map->render_canvas, &src, kero->temp_canvas, NULL))
+    {
+        SDL_Log("Error blitting kero canvas: %s", SDL_GetError());
+        return false;
+    }
 
     src.x = (kero->current_frame + kero->anim_offset_x) * KERO_SIZE;
     src.y = (kero->anim_offset_y + kero->sprite_offset) * KERO_SIZE;
 
-    SDL_BlitSurface(kero->sprite, &src, kero->temp_canvas, NULL);
-    SDL_BlitSurface(kero->temp_canvas, NULL, kero->render_canvas, NULL);
+    if (!SDL_BlitSurface(kero->sprite, &src, kero->temp_canvas, NULL))
+    {
+        SDL_Log("Error blitting kero sprite: %s", SDL_GetError());
+        return false;
+    }
+
+    if (!SDL_BlitSurface(kero->temp_canvas, NULL, kero->render_canvas, NULL))
+    {
+        SDL_Log("Error blitting kero temp canvas: %s", SDL_GetError());
+        return false;
+    }
 
     return true;
 }
