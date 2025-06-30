@@ -15,6 +15,7 @@
 #include "kagekero.h"
 #include "kero.h"
 #include "map.h"
+#include "overlay.h"
 #include "pfs.h"
 #include "utils.h"
 
@@ -74,6 +75,12 @@ bool init_kagekero(kagekero_t **nc)
         return false;
     }
 
+    if (!load_overlay(&(*nc)->ui))
+    {
+        SDL_Log("Failed to load overlay");
+        return false;
+    }
+
     if (!render_map((*nc)->map, (*nc)->renderer, &(*nc)->has_updated))
     {
         SDL_Log("Failed to render map");
@@ -99,6 +106,7 @@ bool update_kagekero(kagekero_t *nc)
 
     render_map(nc->map, nc->renderer, &nc->has_updated);
     render_kero(nc->kero, nc->map);
+    render_overlay(nc->ui);
 
 #if defined __3DS__
     SDL_RenderTexture(nc->renderer, nc->frame, NULL, NULL);
@@ -294,6 +302,12 @@ void destroy_kagekero(kagekero_t *nc)
 {
     if (nc)
     {
+        if (nc->ui)
+        {
+            destroy_overlay(nc->ui);
+            nc->ui = NULL;
+        }
+
         if (nc->kero)
         {
             destroy_kero(nc->kero);

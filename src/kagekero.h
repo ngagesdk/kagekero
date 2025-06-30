@@ -15,6 +15,7 @@
 
 #include "kero.h"
 #include "map.h"
+#include "overlay.h"
 
 typedef struct
 {
@@ -31,6 +32,7 @@ typedef struct
 #endif
     map_t *map;
     kero_t *kero;
+    overlay_t *ui;
 
     int cam_x;
     int cam_y;

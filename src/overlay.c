@@ -48,3 +48,8 @@ bool load_overlay(overlay_t **ui)
 
     return true;
 }
+
+bool render_overlay(overlay_t* ui)
+{
+    return true;
+}
