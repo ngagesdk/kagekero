@@ -220,20 +220,12 @@ static bool create_textures(SDL_Renderer *renderer, map_t *map)
     map->width = map->handle->width * map->handle->tilesets->tilewidth;
 
 #ifndef __DREAMCAST__
-    map->render_target = SDL_CreateTexture(
-        renderer,
-        SDL_PIXELFORMAT_XRGB4444,
-        SDL_TEXTUREACCESS_STREAMING,
-        map->width,
-        map->height);
+    SDL_PixelFormat pixel_format = SDL_PIXELFORMAT_XRGB4444;
 #else
-    map->render_target = SDL_CreateTexture(
-        renderer,
-        SDL_PIXELFORMAT_ARGB1555,
-        SDL_TEXTUREACCESS_STREAMING,
-        map->width,
-        map->height);
+    SDL_PixelFormat pixel_format = SDL_PIXELFORMAT_ARGB1555;
 #endif
+
+    map->render_target = SDL_CreateTexture(renderer, pixel_format, SDL_TEXTUREACCESS_STREAMING, map->width, map->height);
     if (!map->render_target)
     {
         SDL_Log("Error creating texture: %s", SDL_GetError());
@@ -244,17 +236,9 @@ static bool create_textures(SDL_Renderer *renderer, map_t *map)
     {
         SDL_Log("Couldn't set texture scale mode: %s", SDL_GetError());
     }
-#ifndef __DREAMCAST__
-    map->render_canvas = SDL_CreateSurface(
-        map->width,
-        map->height,
-        SDL_PIXELFORMAT_XRGB4444);
-#else
-    map->render_canvas = SDL_CreateSurface(
-        map->width,
-        map->height,
-        SDL_PIXELFORMAT_ARGB1555);
-#endif
+
+    map->render_canvas = SDL_CreateSurface(map->width, map->height, pixel_format);
+
     if (!map->render_canvas)
     {
         SDL_Log("Error creating temporary surface: %s", SDL_GetError());
