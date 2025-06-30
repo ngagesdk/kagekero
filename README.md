@@ -20,6 +20,11 @@ technical quirks.  That said, it runs on other platforms too, staying true to it
 the experience.  Whether you're playing on original hardware or something modern, 影ケロ keeps its focus on tight
 level design, clean mechanics, and a steady challenge curve.
 
+## About This Repository
+
+This repository includes only the game’s source code and demo assets.  The full version assets will be commercially
+available once they are ready.
+
 ## Status
 
 This project is currently in development.
