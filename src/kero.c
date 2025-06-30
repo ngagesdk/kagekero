@@ -161,6 +161,10 @@ static void handle_pickup(kero_t *kero, map_t *map)
             if (!map->obj[index].is_hidden)
             {
                 map->coin_count -= 1;
+                if (map->coin_count < 0)
+                {
+                    map->coin_count = 0;
+                }
             }
             map->obj[index].is_hidden = true;
         }
@@ -278,10 +282,10 @@ bool load_kero(kero_t **kero, map_t *map)
     }
 
 #ifndef __DREAMCAST__
-        (*kero)->render_canvas = SDL_CreateSurface(KERO_SIZE, KERO_SIZE, SDL_PIXELFORMAT_XRGB4444);
+    (*kero)->render_canvas = SDL_CreateSurface(KERO_SIZE, KERO_SIZE, SDL_PIXELFORMAT_XRGB4444);
 #else
     (*kero)->render_canvas = SDL_CreateSurface(KERO_SIZE, KERO_SIZE, SDL_PIXELFORMAT_ARGB1555);
-#endif    
+#endif
     if (!(*kero)->render_canvas)
     {
         SDL_Log("Error creating temporary surface: %s", SDL_GetError());
@@ -291,7 +295,7 @@ bool load_kero(kero_t **kero, map_t *map)
     (*kero)->temp_canvas = SDL_CreateSurface(KERO_SIZE, KERO_SIZE, SDL_PIXELFORMAT_XRGB4444);
 #else
     (*kero)->temp_canvas = SDL_CreateSurface(KERO_SIZE, KERO_SIZE, SDL_PIXELFORMAT_ARGB1555);
-#endif    
+#endif
     if (!(*kero)->temp_canvas)
     {
         SDL_Log("Error creating temporary surface: %s", SDL_GetError());

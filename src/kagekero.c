@@ -189,7 +189,7 @@ bool draw_kagekero_scene(kagekero_t *nc)
 #if defined __DREAMCAST__
         screen_offset_x = SCREEN_OFFSET_X;
         screen_offset_y = SCREEN_OFFSET_Y;
-#elif defined __3DS__ 
+#elif defined __3DS__
         screen_offset_x = SCREEN_OFFSET_X;
         screen_offset_y = SCREEN_OFFSET_Y;
 #elif !defined __SYMBIAN32__
