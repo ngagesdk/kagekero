@@ -22,7 +22,7 @@ typedef struct
     SDL_Renderer *renderer;
     SDL_Event *event;
 
-#ifndef __SYMBIAN32__
+#if !defined __SYMBIAN32__
     SDL_Texture *frame;
     int frame_offset_x;
     int frame_offset_y;

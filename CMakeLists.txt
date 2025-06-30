@@ -33,7 +33,14 @@ set(kagekero_sources
   src/utils.c
 )
 
-add_executable(kagekero ${kagekero_sources})
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(STATUS "Config: Debug")
+    add_executable(kagekero ${kagekero_sources})
+    target_compile_definitions(kagekero PRIVATE DEBUG)
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+    message(STATUS "Config: Release")
+    add_executable(kagekero WIN32 ${kagekero_sources})
+endif()
 
 include_directories(
   "${CMAKE_CURRENT_SOURCE_DIR}/src"
@@ -124,7 +131,6 @@ if(PACK_ASSETS)
 
   if(NGAGESDK)
     set(MAP_PREFIX ".gz")
-
     function(compress_maps asset_dir)
       add_custom_target(001.tmj.gz ALL
         WORKING_DIRECTORY ${asset_dir}
@@ -132,6 +138,16 @@ if(PACK_ASSETS)
       )
     endfunction()
   endif()
+
+  set(BASE_ASSETS
+    001.tmj${MAP_PREFIX}
+    002.tmj${MAP_PREFIX}
+    frame.png
+    frame_400x240.png
+    frame_512x512.png
+    kero.png
+    tileset.png
+  )
 
   if(BUILD_FULL_VERSION)
     set(ASSET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/full-assets")
@@ -141,18 +157,13 @@ if(PACK_ASSETS)
     endif()
 
     set(ASSET_LIST
-      001.tmj${MAP_PREFIX}
-      002.tmj${MAP_PREFIX}
+      "${BASE_ASSETS}"
       003.tmj${MAP_PREFIX}
       004.tmj${MAP_PREFIX}
       005.tmj${MAP_PREFIX}
       006.tmj${MAP_PREFIX}
       007.tmj${MAP_PREFIX}
-      frame.png
-      frame_400x240.png
-      frame_512x512.png
-      kero.png
-      tileset.png)
+    )
   else()
 
     set(ASSET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets")
@@ -161,14 +172,7 @@ if(PACK_ASSETS)
       compress_maps("${ASSET_DIR}")
     endif()
 
-    set(ASSET_LIST
-      001.tmj${MAP_PREFIX}
-      002.tmj${MAP_PREFIX}
-      frame.png
-      frame_400x240.png
-      frame_512x512.png
-      kero.png
-      tileset.png)
+    set(ASSET_LIST ${BASE_ASSETS})
   endif()
 
   add_custom_command(

@@ -34,18 +34,20 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
         SDL_Log("Couldn't initialize gamepad subsystem: %s", SDL_GetError());
     }
 
-#if defined __3DS__ || defined __DREAMCAST__
-    int window_w = WINDOW_W;
-    int window_h = WINDOW_H;
-
-#elif !defined __SYMBIAN32__
+#if !defined __SYMBIAN32__
     SDL_DisplayID display_id = SDL_GetPrimaryDisplay();
     if (!display_id)
     {
         SDL_Log("Couldn't get primary display: %s", SDL_GetError());
         return false;
     }
+#endif
 
+#if defined __3DS__ || defined __DREAMCAST__
+    int window_w = WINDOW_W;
+    int window_h = WINDOW_H;
+
+#elif !defined __SYMBIAN32__ && !defined DEBUG
     SDL_Rect display_bounds;
     if (!SDL_GetDisplayBounds(display_id, &display_bounds))
     {

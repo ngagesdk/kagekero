@@ -32,7 +32,7 @@ bool init_kagekero(kagekero_t **nc)
         return SDL_APP_FAILURE;
     }
 
-#ifndef __SYMBIAN32__
+#if !defined __SYMBIAN32__ && !defined DEBUG
     SDL_DisplayID display_id = SDL_GetPrimaryDisplay();
     if (!display_id)
     {
@@ -186,10 +186,8 @@ bool draw_kagekero_scene(kagekero_t *nc)
 
         int screen_offset_x;
         int screen_offset_y;
-#if defined __DREAMCAST__
-        screen_offset_x = SCREEN_OFFSET_X;
-        screen_offset_y = SCREEN_OFFSET_Y;
-#elif defined __3DS__
+
+#if defined DEBUG
         screen_offset_x = SCREEN_OFFSET_X;
         screen_offset_y = SCREEN_OFFSET_Y;
 #elif !defined __SYMBIAN32__
