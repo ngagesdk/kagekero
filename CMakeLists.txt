@@ -33,14 +33,10 @@ set(kagekero_sources
   src/utils.c
 )
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    message(STATUS "Config: Debug")
-    add_executable(kagekero ${kagekero_sources})
-    target_compile_definitions(kagekero PRIVATE DEBUG)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-    message(STATUS "Config: Release")
-    add_executable(kagekero WIN32 ${kagekero_sources})
-endif()
+add_executable(kagekero WIN32 ${kagekero_sources})
+target_compile_definitions(kagekero PRIVATE 
+    $<$<CONFIG:Debug>:DEBUG>
+)
 
 include_directories(
   "${CMAKE_CURRENT_SOURCE_DIR}/src"
