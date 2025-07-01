@@ -34,7 +34,7 @@ set(kagekero_sources
 )
 
 add_executable(kagekero WIN32 ${kagekero_sources})
-target_compile_definitions(kagekero PRIVATE 
+target_compile_definitions(kagekero PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
 )
 
@@ -142,6 +142,7 @@ if(PACK_ASSETS)
     frame_400x240.png
     frame_512x512.png
     kero.png
+    overlay.png
     tileset.png
   )
 

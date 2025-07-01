@@ -11,16 +11,32 @@
 #include <SDL3/SDL.h>
 
 #include "overlay.h"
+#include "utils.h"
 
 void destroy_overlay(overlay_t *ui)
 {
     if (ui)
     {
-        if (ui->render_canvas)
+        if (ui->life_count_canvas)
         {
-            SDL_DestroySurface(ui->render_canvas);
-            ui->render_canvas = NULL;
+            SDL_DestroySurface(ui->life_count_canvas);
+            ui->life_count_canvas = NULL;
         }
+
+        if (ui->coin_count_canvas)
+        {
+            SDL_DestroySurface(ui->coin_count_canvas);
+            ui->coin_count_canvas = NULL;
+        }
+
+        if (ui->image)
+        {
+            SDL_DestroySurface(ui->image);
+            ui->image = NULL;
+        }
+
+        SDL_free(ui);
+        ui = NULL;
     }
 }
 
@@ -33,23 +49,59 @@ bool load_overlay(overlay_t **ui)
         return false;
     }
 
+    if (!load_surface_from_file("overlay.png", &(*ui)->image))
+    {
+        SDL_Log("Failed to load overlay image: %s", SDL_GetError());
+        return false;
+    }
+
 #ifndef __DREAMCAST__
     SDL_PixelFormat pixel_format = SDL_PIXELFORMAT_XRGB4444;
 #else
     SDL_PixelFormat pixel_format = SDL_PIXELFORMAT_ARGB1555;
 #endif
 
-    (*ui)->render_canvas = SDL_CreateSurface(176, 12, pixel_format);
-    if (!(*ui)->render_canvas)
+    (*ui)->coin_count_canvas = SDL_CreateSurface(57, 16, pixel_format);
+    if (!(*ui)->coin_count_canvas)
     {
-        SDL_Log("Error creating temporary surface: %s", SDL_GetError());
+        SDL_Log("Error creating coin counter surface: %s", SDL_GetError());
+        return false;
+    }
+
+    (*ui)->life_count_canvas = SDL_CreateSurface(37, 16, pixel_format);
+    if (!(*ui)->life_count_canvas)
+    {
+        SDL_Log("Error creating life counter surface: %s", SDL_GetError());
         return false;
     }
 
     return true;
 }
 
-bool render_overlay(overlay_t* ui)
+bool render_overlay(int coint_count, int life_count, overlay_t *ui)
 {
+    SDL_Rect src;
+    src.x = 0;
+    src.y = 0;
+    src.w = 56;
+    src.h = 16;
+
+    if (!SDL_BlitSurface(ui->image, &src, ui->coin_count_canvas, NULL))
+    {
+        SDL_Log("Error blitting to coin counter canvas: %s", SDL_GetError());
+        return false;
+    }
+
+    src.x = 139;
+    src.y = 0;
+    src.w = 37;
+    src.h = 16;
+
+    if (!SDL_BlitSurface(ui->image, &src, ui->life_count_canvas, NULL))
+    {
+        SDL_Log("Error blitting to life counter canvas: %s", SDL_GetError());
+        return false;
+    }
+
     return true;
 }

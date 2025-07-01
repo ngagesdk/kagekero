@@ -290,7 +290,7 @@ bool load_kero(kero_t **kero, map_t *map)
     (*kero)->render_canvas = SDL_CreateSurface(KERO_SIZE, KERO_SIZE, pixel_format);
     if (!(*kero)->render_canvas)
     {
-        SDL_Log("Error creating temporary surface: %s", SDL_GetError());
+        SDL_Log("Error creating render canvas surface: %s", SDL_GetError());
         return false;
     }
 
@@ -307,6 +307,7 @@ bool load_kero(kero_t **kero, map_t *map)
     (*kero)->repeat_anim = true;
     (*kero)->heading = 1;
     (*kero)->level = FIRST_LEVEL;
+    (*kero)->life_count = 99;
 
     set_kero_state(*kero, STATE_IDLE);
 

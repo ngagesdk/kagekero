@@ -15,12 +15,15 @@
 
 typedef struct overlay
 {
-    SDL_Surface* render_canvas;
+    SDL_Surface *image;
+    SDL_Surface *font;
+    SDL_Surface *coin_count_canvas;
+    SDL_Surface *life_count_canvas;
 
 } overlay_t;
 
 void destroy_overlay(overlay_t *ui);
 bool load_overlay(overlay_t **ui);
-bool render_overlay(overlay_t *ui);
+bool render_overlay(int coint_count, int life_count, overlay_t *ui);
 
 #endif // OVERLAY_H

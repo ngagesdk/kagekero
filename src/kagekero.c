@@ -106,7 +106,7 @@ bool update_kagekero(kagekero_t *nc)
 
     render_map(nc->map, nc->renderer, &nc->has_updated);
     render_kero(nc->kero, nc->map);
-    render_overlay(nc->ui);
+    render_overlay(nc->map->coin_count, nc->kero->life_count, nc->ui);
 
 #if defined __3DS__
     SDL_RenderTexture(nc->renderer, nc->frame, NULL, NULL);
@@ -161,7 +161,7 @@ bool draw_kagekero_scene(kagekero_t *nc)
     SDL_FRect src;
     SDL_FRect dst;
 
-#ifdef __SYMBIAN32__
+#if defined __SYMBIAN32__
     if (!nc->has_updated)
 #endif
     {
@@ -185,6 +185,19 @@ bool draw_kagekero_scene(kagekero_t *nc)
         dst_rect.h = KERO_SIZE;
 
         SDL_BlitSurface(nc->kero->render_canvas, NULL, temp, &dst_rect);
+
+        dst_rect.x = 0 + nc->cam_x;
+        dst_rect.y = 4 + nc->cam_y;
+        dst_rect.w = 57;
+        dst_rect.h = 16;
+        SDL_BlitSurface(nc->ui->coin_count_canvas, NULL, temp, &dst_rect);
+
+        dst_rect.x = 139 + nc->cam_x;
+        dst_rect.y = 4 + nc->cam_y;
+        dst_rect.w = 37;
+        dst_rect.h = 16;
+        SDL_BlitSurface(nc->ui->life_count_canvas, NULL, temp, &dst_rect);
+
         SDL_UnlockTexture(nc->map->render_target);
 
         src.x = (float)(0 + nc->cam_x);
