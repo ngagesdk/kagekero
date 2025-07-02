@@ -14,6 +14,7 @@
 #include "config.h"
 #include "fixedp.h"
 #include "kero.h"
+#include "map.h"
 #include "utils.h"
 
 typedef enum kero_state

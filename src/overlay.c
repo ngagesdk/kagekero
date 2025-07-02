@@ -17,6 +17,12 @@ void destroy_overlay(overlay_t *ui)
 {
     if (ui)
     {
+        if (ui->font)
+        {
+            SDL_DestroySurface(ui->font);
+            ui->font = NULL;
+        }
+
         if (ui->life_count_canvas)
         {
             SDL_DestroySurface(ui->life_count_canvas);
@@ -36,7 +42,6 @@ void destroy_overlay(overlay_t *ui)
         }
 
         SDL_free(ui);
-        *ui = NULL;
     }
 }
 
@@ -72,6 +77,25 @@ bool load_overlay(overlay_t **ui)
     if (!(*ui)->life_count_canvas)
     {
         SDL_Log("Error creating life counter surface: %s", SDL_GetError());
+        return false;
+    }
+
+    (*ui)->font = SDL_CreateSurface(80, 8, pixel_format);
+    if (!(*ui)->font)
+    {
+        SDL_Log("Error creating font surface: %s", SDL_GetError());
+        return false;
+    }
+
+    SDL_Rect src;
+    src.x = 57;
+    src.y = 0;
+    src.w = 80;
+    src.h = 8;
+
+    if (!SDL_BlitSurface((*ui)->image, &src, (*ui)->font, NULL))
+    {
+        SDL_Log("Error blitting to coin counter canvas: %s", SDL_GetError());
         return false;
     }
 
