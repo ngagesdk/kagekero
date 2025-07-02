@@ -13,7 +13,7 @@
 
 #include "SDL3/SDL.h"
 
-#define FIRST_LEVEL       2
+#define FIRST_LEVEL       1
 #define ANIM_FPS          15
 #define ACCELERATION_DASH 0.6f
 #define ACCELERATION      0.0025f
