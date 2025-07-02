@@ -36,7 +36,7 @@ void destroy_overlay(overlay_t *ui)
         }
 
         SDL_free(ui);
-        ui = NULL;
+        *ui = NULL;
     }
 }
 
