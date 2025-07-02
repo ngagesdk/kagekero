@@ -106,7 +106,7 @@ bool update_kagekero(kagekero_t *nc)
 
     render_map(nc->map, nc->renderer, &nc->has_updated);
     render_kero(nc->kero, nc->map);
-    render_overlay(nc->map->coin_count, nc->kero->life_count, nc->ui);
+    render_overlay(nc->map->coins_left, nc->map->coin_max, nc->kero->life_count, nc->ui);
 
 #if defined __3DS__
     SDL_RenderTexture(nc->renderer, nc->frame, NULL, NULL);

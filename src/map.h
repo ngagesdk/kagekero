@@ -73,7 +73,8 @@ typedef struct map
 
     obj_t *obj;
     int obj_count;
-    int coin_count;
+    int coins_left;
+    int coin_max;
 
     Uint8 bg_r;
     Uint8 bg_g;

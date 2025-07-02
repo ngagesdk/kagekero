@@ -13,7 +13,7 @@
 
 #include "SDL3/SDL.h"
 
-#define FIRST_LEVEL       1
+#define FIRST_LEVEL       2
 #define ANIM_FPS          15
 #define ACCELERATION_DASH 0.6f
 #define ACCELERATION      0.0025f
@@ -29,9 +29,9 @@
 #if defined DEBUG
 // Default configuration.
 #elif defined __SYMBIAN32__
-#define MAP_PREFIX      ".gz"
-#define WINDOW_W        176
-#define WINDOW_H        208
+#define MAP_PREFIX ".gz"
+#define WINDOW_W   176
+#define WINDOW_H   208
 #elif defined __3DS__
 #define WINDOW_W        400
 #define WINDOW_H        240

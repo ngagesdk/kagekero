@@ -572,7 +572,7 @@ static bool load_objects(map_t *map)
                 {
                     if (H_COIN == generate_hash(object->name.ptr))
                     {
-                        map->coin_count += 1;
+                        map->coins_left += 1;
                     }
 
                     if (H_SPAWN == generate_hash(object->name.ptr))
@@ -588,6 +588,7 @@ static bool load_objects(map_t *map)
         }
         layer = layer->next;
     }
+    map->coin_max = map->coins_left;
 
     if (map->obj_count > 0)
     {
@@ -694,7 +695,7 @@ bool load_map(const char *file_name, map_t **map, SDL_Renderer *renderer)
     else
     {
         (*map)->obj_count = 0;
-        (*map)->coin_count = 0;
+        (*map)->coins_left = 0;
         (*map)->layer_count = 0;
         (*map)->spawn_x = 0;
         (*map)->spawn_y = 0;
@@ -797,7 +798,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated)
                     continue; // Skip invalid GIDs.
                 }
 
-                if (H_DOOR == map->obj[index].hash && !map->coin_count)
+                if (H_DOOR == map->obj[index].hash && !map->coins_left)
                 {
                     map->obj[index].start_frame = 1;
                     map->obj[index].current_frame = 1;

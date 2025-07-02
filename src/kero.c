@@ -161,10 +161,10 @@ static void handle_pickup(kero_t *kero, map_t *map)
         {
             if (!map->obj[index].is_hidden)
             {
-                map->coin_count -= 1;
-                if (map->coin_count < 0)
+                map->coins_left -= 1;
+                if (map->coins_left < 0)
                 {
-                    map->coin_count = 0;
+                    map->coins_left = 0;
                 }
             }
             map->obj[index].is_hidden = true;
@@ -327,6 +327,13 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
             reset_kero_on_out_of_bounds(kero, map);
             kero->repeat_anim = true;
             kero->state = STATE_IDLE;
+            kero->life_count -= 1;
+
+            if (kero->life_count < 0)
+            {
+                // Tbd.
+                kero->life_count = 0;
+            }
         }
 
         return;
@@ -407,6 +414,7 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
     // Out of bounds check.
     if (kero->pos_y >= map->height + KERO_HALF)
     {
+        kero->life_count -= 1;
         reset_kero_on_out_of_bounds(kero, map);
     }
 

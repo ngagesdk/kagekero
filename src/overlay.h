@@ -24,6 +24,6 @@ typedef struct overlay
 
 void destroy_overlay(overlay_t *ui);
 bool load_overlay(overlay_t **ui);
-bool render_overlay(int coint_count, int life_count, overlay_t *ui);
+bool render_overlay(int coin_count, int coins_max, int life_count, overlay_t *ui);
 
 #endif // OVERLAY_H
