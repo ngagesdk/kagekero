@@ -13,16 +13,16 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
-#include "kagekero.h"
+#include "core.h"
 
-kagekero_t *core = NULL;
+core_t *core = NULL;
 
 // This function runs once at startup.
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
-    if (!init_kagekero(&core))
+    if (!init(&core))
     {
-        SDL_Log("Failed to initialize kagekero.");
+        SDL_Log("Failed to initialize core.");
         return SDL_APP_FAILURE;
     }
 
@@ -41,7 +41,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         core->event = event;
     }
 
-    if (!handle_kagekero_events(core))
+    if (!handle_events(core))
     {
         return SDL_APP_SUCCESS;
     }
@@ -52,11 +52,11 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 // This function runs once per frame, and is the heart of the program.
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
-    if (!update_kagekero(core))
+    if (!update(core))
     {
         return SDL_APP_SUCCESS;
     }
-    if (!draw_kagekero_scene(core))
+    if (!draw_scene(core))
     {
         SDL_Log("Failed to draw kagekero scene");
         return SDL_APP_SUCCESS;
@@ -71,6 +71,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 // This function runs once at shutdown.
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
-    destroy_kagekero(core);
+    destroy(core);
     //  SDL will clean up the window/renderer for us.
 }

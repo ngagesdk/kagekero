@@ -1,4 +1,4 @@
-/** @file kagekero.c
+/** @file core.c
  *
  *  A minimalist, cross-platform puzzle-platformer, designed
  *  especially for the Nokia N-Gage.
@@ -12,16 +12,16 @@
 
 #include "app.h"
 #include "config.h"
-#include "kagekero.h"
+#include "core.h"
 #include "kero.h"
 #include "map.h"
 #include "overlay.h"
 #include "pfs.h"
 #include "utils.h"
 
-bool init_kagekero(kagekero_t **nc)
+bool init(core_t **nc)
 {
-    *nc = (kagekero_t *)SDL_calloc(1, sizeof(kagekero_t));
+    *nc = (core_t *)SDL_calloc(1, sizeof(core_t));
     if (!*nc)
     {
         SDL_Log("Failed to allocate memory for engine core");
@@ -97,7 +97,7 @@ bool init_kagekero(kagekero_t **nc)
     return true;
 }
 
-bool update_kagekero(kagekero_t *nc)
+bool update(core_t *nc)
 {
     update_kero(nc->kero, nc->map, &nc->btn, nc->renderer, &nc->has_updated);
 
@@ -137,7 +137,7 @@ bool update_kagekero(kagekero_t *nc)
     return true;
 }
 
-bool draw_kagekero_scene(kagekero_t *nc)
+bool draw_scene(core_t *nc)
 {
     SDL_Rect visible_area;
 
@@ -236,7 +236,7 @@ bool draw_kagekero_scene(kagekero_t *nc)
     return true;
 }
 
-bool handle_kagekero_events(kagekero_t *nc)
+bool handle_events(core_t *nc)
 {
     switch (nc->event->type)
     {
@@ -311,7 +311,7 @@ bool handle_kagekero_events(kagekero_t *nc)
     return true;
 }
 
-void destroy_kagekero(kagekero_t *nc)
+void destroy(core_t *nc)
 {
     if (nc)
     {

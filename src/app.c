@@ -21,7 +21,7 @@ bool init_app(SDL_Renderer **renderer, SDL_Window *window)
     SDL_SetHint("SDL_RENDER_VSYNC", "1");
 #endif
     SDL_SetLogPriorities(SDL_LOG_PRIORITY_INFO);
-    SDL_SetAppMetadata("kagekero", "1.0", "com.kagekero.ngagesdk");
+    SDL_SetAppMetadata("kagekero", "1.0", "de.ngagesdk.kagekero");
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
     {

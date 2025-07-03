@@ -1,4 +1,4 @@
-/** @file kagekero.h
+/** @file core.h
  *
  *  A minimalist, cross-platform puzzle-platformer, designed
  *  especially for the Nokia N-Gage.
@@ -8,8 +8,8 @@
  *
  **/
 
-#ifndef KAGEKERO_H
-#define KAGEKERO_H
+#ifndef CORE_H
+#define CORE_H
 
 #include <SDL3/SDL.h>
 
@@ -42,12 +42,12 @@ typedef struct
     unsigned int btn;
     bool has_updated;
 
-} kagekero_t;
+} core_t;
 
-bool init_kagekero(kagekero_t **nc);
-bool update_kagekero(kagekero_t *nc);
-bool draw_kagekero_scene(kagekero_t *nc);
-bool handle_kagekero_events(kagekero_t *nc);
-void destroy_kagekero(kagekero_t *nc);
+bool init(core_t **nc);
+bool update(core_t *nc);
+bool draw_scene(core_t *nc);
+bool handle_events(core_t *nc);
+void destroy(core_t *nc);
 
-#endif // KAGEKERO_H
+#endif // CORE_H

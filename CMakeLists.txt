@@ -23,8 +23,8 @@ endif()
 set(kagekero_sources
   src/aabb.c
   src/app.c
+  src/core.c
   src/fixedp.c
-  src/kagekero.c
   src/kero.c
   src/main.c
   src/map.c
