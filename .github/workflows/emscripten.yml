@@ -1,0 +1,37 @@
+name: Emscripten
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build
+
+      - name: Setup Emscripten SDK
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 3.1.66 # use latest stable
+
+      - name: Create build directory
+        run: mkdir build
+
+      - name: Configure with CMake (Emscripten)
+        run: emcmake cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DPACK_ASSETS=ON
+
+      - name: Build with CMake (Emscripten)
+        run: cmake --build build --config ${{ env.BUILD_TYPE }}
