@@ -37,10 +37,13 @@ jobs:
             -DPACK_ASSETS=ON \
             -DCMAKE_EXE_LINKER_FLAGS="--preload-file export/data.pfs"
 
+      - name: Build with CMake (Emscripten)
+        run: cmake --build build --config ${{ env.BUILD_TYPE }}
+
       - name: Archive kagekero
         uses: actions/upload-artifact@v4
         with:
           name: kagekero-Emscripten
           path: |
-            export
+            export \
             !export/data.pfs
