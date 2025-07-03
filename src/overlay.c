@@ -66,14 +66,14 @@ bool load_overlay(overlay_t **ui)
     SDL_PixelFormat pixel_format = SDL_PIXELFORMAT_ARGB1555;
 #endif
 
-    (*ui)->coin_count_canvas = SDL_CreateSurface(57, 16, pixel_format);
+    (*ui)->coin_count_canvas = SDL_CreateSurface(55, 16, pixel_format);
     if (!(*ui)->coin_count_canvas)
     {
         SDL_Log("Error creating coin counter surface: %s", SDL_GetError());
         return false;
     }
 
-    (*ui)->life_count_canvas = SDL_CreateSurface(37, 16, pixel_format);
+    (*ui)->life_count_canvas = SDL_CreateSurface(38, 16, pixel_format);
     if (!(*ui)->life_count_canvas)
     {
         SDL_Log("Error creating life counter surface: %s", SDL_GetError());
@@ -134,7 +134,7 @@ bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui
     SDL_Rect src;
     src.x = 0;
     src.y = 0;
-    src.w = 56;
+    src.w = 54;
     src.h = 16;
 
     if (!SDL_BlitSurface(ui->image, &src, ui->coin_count_canvas, NULL))
