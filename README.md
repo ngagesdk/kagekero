@@ -1,5 +1,6 @@
 ﻿# 影ケロ - Kage Kero
 
+[![Emscripten](https://github.com/ngagesdk/kagekero/actions/workflows/emscripten.yml/badge.svg)](https://github.com/ngagesdk/kagekero/actions/workflows/emscripten.yml)
 [![Linux](https://github.com/ngagesdk/kagekero/actions/workflows/linux.yml/badge.svg)](https://github.com/ngagesdk/kagekero/actions/workflows/linux.yml)
 [![Nokia N-Gage](https://github.com/ngagesdk/kagekero/actions/workflows/nokia-ngage.yml/badge.svg)](https://github.com/ngagesdk/kagekero/actions/workflows/nokia-ngage.yml)
 [![Nintendo 3DS](https://github.com/ngagesdk/kagekero/actions/workflows/n3ds.yml/badge.svg)](https://github.com/ngagesdk/kagekero/actions/workflows/n3ds.yml)
