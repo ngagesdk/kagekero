@@ -111,7 +111,7 @@ found:
     fseek(data_pack, offset, SEEK_SET);
 
     fread(&size, 4, 1, data_pack);
-    to_return = (int8_t *)SDL_calloc(1, size);
+    to_return = (uint8_t *)SDL_calloc(1, size);
 
     fread(to_return, sizeof(uint8_t), size, data_pack);
     fclose(data_pack);
