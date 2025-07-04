@@ -209,6 +209,8 @@ button_t get_button_from_key(SDL_Keycode key)
             return BTN_LEFT;
         case SDLK_RIGHT:
             return BTN_RIGHT;
+        case SDLK_SELECT:
+            return BTN_SELECT;
     }
 
     return 0u;

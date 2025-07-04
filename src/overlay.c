@@ -260,10 +260,66 @@ bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui
 
     if (ui->menu_selection)
     {
+        dst.w = 14;
+        dst.h = 10;
+        dst.x = 2;
+
+        switch (ui->menu_selection)
+        {
+            default:
+            case MENU_NONE:
+            case MENU_RESUME:
+                dst.y = 4;
+                break;
+            case MENU_SETTINGS:
+                dst.y = 19;
+                break;
+            case MENU_QUIT:
+                dst.y = 34;
+                break;
+        }
+
         ui->time_since_last_frame += ui->delta_time;
         if (ui->time_since_last_frame >= (1000 / ANIM_FPS))
         {
+            SDL_Rect tmp_dst;
+            SDL_Rect tmp_src;
+
+            // This can be optimised if required.
+            tmp_src.x = 81;
+            tmp_src.y = 19;
+            tmp_src.w = 13;
+            tmp_src.h = 42;
+
+            tmp_dst.x = 2;
+            tmp_dst.y = 2;
+            tmp_dst.w = 13;
+            tmp_dst.h = 42;
+
+            if (!SDL_BlitSurface(ui->image, &tmp_src, ui->menu_canvas, &tmp_dst))
+            {
+                SDL_Log("Error blitting menu background to canvas: %s", SDL_GetError());
+                return false;
+            }
+
             ui->time_since_last_frame = 0;
+            ui->current_frame += 1;
+
+            if (ui->current_frame >= 12)
+            {
+                ui->current_frame = 0;
+            }
+
+            src.x = 0 + (ui->current_frame * 14);
+            src.y = 64;
+            src.w = 14;
+            src.h = 10;
+
+            if (!SDL_BlitSurface(ui->image, &src, ui->menu_canvas, &dst))
+            {
+                SDL_Log("Error blitting menu selection to canvas: %s", SDL_GetError());
+                return false;
+            }
         }
     }
 

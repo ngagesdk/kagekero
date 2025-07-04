@@ -299,7 +299,7 @@ bool handle_events(core_t *nc)
                 }
                 else
                 {
-                    if (check_bit(nc->btn, BTN_7))
+                    if (check_bit(nc->btn, BTN_7) || check_bit(nc->btn, BTN_SELECT))
                     {
                         switch (nc->ui->menu_selection)
                         {
@@ -315,7 +315,6 @@ bool handle_events(core_t *nc)
                             case MENU_QUIT:
                                 return false;
                         }
-                        nc->is_paused = false;
                     }
                     else if (check_bit(nc->btn, BTN_UP))
                     {

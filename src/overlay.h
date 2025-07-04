@@ -38,6 +38,8 @@ typedef struct overlay
     Uint64 delta_time;
     Uint64 time_since_last_frame;
 
+    int current_frame;
+
 } overlay_t;
 
 void destroy_overlay(overlay_t *ui);
