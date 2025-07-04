@@ -315,9 +315,16 @@ bool load_kero(kero_t **kero, map_t *map)
     return true;
 }
 
-void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *renderer, bool *has_updated)
+void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *renderer, bool is_paused, bool *has_updated)
 {
     update_kero_timing(kero);
+
+    if (is_paused)
+    {
+        kero->jump_lock = true;
+        return;
+    }
+
     update_kero_animation(kero, has_updated);
 
     if (STATE_DEAD == kero->state)

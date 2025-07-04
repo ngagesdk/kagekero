@@ -41,6 +41,7 @@ typedef struct
 
     unsigned int btn;
     bool has_updated;
+    bool is_paused;
 
 } core_t;
 

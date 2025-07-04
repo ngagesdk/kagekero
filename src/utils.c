@@ -197,8 +197,10 @@ button_t get_button_from_key(SDL_Keycode key)
         case SDLK_Z:
             return BTN_7;
         case SDLK_SOFTLEFT:
-        case SDLK_ESCAPE:
             return BTN_SOFTLEFT;
+        case SDLK_SOFTRIGHT:
+        case SDLK_ESCAPE:
+            return BTN_SOFTRIGHT;
         case SDLK_UP:
             return BTN_UP;
         case SDLK_DOWN:

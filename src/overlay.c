@@ -10,6 +10,7 @@
 
 #include <SDL3/SDL.h>
 
+#include "config.h"
 #include "overlay.h"
 #include "utils.h"
 
@@ -21,6 +22,12 @@ void destroy_overlay(overlay_t *ui)
         {
             SDL_DestroySurface(ui->font);
             ui->font = NULL;
+        }
+
+        if (ui->menu_canvas)
+        {
+            SDL_DestroySurface(ui->menu_canvas);
+            ui->menu_canvas = NULL;
         }
 
         if (ui->life_count_canvas)
@@ -80,6 +87,25 @@ bool load_overlay(overlay_t **ui)
         return false;
     }
 
+    (*ui)->menu_canvas = SDL_CreateSurface(96, 48, pixel_format);
+    if (!(*ui)->menu_canvas)
+    {
+        SDL_Log("Error creating menu surface: %s", SDL_GetError());
+        return false;
+    }
+
+    SDL_Rect src;
+    src.x = 0;
+    src.y = 16;
+    src.w = 96;
+    src.h = 48;
+
+    if (!SDL_BlitSurface((*ui)->image, &src, (*ui)->menu_canvas, NULL))
+    {
+        SDL_Log("Error blitting to menu canvas: %s", SDL_GetError());
+        return false;
+    }
+
     (*ui)->font = SDL_CreateSurface(80, 8, pixel_format);
     if (!(*ui)->font)
     {
@@ -87,7 +113,6 @@ bool load_overlay(overlay_t **ui)
         return false;
     }
 
-    SDL_Rect src;
     src.x = 58;
     src.y = 0;
     src.w = 80;
@@ -104,6 +129,12 @@ bool load_overlay(overlay_t **ui)
 
 bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui)
 {
+    ui->time_b = ui->time_a;
+    ui->time_a = SDL_GetTicks();
+    ui->delta_time = (ui->time_a > ui->time_b)
+                         ? ui->time_a - ui->time_b
+                         : ui->time_b - ui->time_a;
+
     if (coins_left > 9)
     {
         coins_left = 9;
@@ -224,6 +255,15 @@ bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui
         {
             SDL_Log("Error blitting second life digit to canvas: %s", SDL_GetError());
             return false;
+        }
+    }
+
+    if (ui->menu_selection)
+    {
+        ui->time_since_last_frame += ui->delta_time;
+        if (ui->time_since_last_frame >= (1000 / ANIM_FPS))
+        {
+            ui->time_since_last_frame = 0;
         }
     }
 

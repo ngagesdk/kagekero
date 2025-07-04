@@ -29,9 +29,11 @@
 #if defined DEBUG
 // Default configuration.
 #elif defined __SYMBIAN32__
-#define MAP_PREFIX ".gz"
-#define WINDOW_W   176
-#define WINDOW_H   208
+#define MAP_PREFIX      ".gz"
+#define WINDOW_W        176
+#define WINDOW_H        208
+#define SCREEN_OFFSET_X 0
+#define SCREEN_OFFSET_Y 0
 #elif defined __3DS__
 #define WINDOW_W        400
 #define WINDOW_H        240

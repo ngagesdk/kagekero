@@ -99,14 +99,18 @@ bool init(core_t **nc)
 
 bool update(core_t *nc)
 {
-    update_kero(nc->kero, nc->map, &nc->btn, nc->renderer, &nc->has_updated);
+    update_kero(nc->kero, nc->map, &nc->btn, nc->renderer, nc->is_paused, &nc->has_updated);
 
     nc->cam_x = (int)nc->kero->pos_x - (SCREEN_W / 2);
     nc->cam_y = (int)nc->kero->pos_y - (SCREEN_H / 2);
 
     render_map(nc->map, nc->renderer, &nc->has_updated);
     render_kero(nc->kero, nc->map);
-    render_overlay(nc->map->coins_left, nc->map->coin_max, nc->kero->life_count, nc->ui);
+
+    if (nc->has_updated)
+    {
+        render_overlay(nc->map->coins_left, nc->map->coin_max, nc->kero->life_count, nc->ui);
+    }
 
 #if defined __3DS__
     SDL_RenderTexture(nc->renderer, nc->frame, NULL, NULL);
@@ -198,6 +202,16 @@ bool draw_scene(core_t *nc)
         dst_rect.h = 16;
         SDL_BlitSurface(nc->ui->life_count_canvas, NULL, temp, &dst_rect);
 
+        if (nc->is_paused)
+        {
+            dst_rect.x = 40 + nc->cam_x;
+            dst_rect.y = 80 + nc->cam_y;
+            dst_rect.w = 96;
+            dst_rect.h = 48;
+
+            SDL_BlitSurface(nc->ui->menu_canvas, NULL, temp, &dst_rect);
+        }
+
         SDL_UnlockTexture(nc->map->render_target);
 
         src.x = (float)(0 + nc->cam_x);
@@ -277,6 +291,50 @@ bool handle_events(core_t *nc)
 
                 button_t button = get_button_from_key(nc->event->key.key);
                 set_bit(&nc->btn, button);
+
+                if ((check_bit(nc->btn, BTN_SOFTRIGHT) || check_bit(nc->btn, BTN_SOFTLEFT)) && !nc->is_paused)
+                {
+                    nc->is_paused = true;
+                    nc->ui->menu_selection = MENU_RESUME;
+                }
+                else
+                {
+                    if (check_bit(nc->btn, BTN_7))
+                    {
+                        switch (nc->ui->menu_selection)
+                        {
+                            default:
+                            case MENU_NONE:
+                                break;
+                            case MENU_RESUME:
+                                nc->is_paused = false;
+                                break;
+                            case MENU_SETTINGS:
+                                // Tbd.
+                                break;
+                            case MENU_QUIT:
+                                return false;
+                        }
+                        nc->is_paused = false;
+                    }
+                    else if (check_bit(nc->btn, BTN_UP))
+                    {
+                        nc->ui->menu_selection -= 1;
+                        if (nc->ui->menu_selection < MENU_RESUME)
+                        {
+                            nc->ui->menu_selection = MENU_QUIT;
+                        }
+                    }
+                    else if (check_bit(nc->btn, BTN_DOWN))
+                    {
+                        nc->ui->menu_selection += 1;
+                        if (nc->ui->menu_selection > MENU_QUIT)
+                        {
+                            nc->ui->menu_selection = MENU_RESUME;
+                        }
+                    }
+                }
+
                 break;
             }
         case SDL_EVENT_KEY_UP:
@@ -301,11 +359,6 @@ bool handle_events(core_t *nc)
 
                 break;
             }
-    }
-
-    if (check_bit(nc->btn, BTN_SOFTLEFT))
-    {
-        return false;
     }
 
     return true;

@@ -57,7 +57,7 @@ typedef struct kero
 
 void destroy_kero(kero_t *kero);
 bool load_kero(kero_t **kero, map_t *map);
-void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *renderer, bool *has_updated);
+void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *renderer, bool is_paused, bool *has_updated);
 bool render_kero(kero_t *kero, map_t *map);
 
 #endif // KERO_H
