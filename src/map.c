@@ -570,12 +570,12 @@ static bool load_objects(map_t *map)
                 cute_tiled_object_t *object = get_head_object(layer, map);
                 while (object)
                 {
-                    if (H_COIN == generate_hash(object->name.ptr))
+                    if (H_COIN == generate_hash((const unsigned char*)object->name.ptr))
                     {
                         map->coins_left += 1;
                     }
 
-                    if (H_SPAWN == generate_hash(object->name.ptr))
+                    if (H_SPAWN == generate_hash((const unsigned char*)object->name.ptr))
                     {
                         map->spawn_x = (int)object->x;
                         map->spawn_y = (int)object->y;
@@ -926,7 +926,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated)
                     map->obj[index].current_frame = 0;
                     map->obj[index].anim_length = anim_length;
                     map->obj[index].object_id = object->id;
-                    map->obj[index].hash = generate_hash((const char *)object->name.ptr);
+                    map->obj[index].hash = generate_hash((const unsigned char *)object->name.ptr);
 
                     if (H_DOOR == map->obj[index].hash)
                     {

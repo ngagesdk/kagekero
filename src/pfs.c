@@ -27,7 +27,7 @@ void init_file_reader(void)
 size_t size_of_file(const char *path)
 {
     FILE *data_pack = fopen(data_path, "rb");
-    char buffer[85];
+    char buffer[80 + 1];
     int32_t size = 0;
     int32_t offset = 0;
     int16_t entries = 0;
@@ -40,9 +40,15 @@ size_t size_of_file(const char *path)
 
         fread(&offset, 4, 1, data_pack);
         fread(&string_size, 1, 1, data_pack);
+
+        if (string_size > 80)
+        {
+            string_size = 80;
+        }
+
         fread(&buffer, string_size + 1, 1, data_pack);
 
-        if (!strcmp(buffer, path))
+        if (!SDL_strncmp(buffer, path, string_size))
         {
             goto found;
         }
@@ -67,9 +73,9 @@ uint8_t *load_binary_file_from_path(const char *path)
     FILE *data_pack = fopen(data_path, "rb");
     int32_t offset = 0;
     int16_t entries = 0;
-    char buffer[80];
+    char buffer[80 + 1] = { 0 };
     int32_t size = 0;
-    int8_t *to_return;
+    uint8_t *to_return;
 
     fread(&entries, 2, 1, data_pack);
 
@@ -79,9 +85,15 @@ uint8_t *load_binary_file_from_path(const char *path)
 
         fread(&offset, 4, 1, data_pack);
         fread(&string_size, 1, 1, data_pack);
+
+        if (string_size > 80)
+        {
+            string_size = 80;
+        }
+
         fread(&buffer, string_size + 1, 1, data_pack);
 
-        if (!strcmp(buffer, path))
+        if (!SDL_strncmp(buffer, path, string_size))
         {
             goto found;
         }
@@ -99,7 +111,7 @@ found:
     fseek(data_pack, offset, SEEK_SET);
 
     fread(&size, 4, 1, data_pack);
-    to_return = (uint8_t *)SDL_calloc(1, size);
+    to_return = (int8_t *)SDL_calloc(1, size);
 
     fread(to_return, sizeof(uint8_t), size, data_pack);
     fclose(data_pack);
