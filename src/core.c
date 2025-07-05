@@ -11,6 +11,7 @@
 #include <SDL3/SDL.h>
 
 #include "app.h"
+#include "cheats.h"
 #include "config.h"
 #include "core.h"
 #include "kero.h"
@@ -293,6 +294,23 @@ bool handle_events(core_t *nc)
 
                 button_t button = get_button_from_key(nc->event->key.key);
                 set_bit(&nc->btn, button);
+
+                if (nc->is_paused)
+                {
+                    add_to_ring_buffer(button);
+                    const button_t cheat_sequence[5] = { BTN_5, BTN_4, BTN_2, BTN_8, BTN_7 };
+                    if (find_sequence(cheat_sequence, 5))
+                    {
+                        SDL_Log("Cheat code activated: 5-4-2-8-7"); // L G B T Q
+                        nc->kero->wears_mask = true;
+                        nc->map->use_lgbtq_flag = true;
+                        clear_ring_buffer();
+                    }
+                }
+                else
+                {
+                    clear_ring_buffer();
+                }
 
                 if ((check_bit(nc->btn, BTN_SOFTRIGHT) || check_bit(nc->btn, BTN_SOFTLEFT)) && !nc->is_paused)
                 {

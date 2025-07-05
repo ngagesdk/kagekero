@@ -92,6 +92,8 @@ typedef struct map
     tile_desc_t *tile_desc;
     int tile_desc_count;
 
+    bool use_lgbtq_flag;
+
 } map_t;
 
 typedef enum

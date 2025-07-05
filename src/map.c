@@ -570,12 +570,12 @@ static bool load_objects(map_t *map)
                 cute_tiled_object_t *object = get_head_object(layer, map);
                 while (object)
                 {
-                    if (H_COIN == generate_hash((const unsigned char*)object->name.ptr))
+                    if (H_COIN == generate_hash((const unsigned char *)object->name.ptr))
                     {
                         map->coins_left += 1;
                     }
 
-                    if (H_SPAWN == generate_hash((const unsigned char*)object->name.ptr))
+                    if (H_SPAWN == generate_hash((const unsigned char *)object->name.ptr))
                     {
                         map->spawn_x = (int)object->x;
                         map->spawn_y = (int)object->y;
@@ -632,6 +632,18 @@ static bool load_objects(map_t *map)
     }
 
     return true;
+}
+
+static int lookup_lgbtq_tile_id(int id)
+{
+    if ((id >= 930 && id <= 949) || (id >= 980 && id <= 999))
+    {
+        return id - 100;
+    }
+    else
+    {
+        return id;
+    }
 }
 
 void destroy_map(map_t *map)
@@ -810,7 +822,15 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated)
                 int next_tile_id = 0;
                 int local_id;
 
-                local_id = map->obj[index].id + 1;
+                if (map->use_lgbtq_flag)
+                {
+                    local_id = lookup_lgbtq_tile_id(map->obj[index].id) + 1;
+                }
+                else
+                {
+                    local_id = map->obj[index].id + 1;
+                }
+
                 src.w = dst.w = map->handle->tilesets->tilewidth;
                 src.h = dst.h = map->handle->tilesets->tileheight;
                 src.x = 0;
