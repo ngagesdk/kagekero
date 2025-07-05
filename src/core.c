@@ -299,7 +299,7 @@ bool handle_events(core_t *nc)
                     nc->is_paused = true;
                     nc->ui->menu_selection = MENU_RESUME;
                 }
-                else
+                else if (nc->is_paused)
                 {
                     if (check_bit(nc->btn, BTN_7) || check_bit(nc->btn, BTN_SELECT))
                     {

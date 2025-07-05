@@ -8,8 +8,9 @@
  *
  **/
 
-#include "app.h"
 #include "SDL3/SDL.h"
+
+#include "app.h"
 #include "config.h"
 #include "pfs.h"
 

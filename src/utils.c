@@ -189,25 +189,55 @@ button_t get_button_from_key(SDL_Keycode key)
 {
     switch (key)
     {
+        case SDLK_0:
+        case SDLK_KP_0:
+            return BTN_0;
+        case SDLK_1:
+        case SDLK_KP_7:
+            return BTN_1;
+        case SDLK_2:
+        case SDLK_KP_8:
+            return BTN_2;
+        case SDLK_3:
+        case SDLK_KP_9:
+            return BTN_3;
+        case SDLK_4:
+        case SDLK_KP_4:
+            return BTN_4;
         case SDLK_5:
+        case SDLK_KP_5:
         case SDLK_X:
             return BTN_5;
+        case SDLK_6:
+        case SDLK_KP_6:
+            return BTN_6;
         case SDLK_7:
+        case SDLK_KP_1:
         case SDLK_Y:
         case SDLK_Z:
             return BTN_7;
+        case SDLK_8:
+        case SDLK_KP_2:
+            return BTN_8;
+        case SDLK_9:
+        case SDLK_KP_3:
+            return BTN_9;
         case SDLK_SOFTLEFT:
             return BTN_SOFTLEFT;
         case SDLK_SOFTRIGHT:
         case SDLK_ESCAPE:
             return BTN_SOFTRIGHT;
         case SDLK_UP:
+        case SDLK_W:
             return BTN_UP;
         case SDLK_DOWN:
+        case SDLK_S:
             return BTN_DOWN;
+        case SDLK_A:
         case SDLK_LEFT:
             return BTN_LEFT;
         case SDLK_RIGHT:
+        case SDLK_D:
             return BTN_RIGHT;
         case SDLK_SELECT:
             return BTN_SELECT;

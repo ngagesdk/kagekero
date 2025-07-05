@@ -23,6 +23,7 @@ endif()
 set(kagekero_sources
   src/aabb.c
   src/app.c
+  src/cheats.c
   src/core.c
   src/fixedp.c
   src/kero.c
