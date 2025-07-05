@@ -161,6 +161,7 @@ static void handle_pickup(kero_t *kero, map_t *map)
         {
             if (!map->obj[index].is_hidden)
             {
+                map->prev_coins = map->coins_left;
                 map->coins_left -= 1;
                 if (map->coins_left < 0)
                 {
@@ -334,6 +335,7 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
             reset_kero_on_out_of_bounds(kero, map);
             kero->repeat_anim = true;
             kero->state = STATE_IDLE;
+            kero->prev_life_count = kero->life_count;
             kero->life_count -= 1;
 
             if (kero->life_count < 0)

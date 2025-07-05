@@ -73,6 +73,7 @@ typedef struct map
 
     obj_t *obj;
     int obj_count;
+    int prev_coins;
     int coins_left;
     int coin_max;
 

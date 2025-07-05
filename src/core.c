@@ -107,7 +107,9 @@ bool update(core_t *nc)
     render_map(nc->map, nc->renderer, &nc->has_updated);
     render_kero(nc->kero, nc->map);
 
-    if (nc->has_updated)
+    if ((nc->kero->prev_life_count != nc->kero->life_count) ||
+        (nc->map->prev_coins != nc->map->coins_left) ||
+        (nc->ui->menu_selection != MENU_NONE && nc->has_updated))
     {
         render_overlay(nc->map->coins_left, nc->map->coin_max, nc->kero->life_count, nc->ui);
     }

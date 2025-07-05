@@ -47,6 +47,7 @@ typedef struct kero
     int sprite_offset;
     int heading;
     int level;
+    int prev_life_count;
     int life_count;
 
     bool repeat_anim;
