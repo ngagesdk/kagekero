@@ -139,6 +139,7 @@ if(PACK_ASSETS)
   set(BASE_ASSETS
     001.tmj${MAP_PREFIX}
     002.tmj${MAP_PREFIX}
+    font.png
     frame.png
     frame_400x240.png
     frame_512x512.png

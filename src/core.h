@@ -17,11 +17,21 @@
 #include "map.h"
 #include "overlay.h"
 
+typedef enum
+{
+    STATE_INTRO = 0,
+    STATE_MENU,
+    STATE_GAME
+
+} state_t;
+
 typedef struct
 {
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Event *event;
+
+    state_t state;
 
 #if !defined __SYMBIAN32__
     SDL_Texture *frame;

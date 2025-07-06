@@ -25,6 +25,7 @@ typedef enum menu_selection
 typedef struct overlay
 {
     SDL_Surface *image;
+    SDL_Surface *digits;
     SDL_Surface *font;
     SDL_Surface *coin_sprite;
 

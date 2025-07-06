@@ -24,6 +24,12 @@ void destroy_overlay(overlay_t *ui)
             ui->font = NULL;
         }
 
+        if (ui->digits)
+        {
+            SDL_DestroySurface(ui->digits);
+            ui->digits = NULL;
+        }
+
         if (ui->menu_canvas)
         {
             SDL_DestroySurface(ui->menu_canvas);
@@ -106,10 +112,10 @@ bool load_overlay(overlay_t **ui)
         return false;
     }
 
-    (*ui)->font = SDL_CreateSurface(80, 8, pixel_format);
-    if (!(*ui)->font)
+    (*ui)->digits = SDL_CreateSurface(80, 8, pixel_format);
+    if (!(*ui)->digits)
     {
-        SDL_Log("Error creating font surface: %s", SDL_GetError());
+        SDL_Log("Error creating digits surface: %s", SDL_GetError());
         return false;
     }
 
@@ -118,9 +124,15 @@ bool load_overlay(overlay_t **ui)
     src.w = 80;
     src.h = 8;
 
-    if (!SDL_BlitSurface((*ui)->image, &src, (*ui)->font, NULL))
+    if (!SDL_BlitSurface((*ui)->image, &src, (*ui)->digits, NULL))
     {
         SDL_Log("Error blitting to coin counter canvas: %s", SDL_GetError());
+        return false;
+    }
+
+    if (!load_surface_from_file("font.png", &(*ui)->font))
+    {
+        SDL_Log("Failed to load font image: %s", SDL_GetError());
         return false;
     }
 
@@ -186,7 +198,7 @@ bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui
     dst.w = 8;
     dst.h = 8;
 
-    if (!SDL_BlitSurface(ui->font, &src, ui->coin_count_canvas, &dst))
+    if (!SDL_BlitSurface(ui->digits, &src, ui->coin_count_canvas, &dst))
     {
         SDL_Log("Error blitting coin count to canvas: %s", SDL_GetError());
         return false;
@@ -196,7 +208,7 @@ bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui
     dst.x = 42;
     dst.y = 4;
 
-    if (!SDL_BlitSurface(ui->font, &src, ui->coin_count_canvas, &dst))
+    if (!SDL_BlitSurface(ui->digits, &src, ui->coin_count_canvas, &dst))
     {
         SDL_Log("Error blitting coin count to canvas: %s", SDL_GetError());
         return false;
@@ -222,7 +234,7 @@ bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui
         dst.w = 8;
         dst.h = 8;
 
-        if (!SDL_BlitSurface(ui->font, &src, ui->life_count_canvas, &dst))
+        if (!SDL_BlitSurface(ui->digits, &src, ui->life_count_canvas, &dst))
         {
             SDL_Log("Error blitting life count to canvas: %s", SDL_GetError());
             return false;
@@ -242,7 +254,7 @@ bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui
         dst.w = 8;
         dst.h = 8;
 
-        if (!SDL_BlitSurface(ui->font, &src, ui->life_count_canvas, &dst))
+        if (!SDL_BlitSurface(ui->digits, &src, ui->life_count_canvas, &dst))
         {
             SDL_Log("Error blitting first life digit to canvas: %s", SDL_GetError());
             return false;
@@ -251,7 +263,7 @@ bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui
         src.x = life_second_digit * 8;
         dst.x = 27;
 
-        if (!SDL_BlitSurface(ui->font, &src, ui->life_count_canvas, &dst))
+        if (!SDL_BlitSurface(ui->digits, &src, ui->life_count_canvas, &dst))
         {
             SDL_Log("Error blitting second life digit to canvas: %s", SDL_GetError());
             return false;

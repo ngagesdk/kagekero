@@ -33,6 +33,7 @@ bool init(core_t **nc)
     {
         return SDL_APP_FAILURE;
     }
+    (*nc)->state = STATE_INTRO;
 
 #if !defined __SYMBIAN32__ && !defined DEBUG
     SDL_DisplayID display_id = SDL_GetPrimaryDisplay();
