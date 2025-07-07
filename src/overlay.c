@@ -380,31 +380,108 @@ bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui
     return true;
 }
 
-bool render_text(const char* text, int pos_x, int pos_y, overlay_t* ui)
+bool render_text(const char *text, bool alt_portrait, overlay_t *ui)
 {
+    const int char_width = 7;
+    const int char_height = 9;
+    const int start_x_row_0_to_3 = 42;
+    const int start_x_row_4_to_6 = 7;
+    const int start_y = 6;
+    const int line_height = 9;
+
     SDL_Rect src;
+    SDL_Rect dst;
+
+    if (alt_portrait)
+    {
+        src.x = 97;
+        src.y = 32;
+        src.w = 31;
+        src.h = 31;
+
+        dst.x = 7;
+        dst.y = 7;
+        dst.w = 31;
+        dst.h = 31;
+
+        if (!SDL_BlitSurface(ui->image, &src, ui->dialogue_canvas, &dst))
+        {
+            SDL_Log("Error blitting to dialogue canvas: %s", SDL_GetError());
+            return false;
+        }
+    }
+
     src.x = 0;
     src.y = 0;
-    src.w = 7;
-    src.h = 9;
+    src.w = char_width;
+    src.h = char_height;
 
-    SDL_Rect dst;
-    dst.x = pos_x;
-    dst.y = pos_y;
-    dst.w = 7;
-    dst.h = 9;
+    dst.x = start_x_row_0_to_3;
+    dst.y = start_y;
+    dst.w = char_width;
+    dst.h = char_height;
 
     int char_index = 0;
-    while ('\0' != text[char_index])
+    while (text[char_index] != '\0')
     {
         get_character_position(text[char_index], &src.x, &src.y);
-        char_index += 1;
 
         if (!SDL_BlitSurface(ui->font, &src, ui->dialogue_canvas, &dst))
         {
             SDL_Log("Error blitting character to canvas: %s", SDL_GetError());
         }
-        dst.x += 7;
+
+        char_index++;
+
+        int row = 0;
+        if (char_index > 117)
+        {
+            row = 6;
+        }
+        else if (char_index > 94)
+        {
+            row = 5;
+        }
+        else if (char_index > 71)
+        {
+            row = 4;
+        }
+        else if (char_index > 53)
+        {
+            row = 3;
+        }
+        else if (char_index > 35)
+        {
+            row = 2;
+        }
+        else if (char_index > 17)
+        {
+            row = 1;
+        }
+
+        dst.y = start_y + row * line_height;
+
+        if (char_index == 18 || char_index == 36 || char_index == 54 ||
+            char_index == 72 || char_index == 95 || char_index == 118)
+        {
+            if (row < 4)
+            {
+                dst.x = start_x_row_0_to_3;
+            }
+            else
+            {
+                dst.x = start_x_row_4_to_6;
+            }
+        }
+        else
+        {
+            dst.x += char_width;
+        }
+
+        if (char_index >= 141)
+        {
+            return true;
+        }
     }
 
     return true;

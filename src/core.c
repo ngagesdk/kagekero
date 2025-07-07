@@ -114,7 +114,6 @@ bool update(core_t *nc)
         (nc->ui->menu_selection != MENU_NONE && nc->has_updated))
     {
         render_overlay(nc->map->coins_left, nc->map->coin_max, nc->kero->life_count, nc->ui);
-        render_text("Hello", 0, 0, nc->ui);
     }
 
 #if defined __3DS__
