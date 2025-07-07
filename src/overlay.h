@@ -32,6 +32,7 @@ typedef struct overlay
     SDL_Surface *coin_count_canvas;
     SDL_Surface *life_count_canvas;
     SDL_Surface *menu_canvas;
+    SDL_Surface *dialogue_canvas;
 
     menu_selection_t menu_selection;
     Uint64 time_a;
@@ -46,5 +47,6 @@ typedef struct overlay
 void destroy_overlay(overlay_t *ui);
 bool load_overlay(overlay_t **ui);
 bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui);
+bool render_text(const char *text, int pos_x, int pos_y, overlay_t *ui);
 
 #endif // OVERLAY_H

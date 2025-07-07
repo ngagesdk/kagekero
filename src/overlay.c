@@ -14,6 +14,24 @@
 #include "overlay.h"
 #include "utils.h"
 
+static void get_character_position(const unsigned char character, int *pos_x, int *pos_y)
+{
+    int index = 0;
+
+    // If the character is not valid, select space.
+    if ((character < 0x20) || (character > 0x7e))
+    {
+        index = 0;
+    }
+    else
+    {
+        index = character - 0x20;
+    }
+
+    *pos_x = (index % 18) * 7;
+    *pos_y = (index / 18) * 9;
+}
+
 void destroy_overlay(overlay_t *ui)
 {
     if (ui)
@@ -28,6 +46,12 @@ void destroy_overlay(overlay_t *ui)
         {
             SDL_DestroySurface(ui->digits);
             ui->digits = NULL;
+        }
+
+        if (ui->dialogue_canvas)
+        {
+            SDL_DestroySurface(ui->dialogue_canvas);
+            ui->dialogue_canvas = NULL;
         }
 
         if (ui->menu_canvas)
@@ -109,6 +133,24 @@ bool load_overlay(overlay_t **ui)
     if (!SDL_BlitSurface((*ui)->image, &src, (*ui)->menu_canvas, NULL))
     {
         SDL_Log("Error blitting to menu canvas: %s", SDL_GetError());
+        return false;
+    }
+
+    (*ui)->dialogue_canvas = SDL_CreateSurface(176, 72, pixel_format);
+    if (!(*ui)->dialogue_canvas)
+    {
+        SDL_Log("Error creating dialogue surface: %s", SDL_GetError());
+        return false;
+    }
+
+    src.x = 0;
+    src.y = 74;
+    src.w = 176;
+    src.h = 72;
+
+    if (!SDL_BlitSurface((*ui)->image, &src, (*ui)->dialogue_canvas, NULL))
+    {
+        SDL_Log("Error blitting to dialogue canvas: %s", SDL_GetError());
         return false;
     }
 
@@ -333,6 +375,36 @@ bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui
                 return false;
             }
         }
+    }
+
+    return true;
+}
+
+bool render_text(const char* text, int pos_x, int pos_y, overlay_t* ui)
+{
+    SDL_Rect src;
+    src.x = 0;
+    src.y = 0;
+    src.w = 7;
+    src.h = 9;
+
+    SDL_Rect dst;
+    dst.x = pos_x;
+    dst.y = pos_y;
+    dst.w = 7;
+    dst.h = 9;
+
+    int char_index = 0;
+    while ('\0' != text[char_index])
+    {
+        get_character_position(text[char_index], &src.x, &src.y);
+        char_index += 1;
+
+        if (!SDL_BlitSurface(ui->font, &src, ui->dialogue_canvas, &dst))
+        {
+            SDL_Log("Error blitting character to canvas: %s", SDL_GetError());
+        }
+        dst.x += 7;
     }
 
     return true;

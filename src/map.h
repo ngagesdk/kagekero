@@ -93,6 +93,7 @@ typedef struct map
     int tile_desc_count;
 
     bool use_lgbtq_flag;
+    bool show_dialogue;
 
 } map_t;
 

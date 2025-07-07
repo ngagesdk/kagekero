@@ -114,6 +114,7 @@ bool update(core_t *nc)
         (nc->ui->menu_selection != MENU_NONE && nc->has_updated))
     {
         render_overlay(nc->map->coins_left, nc->map->coin_max, nc->kero->life_count, nc->ui);
+        render_text("Hello", 0, 0, nc->ui);
     }
 
 #if defined __3DS__
@@ -214,6 +215,16 @@ bool draw_scene(core_t *nc)
             dst_rect.h = 48;
 
             SDL_BlitSurface(nc->ui->menu_canvas, NULL, temp, &dst_rect);
+        }
+
+        if (nc->map->show_dialogue)
+        {
+            dst_rect.x = 0 + nc->cam_x;
+            dst_rect.y = 136 + nc->cam_y; // Why 136? Shouldn't this be 104?.
+            dst_rect.w = 176;
+            dst_rect.h = 72;
+
+            SDL_BlitSurface(nc->ui->dialogue_canvas, NULL, temp, &dst_rect);
         }
 
         SDL_UnlockTexture(nc->map->render_target);
