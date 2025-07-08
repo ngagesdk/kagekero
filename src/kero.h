@@ -65,6 +65,7 @@ typedef struct kero
     bool repeat_anim;
     bool jump_lock;
     bool wears_mask;
+    bool respawn_lock;
 
 } kero_t;
 

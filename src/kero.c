@@ -203,6 +203,7 @@ static void handle_death(kero_t *kero)
     kero->anim_offset_x = 8;
     kero->anim_offset_y = 2;
     kero->repeat_anim = false;
+    kero->respawn_lock = true;
 
     kero->life_count -= 1;
 
@@ -346,12 +347,19 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
     {
         kero->jump_lock = true;
 
-        if (check_bit(*btn, BTN_7) || check_bit(*btn, BTN_SELECT))
+        if (!kero->respawn_lock)
         {
-            reset_kero_on_out_of_bounds(kero, map);
-            kero->repeat_anim = true;
-            kero->state = STATE_IDLE;
-            kero->prev_life_count = kero->life_count;
+            if (check_bit(*btn, BTN_7) || check_bit(*btn, BTN_SELECT))
+            {
+                reset_kero_on_out_of_bounds(kero, map);
+                kero->repeat_anim = true;
+                kero->state = STATE_IDLE;
+                kero->prev_life_count = kero->life_count;
+            }
+        }
+        else if (!check_bit(*btn, BTN_7) && !check_bit(*btn, BTN_SELECT))
+        {
+            kero->respawn_lock = false;
         }
 
         return;
