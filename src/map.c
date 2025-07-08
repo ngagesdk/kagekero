@@ -64,7 +64,7 @@ static const char* death_lines[] = {
     "Like a Nokia brick - unbreakable? Not today.",
     "Should've brought my Celeste climbing gloves.",
     "Better luck next leap, Frogger 2003 edition.",
-    "This is where I leapt... and this is where I floped.",
+    "This is where I leapt... and this is where I flopped.",
     "This is where I sticked the landing - just kidding.",
     "This was where I ribbited. This was where I regretted it.",
     "This was where I went full ninja. And full pancake.",
