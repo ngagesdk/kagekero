@@ -43,9 +43,9 @@
 static const char* death_lines[] = {
     "Ribbit. Guess I croaked for real that time.",
     "Note to self: spikes hurt more than they look.",
-    "Good thing I'm not on an N-Gage — I'd need a new battery by now.",
+    "Good thing I'm not on an N-Gage - I'd need a new battery by now.",
     "One small hop for frog, one giant leap into failure.",
-    "Put that one on my highlight reel — the blooper edition.",
+    "Put that one on my highlight reel - the blooper edition.",
     "If Madeline can do it a thousand times, so can I. Ribbit.",
     "I'd say 'call for help,' but my N-Gage has no signal.",
     "Death count: too high. Pride: still intact.",
@@ -53,7 +53,7 @@ static const char* death_lines[] = {
     "Pro tip: Don't do what I just did.",
     "At least when I dash into spikes, I don't have to listen to a motivational speech first.",
     "Guess I just Madelined myself into the spikes again. Classic.",
-    "Climbing my way to the afterlife — one dumb jump at a time.",
+    "Climbing my way to the afterlife - one dumb jump at a time.",
     "Next time I'll bring a motivational soundtrack like Madeline. Might help.",
     "If Madeline can face her demons, I can face... whatever just impaled me.",
     "Maybe I should've stuck to strawberries instead of pain.",
@@ -70,6 +70,14 @@ static const char* death_lines[] = {
     "This was where I went full ninja. And full pancake.",
     "This was where I thought Frogger physics still applied."
 };
+
+static const char* pride_lines[] = {
+    "Who knew cheats could be this queer? Kero did. Kero always knew.",
+    "Ribbit! Looks like Kero's hopping out and proud!",
+    "This frog's pronouns? Rib/bit. Deal with it.",
+    "One small hop for a frog, one giant leap for frogkind",
+    "You thought Kero was just a frog? Surprise - they're a queer icon."
+}
 
 static void destroy_tiled_map(map_t *map)
 {
