@@ -29,7 +29,7 @@ static const char *death_lines[DEATH_LINE_COUNT] = {
     "If Madeline can   do it a thousand  times, so can I.  Ribbit.",
     "Death count: too  high. Pride: stillintact.",
     "Pro tip: Don't do what I just did.",
-    "This was where I  thought Frogger   physics still     applied."
+    "This was where I  thought Frogger   physics still     applied.",
     "At least when I   dash into spikes, I don't have to   listen to a moti- vational speech first.",
     "Guess I just      Madelined myself  into the spikes   again. Classic.",
     "Climbing my way   to the afterlife  - one dumb jump   ata time.",
