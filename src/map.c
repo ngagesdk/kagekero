@@ -77,7 +77,7 @@ static const char* pride_lines[] = {
     "This frog's pronouns? Rib/bit. Deal with it.",
     "One small hop for a frog, one giant leap for frogkind",
     "You thought Kero was just a frog? Surprise - they're a queer icon."
-}
+};
 
 static void destroy_tiled_map(map_t *map)
 {
