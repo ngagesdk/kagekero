@@ -40,6 +40,20 @@
 #define H_SPAWN       0x00000031105f18ee
 #define H_TILELAYER   0x0377d9f70e844fb0
 
+static const char* loosing_str[] = {
+    "Ribbit. Guess I croaked for real that time.",
+    "Note to self: spikes hurt more than they look.",
+    "Good thing I’m not on an N-Gage — I’d need a new battery by now.",
+    "One small hop for frog, one giant leap into failure.",
+    "Put that one on my highlight reel — the blooper edition.",
+    "If Madeline can do it a thousand times, so can I. Ribbit.",
+    "I’d say ‘call for help,’ but my N-Gage has no signal.",
+    "Death count: too high. Pride: still intact.",
+    "Respawn faster than an N-Gage Arena match disconnects.",
+    "Pro tip: Don’t do what I just did.",
+    "At least when I dash into spikes, I don’t have to listen to a motivational speech first."
+};
+
 static void destroy_tiled_map(map_t *map)
 {
     map->hash_id_objectgroup = 0;
