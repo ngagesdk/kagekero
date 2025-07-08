@@ -37,7 +37,7 @@ static const char *death_lines[DEATH_LINE_COUNT] = {
     "Next time I'll    bring a moti-     vational sound-   track like        Madeline. Might help.",
     "If Madeline can   face her demons, Ican face...       whatever just     impaled me.",
     "Maybe I should've stuck to straw-   berries instead   of pain.",
-    "Bad jump. Worse   landing.          10/10 Celeste tr- ibute though.",
+    "Bad jump. Worse   landing.          10/10 Celeste tri-bute though.",
     "Hey Madeline! Saveme a spot on the  death counter!",
     "I'd call for help,but my inner      demon's on        vacation.",
     "Frog fact: unlike mountains, spikes always win.",
