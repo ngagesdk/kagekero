@@ -17,17 +17,6 @@
 #include "map.h"
 #include "utils.h"
 
-typedef enum kero_state
-{
-    STATE_IDLE = 0,
-    STATE_RUN,
-    STATE_JUMP,
-    STATE_FALL,
-    STATE_DASH,
-    STATE_DEAD
-
-} kero_state_t;
-
 static void update_kero_timing(kero_t *kero)
 {
     kero->time_b = kero->time_a;
@@ -199,6 +188,25 @@ static void handle_dash(kero_t *kero, unsigned int *btn)
     }
 }
 
+static void handle_death(kero_t *kero)
+{
+    set_kero_state(kero, STATE_DEAD);
+    kero->line_index = SDL_rand(DEATH_LINE_COUNT);
+    kero->anim_fps = 15;
+    kero->anim_length = 3;
+    kero->anim_offset_x = 8;
+    kero->anim_offset_y = 2;
+    kero->repeat_anim = false;
+
+    kero->life_count -= 1;
+
+    if (kero->life_count < 0)
+    {
+        // Tbd.
+        kero->life_count = 0;
+    }
+}
+
 static void clamp_kero_position(kero_t *kero, map_t *map)
 {
     if (kero->pos_y <= 0.f + KERO_HALF)
@@ -330,19 +338,14 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
 
     if (STATE_DEAD == kero->state)
     {
-        if (check_bit(*btn, BTN_5))
+        kero->jump_lock = true;
+
+        if (check_bit(*btn, BTN_7) || check_bit(*btn, BTN_SELECT))
         {
             reset_kero_on_out_of_bounds(kero, map);
             kero->repeat_anim = true;
             kero->state = STATE_IDLE;
             kero->prev_life_count = kero->life_count;
-            kero->life_count -= 1;
-
-            if (kero->life_count < 0)
-            {
-                // Tbd.
-                kero->life_count = 0;
-            }
         }
 
         return;
@@ -352,12 +355,6 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
     handle_dash(kero, btn);
 
     int index = get_tile_index((int)kero->pos_x, (int)kero->pos_y, map);
-    if (map->tile_desc[index].is_wall && STATE_DASH == kero->state)
-    {
-        // Reset kero position if teleport ended inside a wall.
-        reset_kero_on_out_of_bounds(kero, map);
-        return;
-    }
 
     // Check ground status.
     bool on_deadly_ground = map->tile_desc[index].is_deadly;
@@ -368,14 +365,7 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
     // Vertical movement.
     if (on_deadly_ground)
     {
-        // Reset kero position if on deadly ground.
-        set_kero_state(kero, STATE_DEAD);
-
-        kero->anim_fps = 15;
-        kero->anim_length = 3;
-        kero->anim_offset_x = 8;
-        kero->anim_offset_y = 2;
-        kero->repeat_anim = false;
+        handle_death(kero);
         return;
     }
     else if (at_bottom)
@@ -423,8 +413,8 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
     // Out of bounds check.
     if (kero->pos_y >= map->height + KERO_HALF)
     {
-        kero->life_count -= 1;
-        reset_kero_on_out_of_bounds(kero, map);
+        handle_death(kero);
+        return;
     }
 
     // Horizontal input and state.

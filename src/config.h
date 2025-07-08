@@ -13,7 +13,7 @@
 
 #include "SDL3/SDL.h"
 
-#define FIRST_LEVEL       1
+#define FIRST_LEVEL       2
 #define ANIM_FPS          15
 #define ACCELERATION_DASH 0.6f
 #define ACCELERATION      0.0025f
@@ -22,6 +22,7 @@
 #define GRAVITY           0.00125f
 #define MAX_FALLING_SPEED 0.2f
 #define JUMP_VELOCITY     0.3f
+#define DEATH_LINE_COUNT  28
 
 #define SCREEN_W 176
 #define SCREEN_H 208

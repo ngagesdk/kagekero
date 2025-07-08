@@ -18,6 +18,17 @@
 #define KERO_SIZE 32
 #define KERO_HALF 16
 
+typedef enum kero_state
+{
+    STATE_IDLE = 0,
+    STATE_RUN,
+    STATE_JUMP,
+    STATE_FALL,
+    STATE_DASH,
+    STATE_DEAD
+
+} kero_state_t;
+
 typedef struct kero
 {
     SDL_Surface *sprite;
@@ -29,8 +40,8 @@ typedef struct kero
     Uint64 delta_time;
     Uint64 time_since_last_frame;
 
-    Uint32 state;
-    Uint32 prev_state;
+    kero_state_t state;
+    kero_state_t prev_state;
 
     float pos_x;
     float pos_y;
@@ -49,6 +60,7 @@ typedef struct kero
     int level;
     int prev_life_count;
     int life_count;
+    int line_index;
 
     bool repeat_anim;
     bool jump_lock;

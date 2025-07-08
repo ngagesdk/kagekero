@@ -321,7 +321,6 @@ bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui
         switch (ui->menu_selection)
         {
             default:
-            case MENU_NONE:
             case MENU_RESUME:
                 dst.y = 4;
                 break;
@@ -421,48 +420,59 @@ bool render_text(const char *text, bool alt_portrait, overlay_t *ui)
     dst.w = char_width;
     dst.h = char_height;
 
+    int index = 0;
     int char_index = 0;
-    while (text[char_index] != '\0')
+
+    while (index < 141)
     {
-        get_character_position(text[char_index], &src.x, &src.y);
+        if (text[char_index] != '\0')
+        {
+            get_character_position(text[char_index], &src.x, &src.y);
+            char_index++;
+        }
+        else
+        {
+            src.x = 0;
+            src.y = 0;
+        }
 
         if (!SDL_BlitSurface(ui->font, &src, ui->dialogue_canvas, &dst))
         {
             SDL_Log("Error blitting character to canvas: %s", SDL_GetError());
         }
 
-        char_index++;
+        index++;
 
         int row = 0;
-        if (char_index > 117)
+        if (index > 117)
         {
             row = 6;
         }
-        else if (char_index > 94)
+        else if (index > 93)
         {
             row = 5;
         }
-        else if (char_index > 71)
+        else if (index > 71)
         {
             row = 4;
         }
-        else if (char_index > 53)
+        else if (index > 53)
         {
             row = 3;
         }
-        else if (char_index > 35)
+        else if (index > 35)
         {
             row = 2;
         }
-        else if (char_index > 17)
+        else if (index > 17)
         {
             row = 1;
         }
 
         dst.y = start_y + row * line_height;
 
-        if (char_index == 18 || char_index == 36 || char_index == 54 ||
-            char_index == 72 || char_index == 95 || char_index == 118)
+        if (index == 18 || index == 36 || index == 54 ||
+            index == 72 || index == 95 || index == 118)
         {
             if (row < 4)
             {
@@ -476,11 +486,6 @@ bool render_text(const char *text, bool alt_portrait, overlay_t *ui)
         else
         {
             dst.x += char_width;
-        }
-
-        if (char_index >= 141)
-        {
-            return true;
         }
     }
 

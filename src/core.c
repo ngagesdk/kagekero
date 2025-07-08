@@ -20,6 +20,37 @@
 #include "pfs.h"
 #include "utils.h"
 
+static const char *death_lines[DEATH_LINE_COUNT] = {
+    "Ribbit. Guess I   croaked for real  that time.",
+    "Note to self:     spikes hurt more  than they look.",
+    "Good thing I'm    not on an N-Gage  - I'd need a new  battery by now.",
+    "One small hop for frog, one giant   leap into fail-   ure.",
+    "Put that one on   my highlight reel - the blooper     edition.",
+    "If Madeline can   do it a thousand  times, so can I.  Ribbit.",
+    "I'd say 'call for help,' but my     N-Gage has no     signal.",
+    "Death count: too  high. Pride: stillintact.",
+    "Respawn faster    than an N-Gage    Arena match       disconnects.",
+    "Pro tip: Don't do what I just did.",
+    "At least when I   dash into spikes, I don't have to   listen to a moti- vational speech first.",
+    "Guess I just      Madelined myself  into the spikes   again. Classic.",
+    "Climbing my way   to the afterlife  - one dumb jump   ata time.",
+    "Next time I'll    bring a moti-     vational sound-   track like        Madeline. Might help.",
+    "If Madeline can   face her demons, Ican face...       whatever just     impaled me.",
+    "Maybe I should've stuck to straw-   berries instead   of pain.",
+    "Bad jump. Worse   landing.          10/10 Celeste tr- ibute though.",
+    "Hey Madeline! Saveme a spot on the  death counter!",
+    "I'd call for help,but my inner      demon's on        vacation.",
+    "Frog fact: unlike mountains, spikes always win.",
+    "Like a Nokia brick- unbreakable? Nottoday.",
+    "Should've brought my Celeste        climbing gloves.",
+    "Better luck next  leap, Frogger 2003edition.",
+    "This is where I   leapt... and this is where I        flopped.",
+    "This is where I   sticked the land- ing -just kidding.",
+    "This was where I  ribbited. This waswhere I regretted it.",
+    "This was where I  went full ninja.  And full pancake.",
+    "This was where I  thought Frogger   physics still     applied."
+};
+
 bool init(core_t **nc)
 {
     *nc = (core_t *)SDL_calloc(1, sizeof(core_t));
@@ -95,6 +126,7 @@ bool init(core_t **nc)
         return false;
     }
 #endif
+    SDL_srand(0);
 
     return true;
 }
@@ -114,6 +146,16 @@ bool update(core_t *nc)
         (nc->ui->menu_selection != MENU_NONE && nc->has_updated))
     {
         render_overlay(nc->map->coins_left, nc->map->coin_max, nc->kero->life_count, nc->ui);
+    }
+
+    if (nc->kero->state == STATE_DEAD)
+    {
+        nc->map->show_dialogue = true;
+        render_text(death_lines[nc->kero->line_index], nc->kero->wears_mask, nc->ui);
+    }
+    else
+    {
+        nc->map->show_dialogue = false;
     }
 
 #if defined __3DS__

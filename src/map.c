@@ -40,38 +40,7 @@
 #define H_SPAWN       0x00000031105f18ee
 #define H_TILELAYER   0x0377d9f70e844fb0
 
-static const char* death_lines[] = {
-    "Ribbit. Guess I croaked for real that time.",
-    "Note to self: spikes hurt more than they look.",
-    "Good thing I'm not on an N-Gage - I'd need a new battery by now.",
-    "One small hop for frog, one giant leap into failure.",
-    "Put that one on my highlight reel - the blooper edition.",
-    "If Madeline can do it a thousand times, so can I. Ribbit.",
-    "I'd say 'call for help,' but my N-Gage has no signal.",
-    "Death count: too high. Pride: still intact.",
-    "Respawn faster than an N-Gage Arena match disconnects.",
-    "Pro tip: Don't do what I just did.",
-    "At least when I dash into spikes, I don't have to listen to a motivational speech first.",
-    "Guess I just Madelined myself into the spikes again. Classic.",
-    "Climbing my way to the afterlife - one dumb jump at a time.",
-    "Next time I'll bring a motivational soundtrack like Madeline. Might help.",
-    "If Madeline can face her demons, I can face... whatever just impaled me.",
-    "Maybe I should've stuck to strawberries instead of pain.",
-    "Bad jump. Worse landing. 10/10 Celeste tribute though.",
-    "Hey Madeline! Save me a spot on the death counter!",
-    "I'd call for help, but my inner demon's on vacation.",
-    "Frog fact: unlike mountains, spikes always win.",
-    "Like a Nokia brick - unbreakable? Not today.",
-    "Should've brought my Celeste climbing gloves.",
-    "Better luck next leap, Frogger 2003 edition.",
-    "This is where I leapt... and this is where I flopped.",
-    "This is where I sticked the landing - just kidding.",
-    "This was where I ribbited. This was where I regretted it.",
-    "This was where I went full ninja. And full pancake.",
-    "This was where I thought Frogger physics still applied."
-};
-
-static const char* pride_lines[] = {
+static const char *pride_lines[5] = {
     "Who knew cheats could be this queer? Kero did. Kero always knew.",
     "Ribbit! Looks like Kero's hopping out and proud!",
     "This frog's pronouns? Rib/bit. Deal with it.",
