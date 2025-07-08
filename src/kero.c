@@ -191,7 +191,7 @@ static void handle_dash(kero_t *kero, unsigned int *btn)
 static void handle_death(kero_t *kero)
 {
     set_kero_state(kero, STATE_DEAD);
-    kero->line_index = SDL_rand(DEATH_LINE_COUNT);
+    kero->line_index = SDL_rand(DEATH_LINE_COUNT - 1);
     kero->anim_fps = 15;
     kero->anim_length = 3;
     kero->anim_offset_x = 8;
