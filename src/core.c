@@ -150,7 +150,6 @@ bool update(core_t *nc)
 
     if (nc->kero->state == STATE_DEAD)
     {
-        nc->map->show_dialogue = true;
         render_text(death_lines[nc->kero->line_index], nc->kero->wears_mask, nc->ui);
     }
     else

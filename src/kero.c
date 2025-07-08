@@ -191,12 +191,6 @@ static void handle_dash(kero_t *kero, unsigned int *btn)
 static void handle_death(kero_t *kero)
 {
     set_kero_state(kero, STATE_DEAD);
-    kero->line_index = SDL_rand(DEATH_LINE_COUNT - 1);
-
-    if (kero->line_index < 0)
-    {
-        kero->line_index = 0;
-    }
 
     kero->anim_fps = 15;
     kero->anim_length = 3;
@@ -427,6 +421,13 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
     // Out of bounds check.
     if (kero->pos_y >= map->height + KERO_HALF)
     {
+        kero->line_index = SDL_rand(DEATH_LINE_COUNT - 1);
+        if (kero->line_index < 0)
+        {
+            kero->line_index = 0;
+        }
+        map->show_dialogue = true;
+
         handle_death(kero);
         return;
     }
