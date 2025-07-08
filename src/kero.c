@@ -319,6 +319,7 @@ bool load_kero(kero_t **kero, map_t *map)
     (*kero)->heading = 1;
     (*kero)->level = FIRST_LEVEL;
     (*kero)->life_count = 99;
+    (*kero)->line_index = -1;
 
     set_kero_state(*kero, STATE_IDLE);
 
@@ -421,8 +422,8 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
     // Out of bounds check.
     if (kero->pos_y >= map->height + KERO_HALF)
     {
-        kero->line_index = SDL_rand(DEATH_LINE_COUNT - 1);
-        if (kero->line_index < 0)
+        kero->line_index++;
+        if (kero->line_index > DEATH_LINE_COUNT - 1)
         {
             kero->line_index = 0;
         }

@@ -21,34 +21,27 @@
 #include "utils.h"
 
 static const char *death_lines[DEATH_LINE_COUNT] = {
-    "Ribbit. Guess I   croaked for real  that time.",
-    "Note to self:     spikes hurt more  than they look.",
-    "Good thing I'm    not on an N-Gage  - I'd need a new  battery by now.",
+    "Ribbit. Guess I   croaked for real  this time.",
+    "This is where I   leapt... and this is where I        flopped.",
     "One small hop for frog, one giant   leap into fail-   ure.",
+    "This was where I  ribbited. This waswhere I regretted it.",
     "Put that one on   my highlight reel - the blooper     edition.",
     "If Madeline can   do it a thousand  times, so can I.  Ribbit.",
-    "I'd say 'call for help,' but my     N-Gage has no     signal.",
     "Death count: too  high. Pride: stillintact.",
-    "Respawn faster    than an N-Gage    Arena match       disconnects.",
     "Pro tip: Don't do what I just did.",
+    "This was where I  thought Frogger   physics still     applied."
     "At least when I   dash into spikes, I don't have to   listen to a moti- vational speech first.",
     "Guess I just      Madelined myself  into the spikes   again. Classic.",
     "Climbing my way   to the afterlife  - one dumb jump   ata time.",
     "Next time I'll    bring a moti-     vational sound-   track like        Madeline. Might help.",
     "If Madeline can   face her demons, Ican face...       whatever just     impaled me.",
     "Maybe I should've stuck to straw-   berries instead   of pain.",
+    "This was where I  went full ninja.  And full pancake.",
     "Bad jump. Worse   landing.          10/10 Celeste tri-bute though.",
     "Hey Madeline! Saveme a spot on the  death counter!",
-    "I'd call for help,but my inner      demon's on        vacation.",
-    "Frog fact: unlike mountains, spikes always win.",
+    "I'd call for help,but my inner      demon's on vac-   ation.",
     "Like a Nokia brick- unbreakable? Nottoday.",
-    "Should've brought my Celeste        climbing gloves.",
-    "Better luck next  leap, Frogger 2003edition.",
-    "This is where I   leapt... and this is where I        flopped.",
-    "This is where I   sticked the land- ing -just kidding.",
-    "This was where I  ribbited. This waswhere I regretted it.",
-    "This was where I  went full ninja.  And full pancake.",
-    "This was where I  thought Frogger   physics still     applied."
+    "Should've brought my Celeste climb- ing gloves.",
 };
 
 bool init(core_t **nc)
@@ -126,7 +119,6 @@ bool init(core_t **nc)
         return false;
     }
 #endif
-    SDL_srand(0);
 
     return true;
 }
