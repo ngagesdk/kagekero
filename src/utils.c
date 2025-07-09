@@ -243,7 +243,7 @@ button_t get_button_from_key(SDL_Keycode key)
             return BTN_SELECT;
     }
 
-    return 0u;
+    return BTN_NONE;
 }
 
 button_t get_button_from_gamepad(Uint8 pad_btn)
@@ -267,5 +267,5 @@ button_t get_button_from_gamepad(Uint8 pad_btn)
             return BTN_SOFTLEFT;
     }
 
-    return 0u;
+    return BTN_NONE;
 }

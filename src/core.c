@@ -22,19 +22,19 @@
 
 static const char *death_lines[DEATH_LINE_COUNT] = {
     "Ribbit. Guess I   croaked for real  this time.",
-    "This is where I   leapt... and this is where I        flopped.",
+    "This is where I   leapt... and this is where I flopp- ed.",
     "One small hop for frog, one giant   leap into fail-   ure.",
     "This was where I  ribbited. This waswhere I regretted it.",
-    "Put that one on   my highlight reel - the blooper     edition.",
+    "Put that one on   my highlight reel - the blooper ed- ition.",
     "If Madeline can   do it a thousand  times, so can I.  Ribbit.",
     "Death count: too  high. Pride: stillintact.",
     "Pro tip: Don't do what I just did.",
-    "This was where I  thought Frogger   physics still     applied.",
+    "This was where I  thought Frogger   physics still app-lied.",
     "At least when I   dash into spikes, I don't have to   listen to a moti- vational speech first.",
     "Guess I just      Madelined myself  into the spikes   again. Classic.",
     "Climbing my way   to the afterlife  - one dumb jump   ata time.",
     "Next time I'll    bring a moti-     vational sound-   track like        Madeline. Might help.",
-    "If Madeline can   face her demons, Ican face...       whatever just     impaled me.",
+    "If Madeline can   face her demons, Ican face... what- ever just impal-  ed me.",
     "Maybe I should've stuck to straw-   berries instead   of pain.",
     "This was where I  went full ninja.  And full pancake.",
     "Bad jump. Worse   landing.          10/10 Celeste tri-bute though.",
@@ -42,6 +42,14 @@ static const char *death_lines[DEATH_LINE_COUNT] = {
     "I'd call for help,but my inner      demon's on vac-   ation.",
     "Like a Nokia brick- unbreakable? Nottoday.",
     "Should've brought my Celeste climb- ing gloves.",
+};
+
+static const char *pride_lines[PRIDE_LINE_COUNT] = {
+    "This frog's pro-  nouns? Rib/bit.   Deal with it.",
+    "Ribbit! Looks likeKero's hopping outand proud!",
+    "Who knew cheats   could be this     queer? Kero did.  Kero always knew.",
+    "One small hop for a frog, one giant leap for frogkind",
+    "You thought Kero  was just a frog?  Surprise - they'rea queer icon."
 };
 
 bool init(core_t **nc)
@@ -146,7 +154,7 @@ bool update(core_t *nc)
     }
     else
     {
-        nc->map->show_dialogue = false;
+        // nc->map->show_dialogue = false;
     }
 
 #if defined __3DS__
@@ -297,8 +305,104 @@ bool draw_scene(core_t *nc)
     return true;
 }
 
+static bool handle_button_down(core_t *nc, button_t button)
+{
+    if (nc->is_paused)
+    {
+        add_to_ring_buffer(button);
+        // #ifdef __SYMBIAN32__
+        int sequence_length = 5;
+        const button_t cheat_sequence[5] = { BTN_5, BTN_4, BTN_2, BTN_8, BTN_7 };
+        // #else
+        //         int sequence_length = 10;
+        //         const button_t cheat_sequence[10] = { BTN_UP, BTN_UP, BTN_DOWN, BTN_DOWN, BTN_LEFT, BTN_RIGHT, BTN_LEFT, BTN_RIGHT, BTN_5, BTN_7 };
+        // #endif
+        if (find_sequence(cheat_sequence, sequence_length))
+        {
+            nc->kero->wears_mask = true;
+            nc->map->use_lgbtq_flag = true;
+            nc->map->show_dialogue = true;
+            nc->map->keep_dialogue = true;
+            nc->is_paused = false;
+
+            static int pride_line_index = 0;
+            render_text(pride_lines[pride_line_index], nc->kero->wears_mask, nc->ui);
+            pride_line_index++;
+            if (pride_line_index > PRIDE_LINE_COUNT - 1)
+            {
+                pride_line_index = 0;
+            }
+
+            clear_ring_buffer();
+        }
+    }
+    else
+    {
+        clear_ring_buffer();
+    }
+
+    if ((check_bit(nc->btn, BTN_SOFTRIGHT) || check_bit(nc->btn, BTN_SOFTLEFT)) && !nc->is_paused && !nc->map->show_dialogue)
+    {
+        nc->is_paused = true;
+        nc->ui->menu_selection = MENU_RESUME;
+    }
+    else if (nc->map->show_dialogue)
+    {
+        if (check_bit(nc->btn, BTN_7) || check_bit(nc->btn, BTN_SELECT))
+        {
+            if (!nc->map->keep_dialogue)
+            {
+                nc->map->show_dialogue = false;
+            }
+            else
+            {
+                nc->map->keep_dialogue = false;
+            }
+        }
+    }
+    else if (nc->is_paused)
+    {
+        if (check_bit(nc->btn, BTN_7) || check_bit(nc->btn, BTN_SELECT))
+        {
+            switch (nc->ui->menu_selection)
+            {
+                default:
+                case MENU_NONE:
+                    break;
+                case MENU_RESUME:
+                    nc->is_paused = false;
+                    break;
+                case MENU_SETTINGS:
+                    // Tbd.
+                    break;
+                case MENU_QUIT:
+                    return false;
+            }
+        }
+        else if (check_bit(nc->btn, BTN_UP))
+        {
+            nc->ui->menu_selection -= 1;
+            if (nc->ui->menu_selection < MENU_RESUME)
+            {
+                nc->ui->menu_selection = MENU_QUIT;
+            }
+        }
+        else if (check_bit(nc->btn, BTN_DOWN))
+        {
+            nc->ui->menu_selection += 1;
+            if (nc->ui->menu_selection > MENU_QUIT)
+            {
+                nc->ui->menu_selection = MENU_RESUME;
+            }
+        }
+    }
+
+    return true;
+}
+
 bool handle_events(core_t *nc)
 {
+
     switch (nc->event->type)
     {
         case SDL_EVENT_QUIT:
@@ -329,6 +433,32 @@ bool handle_events(core_t *nc)
                 }
                 return true;
             }
+        case SDL_EVENT_GAMEPAD_AXIS_MOTION:
+            {
+                const SDL_JoystickID which = nc->event->gdevice.which;
+                SDL_Gamepad *gamepad = SDL_OpenGamepad(which);
+
+                Sint16 x_axis = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTX);
+                Sint16 y_axis = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTY);
+
+                const Sint16 threshold = 8000; // Threshold for axis motion to be considered significant.
+
+                if (x_axis <= -threshold)
+                {
+                    set_bit(&nc->btn, BTN_LEFT);
+                    clear_bit(&nc->btn, BTN_RIGHT);
+                }
+                else if (x_axis >= threshold)
+                {
+                    clear_bit(&nc->btn, BTN_LEFT);
+                    set_bit(&nc->btn, BTN_RIGHT);
+                }
+                else
+                {
+                    clear_bit(&nc->btn, BTN_LEFT);
+                    clear_bit(&nc->btn, BTN_RIGHT);
+                }
+            }
         case SDL_EVENT_KEY_DOWN:
             {
                 if (nc->event->key.repeat)
@@ -338,67 +468,7 @@ bool handle_events(core_t *nc)
 
                 button_t button = get_button_from_key(nc->event->key.key);
                 set_bit(&nc->btn, button);
-
-                if (nc->is_paused)
-                {
-                    add_to_ring_buffer(button);
-                    const button_t cheat_sequence[5] = { BTN_5, BTN_4, BTN_2, BTN_8, BTN_7 };
-                    if (find_sequence(cheat_sequence, 5))
-                    {
-                        SDL_Log("Cheat code activated: 5-4-2-8-7"); // L G B T Q
-                        nc->kero->wears_mask = true;
-                        nc->map->use_lgbtq_flag = true;
-                        clear_ring_buffer();
-                    }
-                }
-                else
-                {
-                    clear_ring_buffer();
-                }
-
-                if ((check_bit(nc->btn, BTN_SOFTRIGHT) || check_bit(nc->btn, BTN_SOFTLEFT)) && !nc->is_paused)
-                {
-                    nc->is_paused = true;
-                    nc->ui->menu_selection = MENU_RESUME;
-                }
-                else if (nc->is_paused)
-                {
-                    if (check_bit(nc->btn, BTN_7) || check_bit(nc->btn, BTN_SELECT))
-                    {
-                        switch (nc->ui->menu_selection)
-                        {
-                            default:
-                            case MENU_NONE:
-                                break;
-                            case MENU_RESUME:
-                                nc->is_paused = false;
-                                break;
-                            case MENU_SETTINGS:
-                                // Tbd.
-                                break;
-                            case MENU_QUIT:
-                                return false;
-                        }
-                    }
-                    else if (check_bit(nc->btn, BTN_UP))
-                    {
-                        nc->ui->menu_selection -= 1;
-                        if (nc->ui->menu_selection < MENU_RESUME)
-                        {
-                            nc->ui->menu_selection = MENU_QUIT;
-                        }
-                    }
-                    else if (check_bit(nc->btn, BTN_DOWN))
-                    {
-                        nc->ui->menu_selection += 1;
-                        if (nc->ui->menu_selection > MENU_QUIT)
-                        {
-                            nc->ui->menu_selection = MENU_RESUME;
-                        }
-                    }
-                }
-
-                break;
+                return handle_button_down(nc, button);
             }
         case SDL_EVENT_KEY_UP:
             {
@@ -411,8 +481,7 @@ bool handle_events(core_t *nc)
                 const SDL_JoystickID which = nc->event->gbutton.which;
                 button_t button = get_button_from_gamepad(nc->event->gbutton.button);
                 set_bit(&nc->btn, button);
-
-                break;
+                return handle_button_down(nc, button);
             }
         case SDL_EVENT_GAMEPAD_BUTTON_UP:
             {

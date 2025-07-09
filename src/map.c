@@ -40,14 +40,6 @@
 #define H_SPAWN       0x00000031105f18ee
 #define H_TILELAYER   0x0377d9f70e844fb0
 
-static const char *pride_lines[5] = {
-    "Who knew cheats could be this queer? Kero did. Kero always knew.",
-    "Ribbit! Looks like Kero's hopping out and proud!",
-    "This frog's pronouns? Rib/bit. Deal with it.",
-    "One small hop for a frog, one giant leap for frogkind",
-    "You thought Kero was just a frog? Surprise - they're a queer icon."
-};
-
 static void destroy_tiled_map(map_t *map)
 {
     map->hash_id_objectgroup = 0;

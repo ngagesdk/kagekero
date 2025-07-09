@@ -23,6 +23,7 @@
 #define MAX_FALLING_SPEED 0.2f
 #define JUMP_VELOCITY     0.3f
 #define DEATH_LINE_COUNT  21
+#define PRIDE_LINE_COUNT  5
 
 #define SCREEN_W 176
 #define SCREEN_H 208

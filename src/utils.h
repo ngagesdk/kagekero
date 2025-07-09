@@ -15,7 +15,8 @@
 
 typedef enum button
 {
-    BTN_BACKSPACE = 1,
+    BTN_NONE = 0,
+    BTN_BACKSPACE,
     BTN_1,
     BTN_2,
     BTN_3,

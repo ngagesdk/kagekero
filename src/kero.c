@@ -164,6 +164,11 @@ static void handle_pickup(kero_t *kero, map_t *map)
 
 static void handle_dash(kero_t *kero, unsigned int *btn)
 {
+    if (check_bit(*btn, BTN_5) && check_bit(*btn, BTN_7))
+    {
+        return;
+    }
+
     if (!kero->jump_lock && !kero->velocity_y)
     {
         // Only allow dash while jumping or falling.

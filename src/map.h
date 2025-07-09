@@ -94,6 +94,7 @@ typedef struct map
 
     bool use_lgbtq_flag;
     bool show_dialogue;
+    bool keep_dialogue;
 
 } map_t;
 
