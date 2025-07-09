@@ -1,4 +1,26 @@
-body {
+html, body {
     background-color: black;
     color: white;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.emscripten_border {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+}
+
+canvas.emscripten {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+}
+
+.emscripten_controls {
+    text-align: center;
+    margin-top: 20px;
 }
