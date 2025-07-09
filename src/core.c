@@ -310,13 +310,13 @@ static bool handle_button_down(core_t *nc, button_t button)
     if (nc->is_paused)
     {
         add_to_ring_buffer(button);
-        // #ifdef __SYMBIAN32__
+#ifdef __SYMBIAN32__
         int sequence_length = 5;
         const button_t cheat_sequence[5] = { BTN_5, BTN_4, BTN_2, BTN_8, BTN_7 };
-        // #else
-        //         int sequence_length = 10;
-        //         const button_t cheat_sequence[10] = { BTN_UP, BTN_UP, BTN_DOWN, BTN_DOWN, BTN_LEFT, BTN_RIGHT, BTN_LEFT, BTN_RIGHT, BTN_5, BTN_7 };
-        // #endif
+#else
+        int sequence_length = 10;
+        const button_t cheat_sequence[10] = { BTN_UP, BTN_UP, BTN_DOWN, BTN_DOWN, BTN_LEFT, BTN_RIGHT, BTN_LEFT, BTN_RIGHT, BTN_5, BTN_7 };
+#endif
         if (find_sequence(cheat_sequence, sequence_length))
         {
             nc->kero->wears_mask = true;
