@@ -42,11 +42,17 @@
 #define SCREEN_OFFSET_X 112
 #define SCREEN_OFFSET_Y 16
 #define FRAME_IMAGE     "frame_400x240.png"
-#elif defined __DREAMCAST__ || defined __EMSCRIPTEN__
+#elif defined __EMSCRIPTEN__
+#define WINDOW_W 512
+#define WINDOW_H 512
+#define SCREEN_OFFSET_X 168
+#define SCREEN_OFFSET_Y 152
+#define FRAME_IMAGE "frame_512x512.png"
+#elif defined __DREAMCAST__
 #define WINDOW_FLAGS    SDL_WINDOW_FULLSCREEN
 #define FRAME_OFFSET_X  64
 #define FRAME_OFFSET_Y  -12
-#define SCREEN_OFFSET_X 232
+#define SCREEN_OFFSET_X 232I nee
 #define SCREEN_OFFSET_Y 136
 #define FRAME_IMAGE     "frame_512x512.png"
 #else
