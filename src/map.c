@@ -9,13 +9,16 @@
  **/
 
 #include <SDL3/SDL.h>
+#include <stdio.h>
 
 #include "aabb.h"
 #include "map.h"
 #include "pfs.h"
 #include "utils.h"
 
+#if !defined __EMSCRIPTEN__
 #include "zlib.h"
+#endif
 
 #if defined __SYMBIAN32__
 #define CUTE_TILED_SNPRINTF(ARGS...) (void)(ARGS)
@@ -52,6 +55,7 @@ static void destroy_tiled_map(map_t *map)
     map->handle = NULL;
 }
 
+#if !defined __EMSCRIPTEN__
 static bool decompress_gz_buffer(Uint8 *compressed_data, size_t compressed_size, Uint8 **out_decompressed_data, uLongf *out_decompressed_size)
 {
     const size_t CHUNK_SIZE = 16384;
@@ -108,6 +112,7 @@ static bool decompress_gz_buffer(Uint8 *compressed_data, size_t compressed_size,
 
     return true;
 }
+#endif
 
 static bool load_tiled_map(const char *file_name, map_t *map)
 {
@@ -126,6 +131,7 @@ static bool load_tiled_map(const char *file_name, map_t *map)
     }
 
     int buffer_size = 0;
+#if !defined __EMSCRIPTEN__
     Uint8 *decompressed_data = NULL;
     uLongf decompressed_size = 0;
 
@@ -140,6 +146,9 @@ static bool load_tiled_map(const char *file_name, map_t *map)
     {
         SDL_Log("Decompression failed");
     }
+#else
+    buffer_size = size_of_file(file_name);
+#endif
 
     map->handle = cute_tiled_load_map_from_memory((const void *)buffer, buffer_size, NULL);
     if (!map->handle)

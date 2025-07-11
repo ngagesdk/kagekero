@@ -12,5 +12,5 @@ macro(get_zlib version)
   set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "Disable Zlib Examples" FORCE)
   FetchContent_MakeAvailable(zlib)
 
- set(ZLIB_LIBRARIES zlib)
+  set(ZLIB_LIBRARIES zlib)
 endmacro(get_zlib)

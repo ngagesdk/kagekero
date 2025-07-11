@@ -121,7 +121,7 @@ static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn, SDL_
                     char next_map[11] = { 0 };
                     kero->level += 1;
 
-                    SDL_snprintf(next_map, 11, "%03d.tmj.gz", kero->level);
+                    SDL_snprintf(next_map, 11, "%03d.%s", kero->level, MAP_SUFFIX);
                     if (!load_map(next_map, &map, renderer))
                     {
                         SDL_Log("Failed to load next map: %s", next_map);
@@ -170,6 +170,7 @@ static void handle_intersect(kero_t *kero, map_t *map, overlay_t *ui)
             if (map->obj[index + 1].str && !map->show_dialogue)
             {
                 map->show_dialogue = true;
+                map->keep_dialogue = false;
                 render_text_ex(map->obj[index + 1].str, true, 129, 32, ui);
             }
         }

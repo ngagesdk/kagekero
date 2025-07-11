@@ -97,7 +97,7 @@ bool init(core_t **nc)
     init_file_reader();
 
     char first_map[11] = { 0 };
-    SDL_snprintf(first_map, 11, "%03d.tmj.gz", FIRST_LEVEL);
+    SDL_snprintf(first_map, 11, "%03d.%s", FIRST_LEVEL, MAP_SUFFIX);
     if (!load_map(first_map, &(*nc)->map, (*nc)->renderer))
     {
         return false;
@@ -148,7 +148,7 @@ bool update(core_t *nc)
         render_overlay(nc->map->coins_left, nc->map->coin_max, nc->kero->life_count, nc->ui);
     }
 
-    if (nc->kero->state == STATE_DEAD && !nc->map->show_dialogue)
+    if (nc->kero->state == STATE_DEAD)
     {
         render_text(death_lines[nc->kero->line_index], nc->kero->wears_mask, nc->ui);
     }

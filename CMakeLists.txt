@@ -6,6 +6,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 option(PACK_ASSETS "Pack game assets into data.pfs" OFF)
 option(BUILD_FULL_VERSION "Build full version" OFF)
 option(DREAMCAST "Build for Dreamcast" OFF)
+option(DISABLE_ZLIB "Disable zlib dependency" OFF)
 
 set(EXPORT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/export)
 set(ASSET_OUTPUT ${EXPORT_DIR}/data.pfs)
@@ -16,9 +17,11 @@ if (NGAGESDK)
 else()
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${EXPORT_DIR})
   include(get_SDL3)
-  include(get_zlib)
+  if(NOT DISABLE_ZLIB)
+    include(get_zlib)
+    get_zlib("1.3.1")
+  endif()
   get_SDL3("3.2.16")
-  get_zlib("1.3.1")
 endif()
 
 # Game source files.
@@ -140,9 +143,15 @@ if(PACK_ASSETS)
     )
   endfunction()
 
+  if(DISABLE_ZLIB)
+    set(MAP_SUFFIX "tmj")
+  else()
+    set(MAP_SUFFIX "tmj.gz")
+  endif()
+
   set(BASE_ASSETS
-    001.tmj.gz
-    002.tmj.gz
+    001.${MAP_SUFFIX}
+    002.${MAP_SUFFIX}
     font.png
     frame.png
     frame_400x240.png
@@ -155,21 +164,25 @@ if(PACK_ASSETS)
   if(BUILD_FULL_VERSION)
     set(ASSET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/full-assets")
 
-    compress_maps("${ASSET_DIR}")
+    if (NOT DISABLE_ZLIB)
+      compress_maps("${ASSET_DIR}")
+    endif()
 
     set(ASSET_LIST
       "${BASE_ASSETS}"
-      003.tmj.gz
-      004.tmj.gz
-      005.tmj.gz
-      006.tmj.gz
-      007.tmj.gz
+      003.${MAP_SUFFIX}
+      004.${MAP_SUFFIX}
+      005.${MAP_SUFFIX}
+      006.${MAP_SUFFIX}
+      007.${MAP_SUFFIX}
     )
   else()
 
     set(ASSET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets")
 
-    compress_maps("${ASSET_DIR}")
+    if (NOT DISABLE_ZLIB)
+      compress_maps("${ASSET_DIR}")
+    endif()
 
     set(ASSET_LIST ${BASE_ASSETS})
   endif()
@@ -195,6 +208,8 @@ if(UNIX)
       RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/tools"
     )
   endif()
+elseif(EMSCRIPTEN)
+  target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES})
 else()
   target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES} ${ZLIB_LIBRARIES})
 endif()
