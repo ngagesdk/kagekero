@@ -72,10 +72,27 @@ static void set_kero_state(kero_t *kero, kero_state_t state)
     }
 }
 
-static void handle_jump(kero_t *kero, unsigned int *btn)
+static void handle_jump(kero_t *kero, map_t *map, unsigned int *btn)
 {
     if (check_bit(*btn, BTN_7) && !check_bit(*btn, BTN_5) && !kero->jump_lock)
     {
+        int index = get_tile_index((int)kero->pos_x, (int)kero->pos_y - KERO_SIZE, map);
+        index -= map->handle->width;
+        if (index >= 0)
+        {
+            bool hit_block = map->tile_desc[index].is_block;
+            bool hit_wall = map->tile_desc[index].is_wall;
+            if (hit_wall)
+            {
+                kero->velocity_y = 0.f;
+                kero->pos_y = kero->pos_y + KERO_HALF;
+                set_kero_state(kero, STATE_FALL);
+            }
+            else if (hit_block)
+            {
+            }
+        }
+
         if (kero->prev_state != STATE_JUMP && kero->state != STATE_JUMP)
         {
             kero->velocity_y = -JUMP_VELOCITY;
@@ -406,7 +423,7 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
         {
             kero->jump_lock = false;
         }
-        handle_jump(kero, btn);
+        handle_jump(kero, map, btn);
     }
     else
     {

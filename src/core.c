@@ -152,10 +152,6 @@ bool update(core_t *nc)
     {
         render_text(death_lines[nc->kero->line_index], nc->kero->wears_mask, nc->ui);
     }
-    else
-    {
-        // nc->map->show_dialogue = false;
-    }
 
 #if defined __3DS__
     SDL_RenderTexture(nc->renderer, nc->frame, NULL, NULL);

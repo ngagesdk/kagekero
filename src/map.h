@@ -21,6 +21,7 @@
 
 typedef struct tile_desc
 {
+    bool is_block;
     bool is_deadly;
     bool is_solid;
     bool is_wall;
