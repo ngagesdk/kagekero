@@ -42,7 +42,7 @@
 #define SCREEN_OFFSET_Y 16
 #define FRAME_IMAGE     "frame_400x240.png"
 #elif defined __EMSCRIPTEN__
-#define MAP_SUFFIX      "tmj.gz"
+#define MAP_SUFFIX      "tmj"
 #define WINDOW_W        512
 #define WINDOW_H        512
 #define SCREEN_OFFSET_X 168
@@ -73,7 +73,7 @@
 #endif
 
 #ifndef MAP_SUFFIX
-#define MAP_SUFFIX "tmj"
+#define MAP_SUFFIX "tmj.gz"
 #endif
 
 #ifndef FRAME_IMAGE
