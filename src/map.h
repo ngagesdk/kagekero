@@ -16,12 +16,12 @@
 #include "aabb.h"
 #include "cute_tiled.h"
 
-#define H_COIN 0x000000017c953f2e
-#define H_DOOR 0x000000017c95cc59
+#define H_BLOCK 0x000000310f297fd0
+#define H_COIN  0x000000017c953f2e
+#define H_DOOR  0x000000017c95cc59
 
 typedef struct tile_desc
 {
-    bool is_block;
     bool is_deadly;
     bool is_solid;
     bool is_wall;
@@ -41,6 +41,7 @@ typedef struct obj
     int gid;
     int id;
     int object_id;
+    char *str;
 
     Uint64 hash;
 

@@ -29,13 +29,15 @@
 
 #include "config.h"
 
-#define H_GRAVITY     0x0000d0b30d77f26b
+#define H_GRAVITY 0x0000d0b30d77f26b
+
 #define H_IS_DEADLY   0x0377cc445c348313
 #define H_IS_SOLID    0x001ae728dd16b21b
 #define H_IS_WALL     0x0000d0b3a99dccd0
 #define H_OBJECTGROUP 0xc0b9d518970be349
 #define H_OFFSET_TOP  0x727241bd0a7e257e
 #define H_SPAWN       0x00000031105f18ee
+#define H_STR         0x000000000b88ab7e
 #define H_TILELAYER   0x0377d9f70e844fb0
 
 static void destroy_tiled_map(map_t *map)
@@ -604,6 +606,14 @@ static bool load_objects(map_t *map)
                     cute_tiled_object_t *object = get_head_object(layer, map);
                     while (object)
                     {
+                        if (H_BLOCK == generate_hash((const unsigned char *)object->name.ptr))
+                        {
+                            if (get_string_property(H_STR, object->properties, object->property_count, map))
+                            {
+                                map->obj[index].str = SDL_strdup(map->string_property);
+                            }
+                        }
+
                         map->obj[index].gid = remove_gid_flip_bits(object->gid);
                         map->obj[index].object_id = object->id;
                         map->obj[index].x = (int)object->x;
@@ -649,6 +659,15 @@ void destroy_map(map_t *map)
     // [6] Objects.
     if (map->obj)
     {
+        for (int index = 0; index < map->obj_count; index += 1)
+        {
+            if (map->obj[index].str)
+            {
+                SDL_free((void *)map->obj[index].str);
+                map->obj[index].str = NULL;
+            }
+        }
+
         SDL_free(map->obj);
         map->obj = NULL;
     }

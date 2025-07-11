@@ -381,6 +381,18 @@ bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui
 
 bool render_text(const char *text, bool alt_portrait, overlay_t *ui)
 {
+    if (alt_portrait)
+    {
+        return (render_text_ex(text, alt_portrait, 97, 32, ui));
+    }
+    else
+    {
+        return (render_text_ex(text, alt_portrait, 7, 81, ui));
+    }
+}
+
+bool render_text_ex(const char *text, bool alt_portrait, int portrait_x, int portrait_y, overlay_t *ui)
+{
     const int char_width = 7;
     const int char_height = 9;
     const int start_x_row_0_to_3 = 42;
@@ -391,23 +403,20 @@ bool render_text(const char *text, bool alt_portrait, overlay_t *ui)
     SDL_Rect src;
     SDL_Rect dst;
 
-    if (alt_portrait)
+    src.x = portrait_x;
+    src.y = portrait_y;
+    src.w = 31;
+    src.h = 31;
+
+    dst.x = 7;
+    dst.y = 7;
+    dst.w = 31;
+    dst.h = 31;
+
+    if (!SDL_BlitSurface(ui->image, &src, ui->dialogue_canvas, &dst))
     {
-        src.x = 97;
-        src.y = 32;
-        src.w = 31;
-        src.h = 31;
-
-        dst.x = 7;
-        dst.y = 7;
-        dst.w = 31;
-        dst.h = 31;
-
-        if (!SDL_BlitSurface(ui->image, &src, ui->dialogue_canvas, &dst))
-        {
-            SDL_Log("Error blitting to dialogue canvas: %s", SDL_GetError());
-            return false;
-        }
+        SDL_Log("Error blitting to dialogue canvas: %s", SDL_GetError());
+        return false;
     }
 
     src.x = 0;

@@ -36,7 +36,7 @@ set(kagekero_sources
   src/utils.c
 )
 
-add_executable(kagekero ${kagekero_sources})
+add_executable(kagekero WIN32 ${kagekero_sources})
 target_compile_definitions(kagekero PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
 )

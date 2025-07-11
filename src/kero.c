@@ -15,6 +15,7 @@
 #include "fixedp.h"
 #include "kero.h"
 #include "map.h"
+#include "overlay.h"
 #include "utils.h"
 
 static void update_kero_timing(kero_t *kero)
@@ -80,25 +81,13 @@ static void handle_jump(kero_t *kero, map_t *map, unsigned int *btn)
         index -= map->handle->width;
         if (index >= 0)
         {
-            bool hit_block = map->tile_desc[index].is_block;
-            bool hit_wall = map->tile_desc[index].is_wall;
-            if (hit_wall)
+            if (kero->prev_state != STATE_JUMP && kero->state != STATE_JUMP)
             {
-                kero->velocity_y = 0.f;
-                kero->pos_y = kero->pos_y + KERO_HALF;
-                set_kero_state(kero, STATE_FALL);
+                kero->velocity_y = -JUMP_VELOCITY;
+                set_kero_state(kero, STATE_JUMP);
             }
-            else if (hit_block)
-            {
-            }
+            kero->jump_lock = true;
         }
-
-        if (kero->prev_state != STATE_JUMP && kero->state != STATE_JUMP)
-        {
-            kero->velocity_y = -JUMP_VELOCITY;
-            set_kero_state(kero, STATE_JUMP);
-        }
-        kero->jump_lock = true;
     }
 }
 
@@ -151,7 +140,7 @@ static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn, SDL_
     }
 }
 
-static void handle_pickup(kero_t *kero, map_t *map)
+static void handle_intersect(kero_t *kero, map_t *map, overlay_t *ui)
 {
     aabb_t kero_bb;
     kero_bb.top = kero->pos_y - KERO_HALF;
@@ -175,6 +164,14 @@ static void handle_pickup(kero_t *kero, map_t *map)
                 }
             }
             map->obj[index].is_hidden = true;
+        }
+        else if (H_BLOCK == map->obj[index].hash)
+        {
+            if (map->obj[index + 1].str && !map->show_dialogue)
+            {
+                map->show_dialogue = true;
+                render_text_ex(map->obj[index + 1].str, true, 129, 32, ui);
+            }
         }
     }
 }
@@ -348,7 +345,7 @@ bool load_kero(kero_t **kero, map_t *map)
     return true;
 }
 
-void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *renderer, bool is_paused, bool *has_updated)
+void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL_Renderer *renderer, bool is_paused, bool *has_updated)
 {
     update_kero_timing(kero);
 
@@ -382,7 +379,7 @@ void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *rend
         return;
     }
 
-    handle_pickup(kero, map);
+    handle_intersect(kero, map, ui);
     handle_dash(kero, btn);
 
     int index = get_tile_index((int)kero->pos_x, (int)kero->pos_y, map);

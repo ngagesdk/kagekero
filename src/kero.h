@@ -14,6 +14,7 @@
 #include <SDL3/SDL.h>
 
 #include "map.h"
+#include "overlay.h"
 
 #define KERO_SIZE 32
 #define KERO_HALF 16
@@ -71,7 +72,7 @@ typedef struct kero
 
 void destroy_kero(kero_t *kero);
 bool load_kero(kero_t **kero, map_t *map);
-void update_kero(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *renderer, bool is_paused, bool *has_updated);
+void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL_Renderer *renderer, bool is_paused, bool *has_updated);
 bool render_kero(kero_t *kero, map_t *map);
 
 #endif // KERO_H

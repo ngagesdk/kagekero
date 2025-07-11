@@ -47,5 +47,6 @@ void destroy_overlay(overlay_t *ui);
 bool load_overlay(overlay_t **ui);
 bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui);
 bool render_text(const char *text, bool alt_portrait, overlay_t *ui);
+bool render_text_ex(const char *text, bool alt_portrait, int portrait_x, int portrait_y, overlay_t *ui);
 
 #endif // OVERLAY_H

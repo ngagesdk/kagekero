@@ -133,7 +133,7 @@ bool init(core_t **nc)
 
 bool update(core_t *nc)
 {
-    update_kero(nc->kero, nc->map, &nc->btn, nc->renderer, nc->is_paused, &nc->has_updated);
+    update_kero(nc->kero, nc->map, nc->ui, &nc->btn, nc->renderer, nc->is_paused, &nc->has_updated);
 
     nc->cam_x = (int)nc->kero->pos_x - (SCREEN_W / 2);
     nc->cam_y = (int)nc->kero->pos_y - (SCREEN_H / 2);
@@ -148,7 +148,7 @@ bool update(core_t *nc)
         render_overlay(nc->map->coins_left, nc->map->coin_max, nc->kero->life_count, nc->ui);
     }
 
-    if (nc->kero->state == STATE_DEAD)
+    if (nc->kero->state == STATE_DEAD && !nc->map->show_dialogue)
     {
         render_text(death_lines[nc->kero->line_index], nc->kero->wears_mask, nc->ui);
     }
@@ -344,7 +344,7 @@ static bool handle_button_down(core_t *nc, button_t button)
     }
     else if (nc->map->show_dialogue)
     {
-        if (check_bit(nc->btn, BTN_7) || check_bit(nc->btn, BTN_SELECT))
+        if (check_bit(nc->btn, BTN_5) || check_bit(nc->btn, BTN_7) || check_bit(nc->btn, BTN_SELECT))
         {
             if (!nc->map->keep_dialogue)
             {
@@ -398,7 +398,6 @@ static bool handle_button_down(core_t *nc, button_t button)
 
 bool handle_events(core_t *nc)
 {
-
     switch (nc->event->type)
     {
         case SDL_EVENT_QUIT:
