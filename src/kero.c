@@ -115,7 +115,7 @@ static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn, SDL_
                     char next_map[11] = { 0 };
                     kero->level += 1;
 
-                    SDL_snprintf(next_map, 11, "%03d.tmj%s", kero->level, MAP_PREFIX);
+                    SDL_snprintf(next_map, 11, "%03d.tmj.gz", kero->level);
                     if (!load_map(next_map, &map, renderer))
                     {
                         SDL_Log("Failed to load next map: %s", next_map);

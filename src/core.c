@@ -97,7 +97,7 @@ bool init(core_t **nc)
     init_file_reader();
 
     char first_map[11] = { 0 };
-    SDL_snprintf(first_map, 11, "%03d.tmj%s", FIRST_LEVEL, MAP_PREFIX);
+    SDL_snprintf(first_map, 11, "%03d.tmj.gz", FIRST_LEVEL);
     if (!load_map(first_map, &(*nc)->map, (*nc)->renderer))
     {
         return false;

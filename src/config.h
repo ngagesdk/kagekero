@@ -31,7 +31,6 @@
 #if defined DEBUG
 // Default configuration.
 #elif defined __SYMBIAN32__
-#define MAP_PREFIX      ".gz"
 #define WINDOW_W        176
 #define WINDOW_H        208
 #define SCREEN_OFFSET_X 0
@@ -82,10 +81,6 @@
 
 #ifndef FRAME_OFFSET_Y
 #define FRAME_OFFSET_Y 0
-#endif
-
-#ifndef MAP_PREFIX
-#define MAP_PREFIX ""
 #endif
 
 #ifndef SCALE

@@ -16,7 +16,9 @@ if (NGAGESDK)
 else()
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${EXPORT_DIR})
   include(get_SDL3)
+  include(get_zlib)
   get_SDL3("3.2.16")
+  get_zlib("1.3.1")
 endif()
 
 # Game source files.
@@ -34,7 +36,7 @@ set(kagekero_sources
   src/utils.c
 )
 
-add_executable(kagekero WIN32 ${kagekero_sources})
+add_executable(kagekero ${kagekero_sources})
 target_compile_definitions(kagekero PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
 )
@@ -126,19 +128,21 @@ if(PACK_ASSETS)
     endif()
   endif()
 
-  if(NGAGESDK)
-    set(MAP_PREFIX ".gz")
-    function(compress_maps asset_dir)
-      add_custom_target(001.tmj.gz ALL
-        WORKING_DIRECTORY ${asset_dir}
-        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/gzip -k -f *.tmj
-      )
-    endfunction()
-  endif()
+  function(compress_maps asset_dir)
+    find_program(GZIP_EXECUTABLE gzip PATHS ${CMAKE_CURRENT_SOURCE_DIR}/tools NO_DEFAULT_PATH)
+    if(NOT GZIP_EXECUTABLE)
+      find_program(GZIP_EXECUTABLE gzip)
+    endif()
+
+    add_custom_target(001.tmj.gz ALL
+      WORKING_DIRECTORY ${asset_dir}
+      COMMAND ${GZIP_EXECUTABLE} -k -f *.tmj
+    )
+  endfunction()
 
   set(BASE_ASSETS
-    001.tmj${MAP_PREFIX}
-    002.tmj${MAP_PREFIX}
+    001.tmj.gz
+    002.tmj.gz
     font.png
     frame.png
     frame_400x240.png
@@ -151,25 +155,21 @@ if(PACK_ASSETS)
   if(BUILD_FULL_VERSION)
     set(ASSET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/full-assets")
 
-    if(NGAGESDK)
-      compress_maps("${ASSET_DIR}")
-    endif()
+    compress_maps("${ASSET_DIR}")
 
     set(ASSET_LIST
       "${BASE_ASSETS}"
-      003.tmj${MAP_PREFIX}
-      004.tmj${MAP_PREFIX}
-      005.tmj${MAP_PREFIX}
-      006.tmj${MAP_PREFIX}
-      007.tmj${MAP_PREFIX}
+      003.tmj.gz
+      004.tmj.gz
+      005.tmj.gz
+      006.tmj.gz
+      007.tmj.gz
     )
   else()
 
     set(ASSET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets")
 
-    if(NGAGESDK)
-      compress_maps("${ASSET_DIR}")
-    endif()
+    compress_maps("${ASSET_DIR}")
 
     set(ASSET_LIST ${BASE_ASSETS})
   endif()
@@ -187,7 +187,7 @@ if(PACK_ASSETS)
 endif()
 
 if(UNIX)
-  target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES} m)
+  target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES} ${ZLIB_LIBRARIES} m)
 
   if(PACK_ASSETS)
     add_executable(packer tools/packer.cpp)
@@ -196,7 +196,7 @@ if(UNIX)
     )
   endif()
 else()
-  target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES})
+  target_link_libraries(kagekero PRIVATE ${SDL3_LIBRARIES} ${ZLIB_LIBRARIES})
 endif()
 
 # Dreamcast-specific setup.
