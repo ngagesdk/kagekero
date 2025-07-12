@@ -20,30 +20,6 @@
 #include "pfs.h"
 #include "utils.h"
 
-static const char *death_lines[DEATH_LINE_COUNT] = {
-    "Ribbit. Guess I   croaked for real  this time.",
-    "This is where I   leapt... and this is where I flopp- ed.",
-    "One small hop for frog, one giant   leap into fail-   ure.",
-    "This was where I  ribbited. This waswhere I regretted it.",
-    "Put that one on   my highlight reel - the blooper ed- ition.",
-    "If Madeline can   do it a thousand  times, so can I.  Ribbit.",
-    "Death count: too  high. Pride: stillintact.",
-    "Pro tip: Don't do what I just did.",
-    "This was where I  thought Frogger   physics still app-lied.",
-    "At least when I   dash into spikes, I don't have to   listen to a moti- vational speech first.",
-    "Guess I just      Madelined myself  into the spikes   again. Classic.",
-    "Climbing my way   to the afterlife  - one dumb jump   ata time.",
-    "Next time I'll    bring a moti-     vational sound-   track like        Madeline. Might help.",
-    "If Madeline can   face her demons, Ican face... what- ever just impal-  ed me.",
-    "Maybe I should've stuck to straw-   berries instead   of pain.",
-    "This was where I  went full ninja.  And full pancake.",
-    "Bad jump. Worse   landing.          10/10 Celeste tri-bute though.",
-    "Hey Madeline! Saveme a spot on the  death counter!",
-    "I'd call for help,but my inner      demon's on vac-   ation.",
-    "Like a Nokia brick- unbreakable? Nottoday.",
-    "Should've brought my Celeste climb- ing gloves.",
-};
-
 static const char *pride_lines[PRIDE_LINE_COUNT] = {
     "This frog's pro-  nouns? Rib/bit.   Deal with it.",
     "Ribbit! Looks likeKero's hopping outand proud!",
@@ -146,11 +122,6 @@ bool update(core_t *nc)
         (nc->ui->menu_selection != MENU_NONE && nc->has_updated))
     {
         render_overlay(nc->map->coins_left, nc->map->coin_max, nc->kero->life_count, nc->ui);
-    }
-
-    if (nc->kero->state == STATE_DEAD)
-    {
-        render_text(death_lines[nc->kero->line_index], nc->kero->wears_mask, nc->ui);
     }
 
 #if defined __3DS__

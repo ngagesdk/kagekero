@@ -18,6 +18,30 @@
 #include "overlay.h"
 #include "utils.h"
 
+static const char *death_lines[DEATH_LINE_COUNT] = {
+    "Ribbit. Guess I   croaked for real  this time.",
+    "This is where I   leapt... and this is where I flopp- ed.",
+    "One small hop for frog, one giant   leap into fail-   ure.",
+    "This was where I  ribbited. This waswhere I regretted it.",
+    "Put that one on   my highlight reel - the blooper ed- ition.",
+    "If Madeline can   do it a thousand  times, so can I.  Ribbit.",
+    "Death count: too  high. Pride: stillintact.",
+    "Pro tip: Don't do what I just did.",
+    "This was where I  thought Frogger   physics still app-lied.",
+    "At least when I   dash into spikes, I don't have to   listen to a moti- vational speech first.",
+    "Guess I just      Madelined myself  into the spikes   again. Classic.",
+    "Climbing my way   to the afterlife  - one dumb jump   ata time.",
+    "Next time I'll    bring a moti-     vational sound-   track like        Madeline. Might help.",
+    "If Madeline can   face her demons, Ican face... what- ever just impal-  ed me.",
+    "Maybe I should've stuck to straw-   berries instead   of pain.",
+    "This was where I  went full ninja.  And full pancake.",
+    "Bad jump. Worse   landing.          10/10 Celeste tri-bute though.",
+    "Hey Madeline! Saveme a spot on the  death counter!",
+    "I'd call for help,but my inner      demon's on vac-   ation.",
+    "Like a Nokia brick- unbreakable? Nottoday.",
+    "Should've brought my Celeste climb- ing gloves.",
+};
+
 static void update_kero_timing(kero_t *kero)
 {
     kero->time_b = kero->time_a;
@@ -443,10 +467,7 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
     if (kero->pos_y >= map->height + KERO_HALF)
     {
         kero->line_index++;
-        if (kero->line_index > DEATH_LINE_COUNT - 1)
-        {
-            kero->line_index = 0;
-        }
+        render_text(death_lines[kero->line_index], kero->wears_mask, ui);
         map->show_dialogue = true;
 
         handle_death(kero);
