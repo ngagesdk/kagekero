@@ -23,20 +23,28 @@ void CNGageAppUi::ConstructL()
     AddToStackL(iAppView);
 }
 
+_LIT(KDllName, "E:\\System\\Apps\\kagekero\\ninja.dll");
+
 CNGageAppUi::CNGageAppUi()
 {
     RProcess Proc;
 
     iAppView = NULL;
 
-    if (KErrNone == Proc.Create(_L("E:\\System\\Apps\\kagekero\\kagekero.exe"), _L("")))
+    RLibrary lib;
+    if (lib.Load(KDllName) == KErrNone)
     {
-        TRequestStatus status;
-        Proc.Logon(status);
-        Proc.Resume();
-        User::WaitForRequest(status);
-        Proc.Close();
-        Exit();
+        UserSvr::ChangeLocale(lib);
+        lib.Close();
+        if (KErrNone == Proc.Create(_L("E:\\System\\Apps\\kagekero\\kagekero.exe"), _L("")))
+        {
+            TRequestStatus status;
+            Proc.Logon(status);
+            Proc.Resume();
+            User::WaitForRequest(status);
+            Proc.Close();
+            Exit();
+        }
     }
     else
     {
