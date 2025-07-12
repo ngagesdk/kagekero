@@ -72,19 +72,10 @@ if(NGAGESDK)
     ${EPOC_LIB}/avkon.lib
   )
 
-  set(ninja_dll_sources
-    src/ninja.cpp
-  )
-
-  set(ninja_dll_libs "")
-
   add_library(kagekero_app STATIC ${kagekero_app_sources})
   build_dll(kagekero_app kagekero app 0x1000007a 0x100039ce 0x1badc0de "${kagekero_app_libs}")
   build_aif(${CMAKE_CURRENT_SOURCE_DIR}/res kagekero 0x1badc0de)
   build_resource(${CMAKE_CURRENT_SOURCE_DIR}/res kagekero "")
-
-  add_library(ninja_dll STATIC ${ninja_dll_sources})
-  build_dll(ninja_dll ninja dll 0x1000007a 0x100039e6 0xa00013bd "${ninja_dll_libs}")
 endif()
 
 # Host-only: build packer and pack data.pfs

@@ -63,7 +63,8 @@ jobs:
         Copy-Item ${{ env.NGAGESDK }}\projects\kagekero\build\kagekero.app NGAGE\System\Apps\kagekero\
         Copy-Item ${{ env.NGAGESDK }}\projects\kagekero\build\kagekero.exe NGAGE\System\Apps\kagekero\
         Copy-Item ${{ env.NGAGESDK }}\projects\kagekero\build\kagekero.rsc NGAGE\System\Apps\kagekero\
-        Copy-Item ${{ env.NGAGESDK }}\projects\kagekero\build\ninja.dll NGAGE\System\Apps\kagekero\
+        Copy-Item ${{ env.NGAGESDK }}\projects\kagekero\res\ninja.dll NGAGE\System\Apps\kagekero\
+        Copy-Item ${{ env.NGAGESDK }}\projects\kagekero\res\turtle.dll NGAGE\System\Apps\kagekero\
         Copy-Item ${{ env.NGAGESDK }}\projects\kagekero\export\data.pfs NGAGE\System\Apps\kagekero\
       shell: pwsh
 
