@@ -153,13 +153,18 @@ if(PACK_ASSETS)
   set(BASE_ASSETS
     001.${MAP_SUFFIX}
     002.${MAP_SUFFIX}
-    font.png
-    frame.png
-    frame_400x240.png
-    frame_512x512.png
-    overlay.png
     tileset.png
   )
+
+  if (NGAGESDK)
+    set(FRAME_ASSET "")
+  elseif(NINTENDO_3DS)
+    set(FRAME_ASSET frame_400x240.png)
+  elseif(EMSCRIPTEN OR DREAMCAST)
+    set(FRAME_ASSET frame_512x512.png)
+  else()
+    set(FRAME_ASSET frame.png)
+  endif()
 
   if(BUILD_FULL_VERSION)
     set(ASSET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/full-assets")
@@ -170,6 +175,7 @@ if(PACK_ASSETS)
 
     set(ASSET_LIST
       "${BASE_ASSETS}"
+      "${FRAME_ASSET}"
       003.${MAP_SUFFIX}
       004.${MAP_SUFFIX}
       005.${MAP_SUFFIX}

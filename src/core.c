@@ -86,7 +86,7 @@ bool init(core_t **nc)
         return false;
     }
 
-    if (!load_overlay(&(*nc)->ui))
+    if (!load_overlay((*nc)->map, &(*nc)->ui))
     {
         SDL_Log("Failed to load overlay");
         return false;
@@ -122,7 +122,7 @@ bool update(core_t *nc)
         (nc->map->prev_coins != nc->map->coins_left) ||
         (nc->is_paused && nc->ui->menu_selection != nc->ui->prev_selection))
     {
-        render_overlay(nc->map->coins_left, nc->map->coin_max, nc->kero->life_count, nc->ui);
+        render_overlay(nc->map->coins_left, nc->map->coin_max, nc->kero->life_count, nc->map, nc->ui);
     }
 
 #if defined __3DS__
@@ -294,7 +294,7 @@ static bool handle_button_down(core_t *nc, button_t button)
             nc->is_paused = false;
 
             static int pride_line_index = 0;
-            render_text(pride_lines[pride_line_index], nc->kero->wears_mask, nc->ui);
+            render_text(pride_lines[pride_line_index], nc->kero->wears_mask, nc->map, nc->ui);
             pride_line_index++;
             if (pride_line_index > PRIDE_LINE_COUNT - 1)
             {

@@ -13,6 +13,8 @@
 
 #include <SDL3/SDL.h>
 
+#include "map.h"
+
 typedef enum menu_selection
 {
     MENU_NONE = 0,
@@ -26,9 +28,7 @@ typedef enum menu_selection
 
 typedef struct overlay
 {
-    SDL_Surface *image;
     SDL_Surface *digits;
-    SDL_Surface *font;
 
     SDL_Surface *coin_count_canvas;
     SDL_Surface *life_count_canvas;
@@ -49,9 +49,9 @@ typedef struct overlay
 } overlay_t;
 
 void destroy_overlay(overlay_t *ui);
-bool load_overlay(overlay_t **ui);
-bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui);
-bool render_text(const char *text, bool alt_portrait, overlay_t *ui);
-bool render_text_ex(const char *text, bool alt_portrait, int portrait_x, int portrait_y, overlay_t *ui);
+bool load_overlay(map_t *map, overlay_t **ui);
+bool render_overlay(int coins_left, int coins_max, int life_count, map_t *map, overlay_t *ui);
+bool render_text(const char *text, bool alt_portrait, map_t *map, overlay_t *ui);
+bool render_text_ex(const char *text, bool alt_portrait, int portrait_x, int portrait_y, map_t *map, overlay_t *ui);
 
 #endif // OVERLAY_H

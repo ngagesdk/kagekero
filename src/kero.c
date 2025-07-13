@@ -195,7 +195,7 @@ static void handle_intersect(kero_t *kero, map_t *map, overlay_t *ui)
             {
                 map->show_dialogue = true;
                 map->keep_dialogue = false;
-                render_text_ex(map->obj[index + 1].str, true, 32, 146, ui);
+                render_text_ex(map->obj[index + 1].str, true, 640, 146, map, ui);
             }
         }
     }
@@ -455,7 +455,7 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
     if (kero->pos_y >= map->height + KERO_HALF)
     {
         kero->line_index++;
-        render_text(death_lines[kero->line_index], kero->wears_mask, ui);
+        render_text(death_lines[kero->line_index], kero->wears_mask, map, ui);
         map->show_dialogue = true;
 
         handle_death(kero);
