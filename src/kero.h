@@ -32,7 +32,6 @@ typedef enum kero_state
 
 typedef struct kero
 {
-    SDL_Surface *sprite;
     SDL_Surface *render_canvas;
     SDL_Surface *temp_canvas;
 
@@ -56,7 +55,8 @@ typedef struct kero
     int anim_length;
     int anim_offset_x;
     int anim_offset_y;
-    int sprite_offset;
+    int sprite_offset_x;
+    int sprite_offset_y;
     int heading;
     int level;
     int prev_life_count;

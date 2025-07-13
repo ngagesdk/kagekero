@@ -157,7 +157,6 @@ if(PACK_ASSETS)
     frame.png
     frame_400x240.png
     frame_512x512.png
-    kero.png
     overlay.png
     tileset.png
   )

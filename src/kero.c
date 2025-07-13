@@ -312,12 +312,6 @@ void destroy_kero(kero_t *kero)
             SDL_DestroySurface(kero->temp_canvas);
             kero->temp_canvas = NULL;
         }
-
-        if (kero->sprite)
-        {
-            SDL_DestroySurface(kero->sprite);
-            kero->sprite = NULL;
-        }
     }
 }
 
@@ -327,12 +321,6 @@ bool load_kero(kero_t **kero, map_t *map)
     if (!*kero)
     {
         SDL_Log("Failed to allocate memory for kero");
-        return false;
-    }
-
-    if (!load_surface_from_file("kero.png", &(*kero)->sprite))
-    {
-        SDL_Log("Failed to load kero sprite");
         return false;
     }
 
@@ -501,18 +489,22 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
     float move = fp_mul(kero->velocity_x, (float)kero->delta_time);
     if (kero->heading)
     {
-        kero->sprite_offset = 0;
+        kero->sprite_offset_y = 0;
         kero->pos_x += (kero->velocity_x > 0.f) ? move : -move;
     }
     else
     {
-        kero->sprite_offset = 3;
+        kero->sprite_offset_y = 3;
         kero->pos_x += (kero->velocity_x > 0.f) ? -move : move;
     }
 
     if (kero->wears_mask)
     {
-        kero->sprite_offset += 6;
+        kero->sprite_offset_x = 12;
+    }
+    else
+    {
+        kero->sprite_offset_x = 0;
     }
 
     clamp_kero_position(kero, map);
@@ -600,10 +592,10 @@ bool render_kero(kero_t *kero, map_t *map)
         return false;
     }
 
-    src.x = (kero->current_frame + kero->anim_offset_x) * KERO_SIZE;
-    src.y = (kero->anim_offset_y + kero->sprite_offset) * KERO_SIZE;
+    src.x = (kero->current_frame + kero->anim_offset_x + kero->sprite_offset_x) * KERO_SIZE;
+    src.y = 656 + (kero->anim_offset_y + kero->sprite_offset_y) * KERO_SIZE;
 
-    if (!SDL_BlitSurface(kero->sprite, &src, kero->temp_canvas, NULL))
+    if (!SDL_BlitSurface(map->tileset_surface, &src, kero->temp_canvas, NULL))
     {
         SDL_Log("Error blitting kero sprite: %s", SDL_GetError());
         return false;
