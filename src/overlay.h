@@ -18,7 +18,9 @@ typedef enum menu_selection
     MENU_NONE = 0,
     MENU_RESUME,
     MENU_SETTINGS,
-    MENU_QUIT
+    MENU_QUIT,
+    MENU_MHZ,
+    MENU_BACK
 
 } menu_selection_t;
 
@@ -33,6 +35,7 @@ typedef struct overlay
     SDL_Surface *menu_canvas;
     SDL_Surface *dialogue_canvas;
 
+    menu_selection_t prev_selection;
     menu_selection_t menu_selection;
     Uint64 time_a;
     Uint64 time_b;
@@ -40,6 +43,8 @@ typedef struct overlay
     Uint64 time_since_last_frame;
 
     int current_frame;
+    int menu_canvas_offset;
+    bool is_settings_menu;
 
 } overlay_t;
 

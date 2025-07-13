@@ -11,7 +11,10 @@
 #ifndef OVERCLOCK_H
 #define OVERCLOCK_H
 
+#include <SDL3/SDL.h>
+
 void disable_overclock(void);
 void enable_overclock(void);
+bool is_overclock_enabled(void);
 
 #endif // OVERCLOCK_H

@@ -11,6 +11,7 @@
 #include <SDL3/SDL.h>
 
 #include "config.h"
+#include "overclock.h"
 #include "overlay.h"
 #include "utils.h"
 
@@ -322,12 +323,22 @@ bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui
         {
             default:
             case MENU_RESUME:
+                ui->menu_canvas_offset = 0;
                 dst.y = 4;
                 break;
             case MENU_SETTINGS:
+                ui->menu_canvas_offset = 0;
                 dst.y = 19;
                 break;
             case MENU_QUIT:
+                ui->menu_canvas_offset = 0;
+                dst.y = 34;
+                break;
+            case MENU_MHZ:
+                ui->menu_canvas_offset = 96;
+                break;
+            case MENU_BACK:
+                ui->menu_canvas_offset = 96;
                 dst.y = 34;
                 break;
         }
@@ -353,6 +364,40 @@ bool render_overlay(int coins_left, int coins_max, int life_count, overlay_t *ui
             {
                 SDL_Log("Error blitting menu background to canvas: %s", SDL_GetError());
                 return false;
+            }
+
+            if (ui->menu_selection != ui->prev_selection)
+            {
+                SDL_Rect src;
+                src.x = 0 + ui->menu_canvas_offset;
+                src.y = 16;
+                src.w = 96;
+                src.h = 48;
+
+                if (!SDL_BlitSurface(ui->image, &src, ui->menu_canvas, NULL))
+                {
+                    SDL_Log("Error blitting to menu canvas: %s", SDL_GetError());
+                    return false;
+                }
+            }
+
+            if (is_overclock_enabled() && ui->menu_selection >= MENU_MHZ)
+            {
+                tmp_src.x = 58;
+                tmp_src.y = 8;
+                tmp_src.w = 24;
+                tmp_src.h = 8;
+
+                tmp_dst.x = 20;
+                tmp_dst.y = 4;
+                tmp_dst.w = 24;
+                tmp_dst.h = 8;
+
+                if (!SDL_BlitSurface(ui->image, &tmp_src, ui->menu_canvas, &tmp_dst))
+                {
+                    SDL_Log("Error blitting to menu canvas: %s", SDL_GetError());
+                    return false;
+                }
             }
 
             ui->time_since_last_frame = 0;

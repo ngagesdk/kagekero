@@ -309,18 +309,10 @@ static bool handle_button_down(core_t *nc, button_t button)
         clear_ring_buffer();
     }
 
-    if (check_bit(nc->btn, BTN_2))
-    {
-        enable_overclock();
-    }
-    else if (check_bit(nc->btn, BTN_3))
-    {
-        disable_overclock();
-    }
-
     if ((check_bit(nc->btn, BTN_SOFTRIGHT) || check_bit(nc->btn, BTN_SOFTLEFT)) && !nc->is_paused && !nc->map->show_dialogue)
     {
         nc->is_paused = true;
+        nc->ui->prev_selection = nc->ui->menu_selection;
         nc->ui->menu_selection = MENU_RESUME;
     }
     else if (nc->map->show_dialogue)
@@ -350,26 +342,68 @@ static bool handle_button_down(core_t *nc, button_t button)
                     nc->is_paused = false;
                     break;
                 case MENU_SETTINGS:
-                    // Tbd.
+                    nc->ui->prev_selection = nc->ui->menu_selection;
+                    nc->ui->menu_selection = MENU_MHZ;
+                    nc->ui->is_settings_menu = true;
                     break;
                 case MENU_QUIT:
                     return false;
+                case MENU_MHZ:
+                    {
+                        if (is_overclock_enabled())
+                        {
+                            disable_overclock();
+                        }
+                        else
+                        {
+                            enable_overclock();
+                        }
+                        break;
+                    }
+                case MENU_BACK:
+                    nc->ui->prev_selection = nc->ui->menu_selection;
+                    nc->ui->menu_selection = MENU_SETTINGS;
+                    nc->ui->is_settings_menu = false;
+                    break;
             }
         }
         else if (check_bit(nc->btn, BTN_UP))
         {
+            nc->ui->prev_selection = nc->ui->menu_selection;
             nc->ui->menu_selection -= 1;
-            if (nc->ui->menu_selection < MENU_RESUME)
+
+            if (!nc->ui->is_settings_menu)
             {
-                nc->ui->menu_selection = MENU_QUIT;
+                if (nc->ui->menu_selection < MENU_RESUME)
+                {
+                    nc->ui->menu_selection = MENU_QUIT;
+                }
+            }
+            else
+            {
+                if (nc->ui->menu_selection < MENU_MHZ)
+                {
+                    nc->ui->menu_selection = MENU_BACK;
+                }
             }
         }
         else if (check_bit(nc->btn, BTN_DOWN))
         {
+            nc->ui->prev_selection = nc->ui->menu_selection;
             nc->ui->menu_selection += 1;
-            if (nc->ui->menu_selection > MENU_QUIT)
+            if (!nc->ui->is_settings_menu)
             {
-                nc->ui->menu_selection = MENU_RESUME;
+                if (nc->ui->menu_selection > MENU_QUIT)
+                {
+                    nc->ui->menu_selection = MENU_RESUME;
+                }
+            }
+            else
+            {
+                if (nc->ui->menu_selection > MENU_BACK)
+                {
+                    nc->ui->menu_selection = MENU_MHZ;
+                }
             }
         }
     }

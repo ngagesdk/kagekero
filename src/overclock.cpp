@@ -8,6 +8,8 @@
  *
  **/
 
+#include <SDL3/SDL.h>
+
 #ifdef __SYMBIAN32__
 #include <e32std.h>
 #include <e32svr.h>
@@ -18,17 +20,17 @@ extern "C"
 {
 #endif // __cplusplus
 
+static bool overclock_state = false;
+
 #ifdef __SYMBIAN32__
 _LIT(KNinjaDll, "E:\\System\\Apps\\kagekero\\ninja.dll");
 _LIT(KTurtleDll, "E:\\System\\Apps\\kagekero\\turtle.dll");
-
-static TBool is_overclock_enabled = EFalse;
 
 void disable_overclock(void)
 {
     RLibrary lib;
 
-    if (!is_overclock_enabled)
+    if (!overclock_state)
     {
         return;
     }
@@ -37,7 +39,7 @@ void disable_overclock(void)
     {
         UserSvr::ChangeLocale(lib);
         lib.Close();
-        is_overclock_enabled = EFalse;
+        overclock_state = false;
     }
 }
 
@@ -45,7 +47,7 @@ void enable_overclock(void)
 {
     RLibrary lib;
 
-    if (is_overclock_enabled)
+    if (overclock_state)
     {
         return;
     }
@@ -54,20 +56,27 @@ void enable_overclock(void)
     {
         UserSvr::ChangeLocale(lib);
         lib.Close();
-        is_overclock_enabled = ETrue;
+        overclock_state = true;
     }
 }
 #else
 void disable_overclock(void)
 {
+    overclock_state = false;
     return;
 }
 
 void enable_overclock(void)
 {
+    overclock_state = true;
     return;
 }
 #endif
+
+bool is_overclock_enabled(void)
+{
+    return overclock_state;
+}
 
 #ifdef __cplusplus
 }
