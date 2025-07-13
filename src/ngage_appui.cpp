@@ -23,30 +23,20 @@ void CNGageAppUi::ConstructL()
     AddToStackL(iAppView);
 }
 
-_LIT(KNinjaDll, "E:\\System\\Apps\\kagekero\\ninja.dll");
-_LIT(KTurtleDll, "E:\\System\\Apps\\kagekero\\turtle.dll");
-
 CNGageAppUi::CNGageAppUi()
 {
     RProcess Proc;
 
     iAppView = NULL;
 
-    RLibrary lib;
-    if (lib.Load(KNinjaDll) == KErrNone)
+    if (KErrNone == Proc.Create(_L("E:\\System\\Apps\\kagekero\\kagekero.exe"), _L("")))
     {
-        UserSvr::ChangeLocale(lib);
-        lib.Close();
-
-        if (KErrNone == Proc.Create(_L("E:\\System\\Apps\\kagekero\\kagekero.exe"), _L("")))
-        {
-            TRequestStatus status;
-            Proc.Logon(status);
-            Proc.Resume();
-            User::WaitForRequest(status);
-            Proc.Close();
-            Exit();
-        }
+        TRequestStatus status;
+        Proc.Logon(status);
+        Proc.Resume();
+        User::WaitForRequest(status);
+        Proc.Close();
+        Exit();
     }
     else
     {
@@ -56,13 +46,6 @@ CNGageAppUi::CNGageAppUi()
 
 CNGageAppUi::~CNGageAppUi()
 {
-    RLibrary lib;
-    if (lib.Load(KTurtleDll) == KErrNone)
-    {
-        UserSvr::ChangeLocale(lib);
-        lib.Close();
-    }
-
     if (iAppView)
     {
         RemoveFromStack(iAppView);

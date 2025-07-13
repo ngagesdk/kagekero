@@ -16,6 +16,7 @@
 #include "core.h"
 #include "kero.h"
 #include "map.h"
+#include "overclock.h"
 #include "overlay.h"
 #include "pfs.h"
 #include "utils.h"
@@ -306,6 +307,15 @@ static bool handle_button_down(core_t *nc, button_t button)
     else
     {
         clear_ring_buffer();
+    }
+
+    if (check_bit(nc->btn, BTN_2))
+    {
+        enable_overclock();
+    }
+    else if (check_bit(nc->btn, BTN_3))
+    {
+        disable_overclock();
     }
 
     if ((check_bit(nc->btn, BTN_SOFTRIGHT) || check_bit(nc->btn, BTN_SOFTLEFT)) && !nc->is_paused && !nc->map->show_dialogue)

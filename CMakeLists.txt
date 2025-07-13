@@ -34,6 +34,7 @@ set(kagekero_sources
   src/kero.c
   src/main.c
   src/map.c
+  src/overclock.cpp
   src/overlay.c
   src/pfs.c
   src/utils.c
