@@ -474,6 +474,8 @@ bool handle_events(core_t *nc)
 
 void destroy(core_t *nc)
 {
+    disable_overclock();
+
     if (nc)
     {
         if (nc->ui)
