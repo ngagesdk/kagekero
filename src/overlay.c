@@ -383,7 +383,7 @@ bool render_text(const char *text, bool alt_portrait, overlay_t *ui)
 {
     if (alt_portrait)
     {
-        return (render_text_ex(text, alt_portrait, 97, 32, ui));
+        return (render_text_ex(text, alt_portrait, 0, 146, ui));
     }
     else
     {

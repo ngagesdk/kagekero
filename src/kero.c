@@ -195,7 +195,7 @@ static void handle_intersect(kero_t *kero, map_t *map, overlay_t *ui)
             {
                 map->show_dialogue = true;
                 map->keep_dialogue = false;
-                render_text_ex(map->obj[index + 1].str, true, 129, 32, ui);
+                render_text_ex(map->obj[index + 1].str, true, 32, 146, ui);
             }
         }
     }
