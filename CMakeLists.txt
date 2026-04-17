@@ -49,6 +49,10 @@ include_directories(
   "${CMAKE_CURRENT_SOURCE_DIR}/src"
   "${sdl3_SOURCE_DIR}/include"
 )
+
+if(NOT DISABLE_ZLIB AND NOT NGAGESDK)
+  target_include_directories(kagekero PRIVATE "${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}")
+endif()
 set_property(TARGET kagekero PROPERTY C_STANDARD 99)
 
 # NGAGE-specific.
