@@ -58,14 +58,15 @@ static void destroy_tiled_map(map_t *map)
 #if !defined __EMSCRIPTEN__
 static bool decompress_gz_buffer(Uint8 *compressed_data, size_t compressed_size, Uint8 **out_decompressed_data, uLongf *out_decompressed_size)
 {
+    size_t estimated_size;
 #if defined(__SYMBIAN32__)
     // Smaller chunk size to reduce memory fragmentation and pre-allocate
     // based on expected compression ratio (typically 2-4x for tiled maps).
-    const size_t CHUNK_SIZE = 8192;              // 8KB chunks instead of 16KB.
-    size_t estimated_size = compressed_size * 3; // Assume 3x compression ratio.
+    const size_t CHUNK_SIZE = 8192;       // 8KB chunks instead of 16KB.
+    estimated_size = compressed_size * 3; // Assume 3x compression ratio.
 #else
     const size_t CHUNK_SIZE = 16384;
-    size_t estimated_size = CHUNK_SIZE;
+    estimated_size = CHUNK_SIZE;
 #endif
 
     Uint8 *output = NULL;
