@@ -348,19 +348,18 @@ static inline fix32_t fix32_div(fix32_t a, fix32_t b)
         int64_t numerator;
         int32_t result;
 
-        // Use inline assembly to construct 64-bit shifted value efficiently
+        // Use inline assembly to construct 64-bit shifted value efficiently.
         __asm__ volatile(
             "mov    %Q0, %2, lsl #16    \n\t" // Low 32 bits: a << 16
             "mov    %R0, %2, asr #16    \n\t" // High 32 bits: sign-extended a >> 16
             : "=r"(numerator)
             : "0"(numerator), "r"(a));
 
-        result = (int32_t)(numerator / b);
-
-        // Check for overflow
-        if (result == (int32_t)(numerator / b) && llabs(numerator / b) <= 0x7FFFFFFF)
+        // Check for overflow.
+        int64_t quotient = numerator / b;
+        if (llabs(quotient) <= 0x7FFFFFFF)
         {
-            return result;
+            return (int32_t)quotient;
         }
     }
 
