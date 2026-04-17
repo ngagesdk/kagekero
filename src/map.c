@@ -345,6 +345,13 @@ static bool set_object_animation(int gid, int *anim_length, int *id, cute_tiled_
     return false;
 }
 
+static inline bool is_tile_visible(int tile_x, int tile_y, int tile_width, int tile_height, int cam_x, int cam_y)
+{
+    // Check if tile is within the visible screen area.
+    return !(tile_x + tile_width < cam_x || tile_x > cam_x + SCREEN_W ||
+             tile_y + tile_height < cam_y || tile_y > cam_y + SCREEN_H);
+}
+
 static inline int remove_gid_flip_bits(int gid)
 {
     return cute_tiled_unset_flags(gid);
@@ -711,7 +718,7 @@ static bool load_objects(map_t *map)
 
 static inline int lookup_lgbtq_tile_id(int id)
 {
-    // Optimize range checks: use unsigned subtraction trick
+    // Optimize range checks: use unsigned subtraction trick.
     register unsigned int offset1 = id - 930;
     register unsigned int offset2 = id - 980;
     return ((offset1 <= 19) || (offset2 <= 19)) ? id - 100 : id;
@@ -843,7 +850,7 @@ exit:
     return exit_code;
 }
 
-bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated)
+bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x, int cam_y)
 {
     cute_tiled_layer_t *layer;
     cute_tiled_layer_t *prev_layer = NULL;
@@ -909,50 +916,56 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated)
                     continue;
                 }
 
-                // Handle door state
+                // Handle door state.
                 if (H_DOOR == obj->hash && no_coins)
                 {
                     obj->start_frame = 1;
                     obj->current_frame = 1;
                 }
 
-                int local_id;
+                // Check if tile is visible for blitting operations.
+                bool is_visible = is_tile_visible(obj->x, obj->y, tilewidth, tileheight, cam_x, cam_y);
 
-                if (use_lgbtq)
+                if (is_visible)
                 {
-                    local_id = lookup_lgbtq_tile_id(obj->id) + 1;
-                }
-                else
-                {
-                    local_id = obj->id + 1;
-                }
+                    int local_id;
 
-                dst.x = obj->x;
-                dst.y = obj->y;
-
-                int tmp_x, tmp_y;
-                get_tile_position(local_id, &tmp_x, &tmp_y, map->handle);
-                src.x = tmp_x;
-                src.y = tmp_y;
-
-                // Blit canvas tile first (for transparency simulation).
-                canvas_src.x = obj->canvas_src_x;
-                canvas_src.y = obj->canvas_src_y;
-                SDL_BlitSurface(tileset, &canvas_src, canvas, &dst);
-
-                // Fast path: skip hidden objects.
-                if (!obj->is_hidden)
-                {
-                    SDL_BlitSurface(tileset, &src, canvas, &dst);
-
-                    // Update animation frame if animated.
-                    if (obj->anim_length)
+                    if (use_lgbtq)
                     {
-                        obj->current_frame += 1;
-                        if (obj->current_frame >= obj->anim_length + obj->start_frame)
-                        {
-                            obj->current_frame = obj->start_frame;
-                        }
+                        local_id = lookup_lgbtq_tile_id(obj->id) + 1;
+                    }
+                    else
+                    {
+                        local_id = obj->id + 1;
+                    }
+
+                    dst.x = obj->x;
+                    dst.y = obj->y;
+
+                    int tmp_x, tmp_y;
+                    get_tile_position(local_id, &tmp_x, &tmp_y, map->handle);
+                    src.x = tmp_x;
+                    src.y = tmp_y;
+
+                    // Blit canvas tile first (for transparency simulation).
+                    canvas_src.x = obj->canvas_src_x;
+                    canvas_src.y = obj->canvas_src_y;
+                    SDL_BlitSurface(tileset, &canvas_src, canvas, &dst);
+
+                    // Fast path: skip hidden objects.
+                    if (!obj->is_hidden)
+                    {
+                        SDL_BlitSurface(tileset, &src, canvas, &dst);
+                    }
+                }
+
+                // Always update animation frame (even if off-screen).
+                if (obj->anim_length && !obj->is_hidden)
+                {
+                    obj->current_frame += 1;
+                    if (obj->current_frame >= obj->anim_length + obj->start_frame)
+                    {
+                        obj->current_frame = obj->start_frame;
                     }
                 }
 
