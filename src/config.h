@@ -28,6 +28,11 @@
 #define SCREEN_W 176
 #define SCREEN_H 208
 
+#if defined __SYMBIAN32__
+#define TILE_SIZE  16
+#define TILE_SHIFT 4 // log2(16) = 4, for bit shift operations (>> 4 and << 4).
+#endif
+
 #if defined DEBUG
 // Default configuration.
 #elif defined __SYMBIAN32__

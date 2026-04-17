@@ -46,6 +46,14 @@ typedef struct overlay
     int menu_canvas_offset;
     bool is_settings_menu;
 
+#if defined(__SYMBIAN32__)
+    // Dirty flags to track which UI elements need redraw.
+    bool coin_count_dirty;
+    bool life_count_dirty;
+    bool menu_dirty;
+    bool dialogue_dirty;
+#endif
+
 } overlay_t;
 
 void destroy_overlay(overlay_t *ui);

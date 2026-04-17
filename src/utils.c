@@ -154,10 +154,19 @@ Uint64 generate_hash(const unsigned char *name)
     Uint64 hash = 5381;
     Uint32 c;
 
+#if defined(__SYMBIAN32__) && defined(__GNUC__)
+    // ARM9 optimization: The compiler can optimize (hash * 33) better than ((hash << 5) + hash)
+    // on ARM9 due to multiply-accumulate instructions.
     while ((c = *name++))
     {
-        hash = ((hash << 5) + hash) + c;
+        hash = hash * 33 + c; // ARM9 can use MLA (multiply-accumulate) instruction.
     }
+#else
+    while ((c = *name++))
+    {
+        hash = ((hash << 5) + hash) + c; // Original djb2 formula.
+    }
+#endif
 
     return hash;
 }

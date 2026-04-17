@@ -91,12 +91,22 @@ typedef struct map
     Uint64 tileset_hash;
     Uint64 prev_tileset_hash;
 
+    // Cached tileset dimensions to reduce pointer dereferences in hot loops.
+    int cached_tilewidth;
+    int cached_tileheight;
+    int cached_map_width;
+
     tile_desc_t *tile_desc;
     int tile_desc_count;
 
     bool use_lgbtq_flag;
     bool show_dialogue;
     bool keep_dialogue;
+
+#if defined(__SYMBIAN32__)
+    // N-Gage optimization: Track if any animated objects changed this frame.
+    bool objects_dirty;
+#endif
 
 } map_t;
 

@@ -58,7 +58,16 @@ static void destroy_tiled_map(map_t *map)
 #if !defined __EMSCRIPTEN__
 static bool decompress_gz_buffer(Uint8 *compressed_data, size_t compressed_size, Uint8 **out_decompressed_data, uLongf *out_decompressed_size)
 {
+#if defined(__SYMBIAN32__)
+    // Smaller chunk size to reduce memory fragmentation and pre-allocate
+    // based on expected compression ratio (typically 2-4x for tiled maps).
+    const size_t CHUNK_SIZE = 8192;              // 8KB chunks instead of 16KB.
+    size_t estimated_size = compressed_size * 3; // Assume 3x compression ratio.
+#else
     const size_t CHUNK_SIZE = 16384;
+    size_t estimated_size = CHUNK_SIZE;
+#endif
+
     Uint8 *output = NULL;
     size_t output_capacity = 0;
     size_t output_size = 0;
@@ -72,6 +81,15 @@ static bool decompress_gz_buffer(Uint8 *compressed_data, size_t compressed_size,
         SDL_Log("inflateInit2 failed");
         return false;
     }
+
+#if defined(__SYMBIAN32__)
+    // Pre-allocate based on estimated size to reduce realloc calls
+    output = (Uint8 *)SDL_malloc(estimated_size);
+    if (output)
+    {
+        output_capacity = estimated_size;
+    }
+#endif
 
     int ret;
     do
@@ -221,6 +239,11 @@ static bool create_textures(SDL_Renderer *renderer, map_t *map)
     map->height = map->handle->height * map->handle->tilesets->tileheight;
     map->width = map->handle->width * map->handle->tilesets->tilewidth;
 
+    // Cache frequently accessed tileset dimensions to reduce pointer dereferences
+    map->cached_tilewidth = map->handle->tilesets->tilewidth;
+    map->cached_tileheight = map->handle->tilesets->tileheight;
+    map->cached_map_width = map->handle->width;
+
 #ifndef __DREAMCAST__
     SDL_PixelFormat pixel_format = SDL_PIXELFORMAT_XRGB4444;
 #else
@@ -256,6 +279,19 @@ static inline int get_local_id(int gid, cute_tiled_map_t *map)
     return local_id >= 0 ? local_id : 0;
 }
 
+#if defined(__SYMBIAN32__)
+// Tiles are always 16x16, use bit shifts (2^4 = 16).
+static inline void get_tile_position(int gid, int *pos_x, int *pos_y, cute_tiled_map_t *map)
+{
+    cute_tiled_tileset_t *tileset = map->tilesets;
+    register int local_id = get_local_id(gid, map);
+    register int columns = tileset->columns;
+
+    // Always shift by 4 for 16x16 tiles (eliminates branch overhead).
+    *pos_x = (local_id % columns) << 4; // * 16
+    *pos_y = (local_id / columns) << 4; // * 16
+}
+#else
 static inline void get_tile_position(int gid, int *pos_x, int *pos_y, cute_tiled_map_t *map)
 {
     cute_tiled_tileset_t *tileset = map->tilesets;
@@ -266,6 +302,7 @@ static inline void get_tile_position(int gid, int *pos_x, int *pos_y, cute_tiled
     *pos_x = (local_id % columns) * tilewidth;
     *pos_y = (local_id / columns) * tileset->tileheight;
 }
+#endif
 
 static inline void get_frame_position(int frame_index, int width, int height, int *pos_x, int *pos_y, int column_count)
 {
@@ -384,53 +421,54 @@ static int get_next_object_id(int gid, int current_frame, cute_tiled_map_t *map)
 
 static void load_property(const Uint64 name_hash, cute_tiled_property_t *properties, int property_count, map_t *map)
 {
-    register int index;
-
-    // Early exit for empty properties.
-    if (property_count == 0)
+    // Early exit for empty properties or null pointer
+    if (property_count == 0 || !properties)
     {
         return;
     }
 
-    for (index = 0; index < property_count; index += 1)
+    // Linear search
+    for (register int index = 0; index < property_count; index += 1)
     {
         if (name_hash == generate_hash((const unsigned char *)properties[index].name.ptr))
         {
-            goto found;
-        }
-    }
+            // Skip null property names
+            if (!properties[index].name.ptr)
+            {
+                return;
+            }
 
-    // Not found
-    return;
-
-found:
-
-    if (properties[index].name.ptr)
-    {
-        switch (properties[index].type)
-        {
-            case CUTE_TILED_PROPERTY_COLOR:
-            case CUTE_TILED_PROPERTY_FILE:
-            case CUTE_TILED_PROPERTY_NONE:
-                break;
-            case CUTE_TILED_PROPERTY_INT:
-                map->integer_property = properties[index].data.integer;
-                break;
-            case CUTE_TILED_PROPERTY_BOOL:
-                map->boolean_property = (bool)properties[index].data.boolean;
-                break;
-            case CUTE_TILED_PROPERTY_FLOAT:
-                map->decimal_property = (float)properties[index].data.floating;
-                break;
-            case CUTE_TILED_PROPERTY_STRING:
-                map->string_property = properties[index].data.string.ptr;
-                break;
+            // Handle property based on type
+            switch (properties[index].type)
+            {
+                case CUTE_TILED_PROPERTY_INT:
+                    map->integer_property = properties[index].data.integer;
+                    return;
+                case CUTE_TILED_PROPERTY_BOOL:
+                    map->boolean_property = (bool)properties[index].data.boolean;
+                    return;
+                case CUTE_TILED_PROPERTY_FLOAT:
+                    map->decimal_property = (float)properties[index].data.floating;
+                    return;
+                case CUTE_TILED_PROPERTY_STRING:
+                    map->string_property = properties[index].data.string.ptr;
+                    return;
+                default:
+                    // COLOR, FILE, NONE - nothing to do
+                    return;
+            }
         }
     }
 }
 
 static bool get_boolean_property(const Uint64 name_hash, cute_tiled_property_t *properties, int property_count, map_t *map)
 {
+    // Early exit optimization for empty properties
+    if (property_count == 0 || !properties)
+    {
+        return false;
+    }
+
     map->boolean_property = false;
     load_property(name_hash, properties, property_count, map);
     return map->boolean_property;
@@ -438,6 +476,12 @@ static bool get_boolean_property(const Uint64 name_hash, cute_tiled_property_t *
 
 static float get_decimal_property(const Uint64 name_hash, cute_tiled_property_t *properties, int property_count, map_t *map)
 {
+    // Early exit optimization for empty properties
+    if (property_count == 0 || !properties)
+    {
+        return 0.0f;
+    }
+
     map->decimal_property = 0.0;
     load_property(name_hash, properties, property_count, map);
     return map->decimal_property;
@@ -445,6 +489,12 @@ static float get_decimal_property(const Uint64 name_hash, cute_tiled_property_t 
 
 static int get_integer_property(const Uint64 name_hash, cute_tiled_property_t *properties, int property_count, map_t *map)
 {
+    // Early exit optimization for empty properties
+    if (property_count == 0 || !properties)
+    {
+        return 0;
+    }
+
     map->integer_property = 0;
     load_property(name_hash, properties, property_count, map);
     return map->integer_property;
@@ -452,6 +502,12 @@ static int get_integer_property(const Uint64 name_hash, cute_tiled_property_t *p
 
 static const char *get_string_property(const Uint64 name_hash, cute_tiled_property_t *properties, int property_count, map_t *map)
 {
+    // Early exit optimization for empty properties
+    if (property_count == 0 || !properties)
+    {
+        return NULL;
+    }
+
     map->string_property = NULL;
     load_property(name_hash, properties, property_count, map);
     return map->string_property;
@@ -485,8 +541,8 @@ static bool load_tiles(map_t *map)
         return false;
     }
 
-    // Cache frequently accessed values.
-    register int map_width = map->handle->width;
+    // Use cached dimensions.
+    register int map_width = map->cached_map_width;
     register int map_height = map->handle->height;
     cute_tiled_tileset_t *tileset = map->handle->tilesets;
 
@@ -575,12 +631,15 @@ static bool load_objects(map_t *map)
                 cute_tiled_object_t *object = get_head_object(layer, map);
                 while (object)
                 {
-                    if (H_COIN == generate_hash((const unsigned char *)object->name.ptr))
+                    // Use generate_hash instead of cached hash_id.
+                    Uint64 obj_name_hash = generate_hash((const unsigned char *)object->name.ptr);
+
+                    if (H_COIN == obj_name_hash)
                     {
                         map->coins_left += 1;
                     }
 
-                    if (H_SPAWN == generate_hash((const unsigned char *)object->name.ptr))
+                    if (H_SPAWN == obj_name_hash)
                     {
                         map->spawn_x = (int)object->x;
                         map->spawn_y = (int)object->y;
@@ -618,7 +677,10 @@ static bool load_objects(map_t *map)
                     cute_tiled_object_t *object = get_head_object(layer, map);
                     while (object)
                     {
-                        if (H_BLOCK == generate_hash((const unsigned char *)object->name.ptr))
+                        // Use generate_hash instead of cached hash_id
+                        Uint64 obj_name_hash = generate_hash((const unsigned char *)object->name.ptr);
+
+                        if (H_BLOCK == obj_name_hash)
                         {
                             if (get_string_property(H_STR, object->properties, object->property_count, map))
                             {
@@ -822,9 +884,9 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated)
             map->time_since_last_frame = 0;
             *has_updated = true;
 
-            // Cache frequently accessed values and pointers.
-            register int tilewidth = map->handle->tilesets->tilewidth;
-            register int tileheight = map->handle->tilesets->tileheight;
+            // Use cached dimensions to reduce pointer dereferences.
+            register int tilewidth = map->cached_tilewidth;
+            register int tileheight = map->cached_tileheight;
             register bool use_lgbtq = map->use_lgbtq_flag;
             register bool no_coins = !map->coins_left;
             register int obj_count = map->obj_count - 1;
@@ -914,11 +976,11 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated)
         {
             if (layer->visible)
             {
-                // Cache frequently accessed values for better performance.
-                register int map_width = map->handle->width;
+                // Use cached dimensions to reduce pointer dereferences.
+                register int map_width = map->cached_map_width;
                 register int map_height = map->handle->height;
-                register int tilewidth = map->handle->tilesets->tilewidth;
-                register int tileheight = map->handle->tilesets->tileheight;
+                register int tilewidth = map->cached_tilewidth;
+                register int tileheight = map->cached_tileheight;
                 int *layer_content = layer->data;
                 register int tile_index = 0;
 
@@ -963,10 +1025,14 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated)
                     int anim_length = 0;
                     int id = 0;
 
+                    // Cache object position to avoid multiple pointer dereferences.
+                    float obj_x = object->x;
+                    float obj_y = object->y;
+
                     src.w = dst.w = map->handle->tilesets->tilewidth;
                     src.h = dst.h = map->handle->tilesets->tileheight;
-                    dst.x = (int)object->x;
-                    dst.y = (int)object->y - map->handle->tilesets->tileheight;
+                    dst.x = (int)obj_x;
+                    dst.y = (int)obj_y - map->handle->tilesets->tileheight;
 
                     int tmp_x, tmp_y;
                     get_tile_position(gid, &tmp_x, &tmp_y, map->handle);
@@ -981,6 +1047,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated)
                     map->obj[index].current_frame = 0;
                     map->obj[index].anim_length = anim_length;
                     map->obj[index].object_id = object->id;
+                    // Use generate_hash instead of cached hash_id.
                     map->obj[index].hash = generate_hash((const unsigned char *)object->name.ptr);
 
                     if (H_DOOR == map->obj[index].hash)
@@ -1047,12 +1114,21 @@ bool object_intersects(aabb_t bb, map_t *map, int *index_ptr)
                     if (is_gid_valid(gid, map->handle))
                     {
                         aabb_t object_aabb;
+#if defined(__SYMBIAN32__)
+                        // All tiles are 16x16, use constant for half-size.
+                        const int obj_half = 8;
+                        object_aabb.left = object->x - obj_half;
+                        object_aabb.right = object->x + obj_half;
+                        object_aabb.top = object->y - obj_half;
+                        object_aabb.bottom = object->y + obj_half;
+#else
                         int obj_half_width = (int)(object->width / 2);
                         int obj_half_height = (int)(object->height / 2);
                         object_aabb.left = object->x - obj_half_width;
                         object_aabb.right = object->x + obj_half_width;
                         object_aabb.top = object->y - obj_half_height;
                         object_aabb.bottom = object->y + obj_half_height;
+#endif
 
                         if (do_intersect(bb, object_aabb))
                         {
@@ -1073,12 +1149,18 @@ bool object_intersects(aabb_t bb, map_t *map, int *index_ptr)
 
 int get_tile_index(int pos_x, int pos_y, map_t *map)
 {
-    register int tilewidth = map->handle->tilesets->tilewidth;
-    register int tileheight = map->handle->tilesets->tileheight;
-    register int map_width = map->handle->width;
+    // Use cached dimensions to reduce pointer dereferences
+    register int map_width = map->cached_map_width;
     register int max_index = map->tile_desc_count - 1;
 
+#if defined(__SYMBIAN32__)
+    // N-Gage optimization: Tiles are always 16x16, use bit shift by 4
+    register int index = (pos_x >> 4) + ((pos_y >> 4) * map_width);
+#else
+    register int tilewidth = map->cached_tilewidth;
+    register int tileheight = map->cached_tileheight;
     register int index = (pos_x / tilewidth) + ((pos_y / tileheight) * map_width);
+#endif
 
     return (index > max_index) ? max_index : index;
 }
