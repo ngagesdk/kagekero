@@ -10,6 +10,8 @@ macro(get_zlib version)
       SHA256=bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16
   )
   set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "Disable Zlib Examples" FORCE)
+  set(ZLIB_BUILD_SHARED OFF CACHE BOOL "Disable Zlib Shared Library" FORCE)
+
   FetchContent_MakeAvailable(zlib)
 
   set(ZLIB_LIBRARIES zlib)

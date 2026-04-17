@@ -23,7 +23,6 @@ jobs:
       - name: Install SDL3
         run: |
           cmake -S .github/SDL -B .github/SDL-build -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/3DS.cmake \
-                -DZLIB_BUILD_SHARED=OFF \
                 -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
           cmake --build .github/SDL-build --config ${{ env.BUILD_TYPE }}
           cmake --install .github/SDL-build --config ${{ env.BUILD_TYPE }}
