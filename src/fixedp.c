@@ -15,7 +15,7 @@
 // These reduce conversion overhead on Nokia N-Gage.
 
 #if defined(__SYMBIAN32__)
-// On N-Gage, mark as inline and use restrict for better optimization
+// Mark as inline and use restrict for better optimization.
 static inline float fp_div_impl(float a, float b) __attribute__((always_inline));
 static inline float fp_mul_impl(float a, float b) __attribute__((always_inline));
 
@@ -41,7 +41,6 @@ float fp_mul(float a, float b)
     return fp_mul_impl(a, b);
 }
 #else
-// Standard implementation for other platforms
 float fp_div(float a, float b)
 {
     fix32_t fa = fix32_from_float(a);

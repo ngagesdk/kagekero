@@ -320,13 +320,12 @@ static inline fix32_t fix32_mul(fix32_t a, fix32_t b)
     // Result is in rdhi:rdlo, we extract bits [47:16] by shifting
     int32_t result;
     __asm__ volatile(
-        "smull  r0, r1, %1, %2  \n\t"  // r1:r0 = a * b (64-bit result)
-        "mov    %0, r0, lsr #16 \n\t"  // result = (r0 >> 16)
+        "smull  r0, r1, %1, %2  \n\t"     // r1:r0 = a * b (64-bit result)
+        "mov    %0, r0, lsr #16 \n\t"     // result = (r0 >> 16)
         "orr    %0, %0, r1, lsl #16 \n\t" // result |= (r1 << 16)
-        : "=r" (result)
-        : "r" (a), "r" (b)
-        : "r0", "r1"
-    );
+        : "=r"(result)
+        : "r"(a), "r"(b)
+        : "r0", "r1");
     return result;
 #else
     return (int32_t)(((int64_t)a * b) >> 16);
@@ -351,11 +350,10 @@ static inline fix32_t fix32_div(fix32_t a, fix32_t b)
 
         // Use inline assembly to construct 64-bit shifted value efficiently
         __asm__ volatile(
-            "mov    %Q0, %2, lsl #16    \n\t"  // Low 32 bits: a << 16
-            "mov    %R0, %2, asr #16    \n\t"  // High 32 bits: sign-extended a >> 16
-            : "=r" (numerator)
-            : "0" (numerator), "r" (a)
-        );
+            "mov    %Q0, %2, lsl #16    \n\t" // Low 32 bits: a << 16
+            "mov    %R0, %2, asr #16    \n\t" // High 32 bits: sign-extended a >> 16
+            : "=r"(numerator)
+            : "0"(numerator), "r"(a));
 
         result = (int32_t)(numerator / b);
 
