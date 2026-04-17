@@ -13,14 +13,20 @@
 
 #include <SDL3/SDL.h>
 
+// Optimized AABB structure for ARM cache efficiency
+// 16 bytes total, fits in a single cache line segment
 typedef struct aabb
 {
-    float bottom;
-    float left;
-    float right;
-    float top;
+    float left;    // 4 bytes - ordered for logical comparison flow
+    float right;   // 4 bytes
+    float top;     // 4 bytes
+    float bottom;  // 4 bytes
 
-} aabb_t;
+} aabb_t
+#ifdef __SYMBIAN32__
+__attribute__((aligned(16))) // 16-byte alignment for efficient SIMD-like operations
+#endif
+;
 
 bool do_intersect(aabb_t a, aabb_t b);
 

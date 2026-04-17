@@ -77,7 +77,7 @@ static void update_kero_animation(kero_t *kero, bool *has_updated)
 
 static void apply_gravity(kero_t *kero)
 {
-    kero->velocity_y += fp_mul(GRAVITY, (float)kero->delta_time);
+    kero->velocity_y += FP_MUL_INT_CONST(kero->delta_time, GRAVITY_FP);
 
     if (kero->velocity_y > MAX_FALLING_SPEED)
     {
@@ -166,6 +166,13 @@ static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn, SDL_
 
 static void handle_intersect(kero_t *kero, map_t *map, overlay_t *ui)
 {
+    // Fast path: early exit if no objects in map.
+    if (map->obj_count == 0)
+    {
+        return;
+    }
+
+    // Build AABB once
     aabb_t kero_bb;
     kero_bb.top = kero->pos_y - KERO_HALF;
     kero_bb.bottom = kero->pos_y + KERO_HALF;
@@ -176,8 +183,12 @@ static void handle_intersect(kero_t *kero, map_t *map, overlay_t *ui)
 
     if (object_intersects(kero_bb, map, &index))
     {
-        if (H_COIN == map->obj[index].hash)
+        // Cache hash for faster comparison.
+        register Uint64 obj_hash = map->obj[index].hash;
+
+        if (H_COIN == obj_hash)
         {
+            // Fast path: skip if already hidden.
             if (!map->obj[index].is_hidden)
             {
                 map->prev_coins = map->coins_left;
@@ -186,11 +197,12 @@ static void handle_intersect(kero_t *kero, map_t *map, overlay_t *ui)
                 {
                     map->coins_left = 0;
                 }
+                map->obj[index].is_hidden = true;
             }
-            map->obj[index].is_hidden = true;
         }
-        else if (H_BLOCK == map->obj[index].hash)
+        else if (H_BLOCK == obj_hash)
         {
+            // Fast path: skip if dialogue already showing.
             if (map->obj[index + 1].str && !map->show_dialogue)
             {
                 map->show_dialogue = true;
@@ -203,18 +215,24 @@ static void handle_intersect(kero_t *kero, map_t *map, overlay_t *ui)
 
 static void handle_dash(kero_t *kero, unsigned int *btn)
 {
-    if (check_bit(*btn, BTN_5) && check_bit(*btn, BTN_7))
+    // Fast path: cache button state once.
+    register unsigned int btn_state = *btn;
+
+    // Early exit if both buttons pressed.
+    if (CHECK_BIT_FAST(btn_state, BTN_5) && CHECK_BIT_FAST(btn_state, BTN_7))
     {
         return;
     }
 
+    // Early exit if not in air.
     if (!kero->jump_lock && !kero->velocity_y)
     {
         // Only allow dash while jumping or falling.
         return;
     }
 
-    if (check_bit(*btn, BTN_5) && STATE_DEAD != kero->prev_state)
+    // Fast path: check once and proceed.
+    if (CHECK_BIT_FAST(btn_state, BTN_5) && STATE_DEAD != kero->prev_state)
     {
         set_kero_state(kero, STATE_DASH);
 
@@ -395,13 +413,19 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
     handle_intersect(kero, map, ui);
     handle_dash(kero, btn);
 
+    // Cache frequently accessed map properties for better performance
+    register int map_width = map->handle->width;
+    register int map_height = map->height;
+    register int tile_height = map->handle->tileheight;
+    tile_desc_t *tile_desc = map->tile_desc; // Pointer for faster access
+
     int index = get_tile_index((int)kero->pos_x, (int)kero->pos_y, map);
 
     // Check ground status.
-    bool on_deadly_ground = map->tile_desc[index].is_deadly;
-    index += map->handle->width;
-    bool on_solid_ground = map->tile_desc[index].is_solid && kero->state != STATE_JUMP;
-    bool at_bottom = kero->pos_y > map->height - KERO_HALF;
+    bool on_deadly_ground = tile_desc[index].is_deadly;
+    index += map_width;
+    bool on_solid_ground = tile_desc[index].is_solid && kero->state != STATE_JUMP;
+    bool at_bottom = kero->pos_y > map_height - KERO_HALF;
 
     // Vertical movement.
     if (on_deadly_ground)
@@ -443,16 +467,17 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
     // Update Y position.
     if (kero->velocity_y != 0.f)
     {
-        kero->pos_y += fp_mul(kero->velocity_y, (float)kero->delta_time);
+        kero->pos_y += FP_MUL_CONST(kero->velocity_y, (float)kero->delta_time);
     }
     else
     {
-        kero->pos_y = (float)((int)(kero->pos_y / map->handle->tileheight) * map->handle->tileheight);
-        kero->pos_y += map->tile_desc[index].offset_top;
+        // Use cached tile_height instead of map->handle->tileheight
+        kero->pos_y = (float)((int)(kero->pos_y / tile_height) * tile_height);
+        kero->pos_y += tile_desc[index].offset_top;
     }
 
     // Out of bounds check.
-    if (kero->pos_y >= map->height + KERO_HALF)
+    if (kero->pos_y >= map_height + KERO_HALF)
     {
         kero->line_index++;
         render_text(death_lines[kero->line_index], kero->wears_mask, map, ui);
@@ -463,39 +488,43 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
     }
 
     // Horizontal input and state.
+    // Cache velocity to avoid multiple memory accesses
+    register float vel_x = kero->velocity_x;
+    register float vel_y = kero->velocity_y;
+
     if (STATE_DASH != kero->state)
     {
-        if (check_bit(*btn, BTN_LEFT))
+        if (CHECK_BIT_FAST(*btn, BTN_LEFT))
         {
             kero->heading = 0;
             set_kero_state(kero, STATE_RUN);
         }
-        else if (check_bit(*btn, BTN_RIGHT))
+        else if (CHECK_BIT_FAST(*btn, BTN_RIGHT))
         {
             kero->heading = 1;
             set_kero_state(kero, STATE_RUN);
         }
-        else if (kero->velocity_x <= 0.f)
+        else if (vel_x <= 0.f)
         {
             set_kero_state(kero, STATE_IDLE);
         }
     }
-    else if (kero->velocity_x <= 0.f)
+    else if (vel_x <= 0.f)
     {
         set_kero_state(kero, STATE_IDLE);
     }
 
     // Horizontal movement and sprite offset.
-    float move = fp_mul(kero->velocity_x, (float)kero->delta_time);
+    float move = FP_MUL_CONST(vel_x, (float)kero->delta_time);
     if (kero->heading)
     {
         kero->sprite_offset_y = 0;
-        kero->pos_x += (kero->velocity_x > 0.f) ? move : -move;
+        kero->pos_x += (vel_x > 0.f) ? move : -move;
     }
     else
     {
         kero->sprite_offset_y = 3;
-        kero->pos_x += (kero->velocity_x > 0.f) ? -move : move;
+        kero->pos_x += (vel_x > 0.f) ? -move : move;
     }
 
     if (kero->wears_mask)
@@ -510,7 +539,8 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
     clamp_kero_position(kero, map);
 
     // Animation state.
-    if (kero->velocity_y < 0.f)
+    // Use cached velocity values
+    if (vel_y < 0.f)
     {
         if (STATE_DASH != kero->state)
         {
@@ -521,7 +551,7 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
             kero->anim_offset_y = 2;
         }
     }
-    else if (kero->velocity_y > 0.f)
+    else if (vel_y > 0.f)
     {
         if (STATE_DASH != kero->state)
         {
@@ -549,28 +579,34 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
     }
 
     // Running state.
-    if (STATE_RUN == kero->state || (kero->velocity_y != 0.f))
+    // Check button state only once and cache result
+    bool moving_horizontal = CHECK_BIT_FAST(*btn, BTN_LEFT) || CHECK_BIT_FAST(*btn, BTN_RIGHT);
+    if (STATE_RUN == kero->state || (vel_y != 0.f))
     {
-        if ((check_bit(*btn, BTN_LEFT) || check_bit(*btn, BTN_RIGHT)) && STATE_DASH != kero->state)
+        if (moving_horizontal && STATE_DASH != kero->state)
         {
-            kero->velocity_x += fp_mul(ACCELERATION, (float)kero->delta_time);
-            if (kero->velocity_x > MAX_SPEED)
+            vel_x += FP_MUL_INT_CONST(kero->delta_time, ACCELERATION_FP);
+            if (vel_x > MAX_SPEED)
             {
-                kero->velocity_x = MAX_SPEED;
+                vel_x = MAX_SPEED;
             }
         }
         else
         {
-            if (kero->velocity_x > 0.f)
+            if (vel_x > 0.f)
             {
-                kero->velocity_x -= fp_mul(DECELERATION, (float)kero->delta_time);
-            }
-            if (kero->velocity_x < 0.f)
-            {
-                kero->velocity_x = 0.f;
+                vel_x -= FP_MUL_INT_CONST(kero->delta_time, DECELERATION_FP);
+                if (vel_x < 0.f)
+                {
+                    vel_x = 0.f;
+                }
             }
         }
     }
+
+    // Write back cached velocity values
+    kero->velocity_x = vel_x;
+    kero->velocity_y = vel_y;
 }
 
 bool render_kero(kero_t *kero, map_t *map)

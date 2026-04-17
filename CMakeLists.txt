@@ -57,6 +57,23 @@ if(NGAGESDK)
   target_link_options(kagekero PRIVATE "SHELL:-s UID1=0x1000007a" "SHELL:-s UID2=0x100039ce" "SHELL:-s UID3=0x1000c37e")
   target_link_libraries(kagekero PRIVATE ${EPOC_EXTRAS}/lib/zlib.lib)
 
+  # Common optimizations for both C and C++
+  target_compile_options(kagekero PRIVATE
+    $<$<CONFIG:Release>:-O3>           # Maximum optimization level
+    $<$<CONFIG:Release>:-ffast-math>   # Fast floating-point operations
+    $<$<CONFIG:Release>:-funroll-loops> # Loop unrolling for performance
+    $<$<CONFIG:Release>:-fomit-frame-pointer> # Use frame pointer as general register
+    $<$<CONFIG:Release>:-finline-functions> # Inline small functions
+    $<$<CONFIG:Release>:-fstrict-aliasing> # Strict aliasing rules
+    $<$<CONFIG:Release>:-fexpensive-optimizations> # Expensive optimizations
+  )
+
+  # C++-only optimizations
+  target_compile_options(kagekero PRIVATE
+    $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CXX>>:-fno-exceptions> # Disable C++ exceptions overhead
+    $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CXX>>:-fno-rtti>       # Disable C++ RTTI overhead
+  )
+
   set(kagekero_app_sources
     src/ngage.cpp
     src/ngage_application.cpp
@@ -74,6 +91,20 @@ if(NGAGESDK)
   )
 
   add_library(kagekero_app STATIC ${kagekero_app_sources})
+
+  # Apply same optimizations to the app library (all C++ files)
+  target_compile_options(kagekero_app PRIVATE
+    $<$<CONFIG:Release>:-O3>
+    $<$<CONFIG:Release>:-ffast-math>
+    $<$<CONFIG:Release>:-funroll-loops>
+    $<$<CONFIG:Release>:-fomit-frame-pointer>
+    $<$<CONFIG:Release>:-finline-functions>
+    $<$<CONFIG:Release>:-fno-exceptions>
+    $<$<CONFIG:Release>:-fno-rtti>
+    $<$<CONFIG:Release>:-fstrict-aliasing>
+    $<$<CONFIG:Release>:-fexpensive-optimizations>
+  )
+
   build_dll(kagekero_app kagekero app 0x1000007a 0x100039ce 0x1badc0de "${kagekero_app_libs}")
   build_aif(${CMAKE_CURRENT_SOURCE_DIR}/res kagekero 0x1badc0de)
   build_resource(${CMAKE_CURRENT_SOURCE_DIR}/res kagekero "")

@@ -314,11 +314,61 @@ static inline fix32_t fix32_xor(fix32_t a, fix32_t b)
 
 static inline fix32_t fix32_mul(fix32_t a, fix32_t b)
 {
+#if defined(__SYMBIAN32__) && (defined(__GNUC__) || defined(__ARMCC__))
+    // ARM-optimized 16.16 fixed-point multiplication
+    // Uses SMULL (Signed Multiply Long) for 32x32->64 bit multiplication
+    // Result is in rdhi:rdlo, we extract bits [47:16] by shifting
+    int32_t result;
+    __asm__ volatile(
+        "smull  r0, r1, %1, %2  \n\t"  // r1:r0 = a * b (64-bit result)
+        "mov    %0, r0, lsr #16 \n\t"  // result = (r0 >> 16)
+        "orr    %0, %0, r1, lsl #16 \n\t" // result |= (r1 << 16)
+        : "=r" (result)
+        : "r" (a), "r" (b)
+        : "r0", "r1"
+    );
+    return result;
+#else
     return (int32_t)(((int64_t)a * b) >> 16);
+#endif
 }
 
 static inline fix32_t fix32_div(fix32_t a, fix32_t b)
 {
+#if defined(__SYMBIAN32__) && (defined(__GNUC__) || defined(__ARMCC__))
+    // Fast path: division by 1
+    if (b == 0x10000)
+    {
+        return a;
+    }
+
+    if (b)
+    {
+        // ARM-optimized fixed-point division
+        // Uses bit shifts to create (a << 16) efficiently
+        int64_t numerator;
+        int32_t result;
+
+        // Use inline assembly to construct 64-bit shifted value efficiently
+        __asm__ volatile(
+            "mov    %Q0, %2, lsl #16    \n\t"  // Low 32 bits: a << 16
+            "mov    %R0, %2, asr #16    \n\t"  // High 32 bits: sign-extended a >> 16
+            : "=r" (numerator)
+            : "0" (numerator), "r" (a)
+        );
+
+        result = (int32_t)(numerator / b);
+
+        // Check for overflow
+        if (result == (int32_t)(numerator / b) && llabs(numerator / b) <= 0x7FFFFFFF)
+        {
+            return result;
+        }
+    }
+
+    // Return 0x80000001 (not 0x80000000) for -Inf, mimicking PICO-8 behavior.
+    return ((a ^ b) >= 0) ? 0x7FFFFFFF : 0x80000001;
+#else
     if (b == 0x10000)
     {
         return a; // Special case: division by 1 (0x10000)
@@ -335,6 +385,7 @@ static inline fix32_t fix32_div(fix32_t a, fix32_t b)
 
     // Return 0x80000001 (not 0x80000000) for -Inf, mimicking PICO-8 behavior.
     return ((a ^ b) >= 0) ? 0x7FFFFFFF : 0x80000001;
+#endif
 }
 
 static inline fix32_t fix32_mod(fix32_t a, fix32_t b)

@@ -47,7 +47,7 @@ bool load_surface_from_file(const char *file_name, SDL_Surface **surface)
     }
 
     int width, height, bpp;
-    stbi_uc *pixels = stbi_load_from_memory(buffer, file_size, &width, &height, &bpp, 4);
+    stbi_uc *pixels = stbi_load_from_memory(buffer, (int)file_size, &width, &height, &bpp, 4);
     if (!pixels)
     {
         SDL_Log("Couldn't load image data: %s", stbi_failure_reason());
@@ -105,7 +105,7 @@ bool load_texture_from_file(const char *file_name, SDL_Texture **texture, SDL_Re
     }
 
     int width, height, bpp;
-    stbi_uc *pixels = stbi_load_from_memory(buffer, file_size, &width, &height, &bpp, 4);
+    stbi_uc *pixels = stbi_load_from_memory(buffer, (int)file_size, &width, &height, &bpp, 4);
     if (!pixels)
     {
         SDL_Log("Couldn't load image data: %s", stbi_failure_reason());

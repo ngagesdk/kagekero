@@ -65,7 +65,7 @@ static bool decompress_gz_buffer(Uint8 *compressed_data, size_t compressed_size,
 
     z_stream strm = { 0 };
     strm.next_in = compressed_data;
-    strm.avail_in = compressed_size;
+    strm.avail_in = (uInt)compressed_size;
 
     if (inflateInit2(&strm, 16 + MAX_WBITS) != Z_OK)
     {
@@ -91,7 +91,7 @@ static bool decompress_gz_buffer(Uint8 *compressed_data, size_t compressed_size,
         }
 
         strm.next_out = output + output_size;
-        strm.avail_out = CHUNK_SIZE;
+        strm.avail_out = (uInt)CHUNK_SIZE;
 
         ret = inflate(&strm, Z_NO_FLUSH);
         if (ret != Z_OK && ret != Z_STREAM_END)
@@ -108,7 +108,7 @@ static bool decompress_gz_buffer(Uint8 *compressed_data, size_t compressed_size,
     inflateEnd(&strm);
 
     *out_decompressed_data = output;
-    *out_decompressed_size = output_size;
+    *out_decompressed_size = (uLongf)output_size;
 
     return true;
 }
@@ -250,35 +250,33 @@ static bool create_textures(SDL_Renderer *renderer, map_t *map)
     return true;
 }
 
-static int get_local_id(int gid, cute_tiled_map_t *map)
+static inline int get_local_id(int gid, cute_tiled_map_t *map)
 {
-    int local_id = gid - map->tilesets->firstgid;
+    register int local_id = gid - map->tilesets->firstgid;
     return local_id >= 0 ? local_id : 0;
 }
 
-static void get_tile_position(int gid, int *pos_x, int *pos_y, cute_tiled_map_t *map)
+static inline void get_tile_position(int gid, int *pos_x, int *pos_y, cute_tiled_map_t *map)
 {
     cute_tiled_tileset_t *tileset = map->tilesets;
-    int local_id = get_local_id(gid, map);
+    register int local_id = get_local_id(gid, map);
+    register int tilewidth = tileset->tilewidth;
+    register int columns = tileset->columns;
 
-    *pos_x = (local_id % tileset->columns) * map->tilesets->tilewidth;
-    *pos_y = (local_id / tileset->columns) * map->tilesets->tileheight;
+    *pos_x = (local_id % columns) * tilewidth;
+    *pos_y = (local_id / columns) * tileset->tileheight;
 }
 
-static void get_frame_position(int frame_index, int width, int height, int *pos_x, int *pos_y, int column_count)
+static inline void get_frame_position(int frame_index, int width, int height, int *pos_x, int *pos_y, int column_count)
 {
-    *pos_x = (frame_index % column_count) * width;
+    register int frame = frame_index % column_count;
+    *pos_x = frame * width;
     *pos_y = (frame_index / column_count) * height;
 }
 
-static bool is_gid_valid(int gid, cute_tiled_map_t *map)
+static inline bool is_gid_valid(int gid, cute_tiled_map_t *map)
 {
-    if (gid)
-    {
-        return true;
-    }
-
-    return false;
+    return (gid != 0);
 }
 
 static bool set_object_animation(int gid, int *anim_length, int *id, cute_tiled_map_t *map)
@@ -310,7 +308,7 @@ static bool set_object_animation(int gid, int *anim_length, int *id, cute_tiled_
     return false;
 }
 
-static int remove_gid_flip_bits(int gid)
+static inline int remove_gid_flip_bits(int gid)
 {
     return cute_tiled_unset_flags(gid);
 }
@@ -386,28 +384,26 @@ static int get_next_object_id(int gid, int current_frame, cute_tiled_map_t *map)
 
 static void load_property(const Uint64 name_hash, cute_tiled_property_t *properties, int property_count, map_t *map)
 {
-    int index;
-    bool prop_found = false;
+    register int index;
+
+    // Early exit for empty properties.
+    if (property_count == 0)
+    {
+        return;
+    }
 
     for (index = 0; index < property_count; index += 1)
     {
         if (name_hash == generate_hash((const unsigned char *)properties[index].name.ptr))
         {
-            prop_found = true;
-            break;
+            goto found;
         }
     }
 
-    if (!prop_found)
-    {
-        return;
-    }
+    // Not found
+    return;
 
-    // Entities are allowed to have no properties.
-    if (0 == property_count)
-    {
-        return;
-    }
+found:
 
     if (properties[index].name.ptr)
     {
@@ -489,37 +485,44 @@ static bool load_tiles(map_t *map)
         return false;
     }
 
+    // Cache frequently accessed values.
+    register int map_width = map->handle->width;
+    register int map_height = map->handle->height;
+    cute_tiled_tileset_t *tileset = map->handle->tilesets;
+
     while (layer)
     {
         if (is_layer_of_type(TILE_LAYER, layer, map))
         {
-            for (int index_height = 0; index_height < map->handle->height; index_height += 1)
+            int *layer_content = layer->data;
+            register int tile_index = 0;
+
+            for (int index_height = 0; index_height < map_height; index_height += 1)
             {
-                for (int index_width = 0; index_width < map->handle->width; index_width += 1)
+                for (int index_width = 0; index_width < map_width; index_width += 1, tile_index += 1)
                 {
-                    cute_tiled_tileset_t *tileset = map->handle->tilesets;
                     cute_tiled_tile_descriptor_t *tile = tileset->tiles;
-                    int *layer_content = layer->data;
-                    int tile_index = (index_height * map->handle->width) + index_width;
                     int gid = remove_gid_flip_bits(layer_content[tile_index]);
 
                     if (tile_has_properties(gid, &tile, map->handle))
                     {
                         int prop_cnt = get_tile_property_count(tile);
+                        cute_tiled_property_t *props = tile->properties;
+                        tile_desc_t *current_tile = &map->tile_desc[tile_index];
 
-                        if (get_boolean_property(H_IS_DEADLY, tile->properties, prop_cnt, map))
+                        if (get_boolean_property(H_IS_DEADLY, props, prop_cnt, map))
                         {
-                            map->tile_desc[tile_index].is_deadly = true;
+                            current_tile->is_deadly = true;
                         }
-                        if (get_boolean_property(H_IS_SOLID, tile->properties, prop_cnt, map))
+                        if (get_boolean_property(H_IS_SOLID, props, prop_cnt, map))
                         {
-                            map->tile_desc[tile_index].is_solid = true;
+                            current_tile->is_solid = true;
                         }
-                        if (get_boolean_property(H_IS_WALL, tile->properties, prop_cnt, map))
+                        if (get_boolean_property(H_IS_WALL, props, prop_cnt, map))
                         {
-                            map->tile_desc[tile_index].is_wall = true;
+                            current_tile->is_wall = true;
                         }
-                        map->tile_desc[tile_index].offset_top = get_integer_property(H_OFFSET_TOP, tile->properties, prop_cnt, map);
+                        current_tile->offset_top = get_integer_property(H_OFFSET_TOP, props, prop_cnt, map);
                     }
                 }
             }
@@ -644,16 +647,12 @@ static bool load_objects(map_t *map)
     return true;
 }
 
-static int lookup_lgbtq_tile_id(int id)
+static inline int lookup_lgbtq_tile_id(int id)
 {
-    if ((id >= 930 && id <= 949) || (id >= 980 && id <= 999))
-    {
-        return id - 100;
-    }
-    else
-    {
-        return id;
-    }
+    // Optimize range checks: use unsigned subtraction trick
+    register unsigned int offset1 = id - 930;
+    register unsigned int offset2 = id - 980;
+    return ((offset1 <= 19) || (offset2 <= 19)) ? id - 100 : id;
 }
 
 void destroy_map(map_t *map)
@@ -797,6 +796,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated)
     // Static tiles have already been rendered.
     if (map->static_tiles_rendered)
     {
+        // Fast path: skip if no animated objects.
         if (!map->obj_count)
         {
             return true;
@@ -822,72 +822,79 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated)
             map->time_since_last_frame = 0;
             *has_updated = true;
 
-            for (int index = 0; index < map->obj_count - 1; index += 1)
+            // Cache frequently accessed values and pointers.
+            register int tilewidth = map->handle->tilesets->tilewidth;
+            register int tileheight = map->handle->tilesets->tileheight;
+            register bool use_lgbtq = map->use_lgbtq_flag;
+            register bool no_coins = !map->coins_left;
+            register int obj_count = map->obj_count - 1;
+            obj_t *obj_array = map->obj;
+            SDL_Surface *tileset = map->tileset_surface;
+            SDL_Surface *canvas = map->render_canvas;
+
+            // Preallocate rects to avoid repeated stack allocation
+            SDL_Rect dst = { .w = tilewidth, .h = tileheight };
+            SDL_Rect src = { .w = tilewidth, .h = tileheight };
+            SDL_Rect canvas_src = { .w = tilewidth, .h = tileheight };
+
+            for (int index = 0; index < obj_count; index += 1)
             {
-                if (map->obj[index].gid <= 0)
+                obj_t *obj = &obj_array[index];
+
+                // Fast path: skip invalid GIDs immediately.
+                if (obj->gid <= 0)
                 {
-                    continue; // Skip invalid GIDs.
+                    continue;
                 }
 
-                if (H_DOOR == map->obj[index].hash && !map->coins_left)
+                // Handle door state
+                if (H_DOOR == obj->hash && no_coins)
                 {
-                    map->obj[index].start_frame = 1;
-                    map->obj[index].current_frame = 1;
+                    obj->start_frame = 1;
+                    obj->current_frame = 1;
                 }
 
-                SDL_Rect dst = { 0 };
-                SDL_Rect src = { 0 };
-                int gid = map->obj[index].gid;
-                int next_tile_id = 0;
                 int local_id;
 
-                if (map->use_lgbtq_flag)
+                if (use_lgbtq)
                 {
-                    local_id = lookup_lgbtq_tile_id(map->obj[index].id) + 1;
+                    local_id = lookup_lgbtq_tile_id(obj->id) + 1;
                 }
                 else
                 {
-                    local_id = map->obj[index].id + 1;
+                    local_id = obj->id + 1;
                 }
 
-                src.w = dst.w = map->handle->tilesets->tilewidth;
-                src.h = dst.h = map->handle->tilesets->tileheight;
-                src.x = 0;
-                src.y = 0;
-                dst.x = map->obj[index].x;
-                dst.y = map->obj[index].y;
+                dst.x = obj->x;
+                dst.y = obj->y;
 
                 int tmp_x, tmp_y;
                 get_tile_position(local_id, &tmp_x, &tmp_y, map->handle);
                 src.x = tmp_x;
                 src.y = tmp_y;
 
-                // Simulate transparency by blitting the uppermost static tile first.
-                // Note: the canvas tile has to be on the layer below the object layer.
-                SDL_Rect canvas_src = { 0 };
-                canvas_src.w = src.w;
-                canvas_src.h = src.h;
-                canvas_src.x = map->obj[index].canvas_src_x;
-                canvas_src.y = map->obj[index].canvas_src_y;
-                SDL_BlitSurface(map->tileset_surface, &canvas_src, map->render_canvas, &dst);
+                // Blit canvas tile first (for transparency simulation).
+                canvas_src.x = obj->canvas_src_x;
+                canvas_src.y = obj->canvas_src_y;
+                SDL_BlitSurface(tileset, &canvas_src, canvas, &dst);
 
-                if (!map->obj[index].is_hidden)
+                // Fast path: skip hidden objects.
+                if (!obj->is_hidden)
                 {
-                    SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+                    SDL_BlitSurface(tileset, &src, canvas, &dst);
 
-                    if (map->obj[index].anim_length)
+                    // Update animation frame if animated.
+                    if (obj->anim_length)
                     {
-                        map->obj[index].current_frame += 1;
-                        if (map->obj[index].current_frame >= map->obj[index].anim_length + map->obj[index].start_frame)
+                        obj->current_frame += 1;
+                        if (obj->current_frame >= obj->anim_length + obj->start_frame)
                         {
-                            map->obj[index].current_frame = map->obj[index].start_frame;
+                            obj->current_frame = obj->start_frame;
                         }
                     }
                 }
 
-                next_tile_id = get_next_object_id(gid, map->obj[index].current_frame, map->handle);
-
-                map->obj[index].id = next_tile_id;
+                obj->id = get_next_object_id(obj->gid, obj->current_frame, map->handle);
             }
         }
 
@@ -907,19 +914,28 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated)
         {
             if (layer->visible)
             {
-                for (int index_height = 0; index_height < map->handle->height; index_height += 1)
+                // Cache frequently accessed values for better performance.
+                register int map_width = map->handle->width;
+                register int map_height = map->handle->height;
+                register int tilewidth = map->handle->tilesets->tilewidth;
+                register int tileheight = map->handle->tilesets->tileheight;
+                int *layer_content = layer->data;
+                register int tile_index = 0;
+
+                src.w = dst.w = tilewidth;
+                src.h = dst.h = tileheight;
+
+                for (int index_height = 0; index_height < map_height; index_height += 1)
                 {
-                    for (int index_width = 0; index_width < map->handle->width; index_width += 1)
+                    register int dst_y = index_height * tileheight;
+                    for (int index_width = 0; index_width < map_width; index_width += 1, tile_index += 1)
                     {
-                        int *layer_content = layer->data;
-                        int gid = remove_gid_flip_bits(layer_content[(index_height * map->handle->width) + index_width]);
+                        int gid = remove_gid_flip_bits(layer_content[tile_index]);
 
                         if (is_gid_valid(gid, map->handle))
                         {
-                            src.w = dst.w = map->handle->tilesets->tilewidth;
-                            src.h = dst.h = map->handle->tilesets->tileheight;
-                            dst.x = index_width * map->handle->tilesets->tilewidth;
-                            dst.y = index_height * map->handle->tilesets->tileheight;
+                            dst.x = index_width * tilewidth;
+                            dst.y = dst_y;
 
                             int tmp_x, tmp_y;
                             get_tile_position(gid, &tmp_x, &tmp_y, map->handle);
@@ -1057,15 +1073,12 @@ bool object_intersects(aabb_t bb, map_t *map, int *index_ptr)
 
 int get_tile_index(int pos_x, int pos_y, map_t *map)
 {
-    int index;
+    register int tilewidth = map->handle->tilesets->tilewidth;
+    register int tileheight = map->handle->tilesets->tileheight;
+    register int map_width = map->handle->width;
+    register int max_index = map->tile_desc_count - 1;
 
-    index = pos_x / map->handle->tilesets->tilewidth;
-    index += (pos_y / map->handle->tilesets->tileheight) * map->handle->width;
+    register int index = (pos_x / tilewidth) + ((pos_y / tileheight) * map_width);
 
-    if (index > (map->tile_desc_count - 1))
-    {
-        index = map->tile_desc_count - 1;
-    }
-
-    return index;
+    return (index > max_index) ? max_index : index;
 }

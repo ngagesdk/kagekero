@@ -19,7 +19,7 @@
       ]
     },
     {
-      "name": "x86-Release",
+      "name": "x64-Release",
       "generator": "Ninja",
       "configurationType": "RelWithDebInfo",
       "buildRoot": "${projectDir}\\out\\build\\${name}",
@@ -27,10 +27,10 @@
       "cmakeCommandArgs": "-DPACK_ASSETS=ON -DBUILD_FULL_VERSION=ON",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x86" ]
+      "inheritEnvironments": [ "msvc_x64_x64" ]
     },
     {
-      "name": "x86-Debug",
+      "name": "x64-Debug",
       "generator": "Ninja",
       "configurationType": "Debug",
       "buildRoot": "${projectDir}\\out\\build\\${name}",
@@ -38,7 +38,7 @@
       "cmakeCommandArgs": "-DPACK_ASSETS=ON -DBUILD_FULL_VERSION=ON",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x86" ]
+      "inheritEnvironments": [ "msvc_x64_x64" ]
     }
   ]
 }

@@ -30,45 +30,61 @@ typedef enum kero_state
 
 } kero_state_t;
 
+// Memory alignment for better cache performance on ARM
+// Structure is ordered by access frequency and size for optimal packing
 typedef struct kero
 {
-    SDL_Surface *render_canvas;
-    SDL_Surface *temp_canvas;
+    // Hot variables (accessed every frame) - keep together for cache locality
+    float pos_x;           // 4 bytes - most frequently accessed
+    float pos_y;           // 4 bytes
+    float velocity_x;      // 4 bytes
+    float velocity_y;      // 4 bytes
 
-    Uint64 time_a;
-    Uint64 time_b;
-    Uint64 delta_time;
-    Uint64 time_since_last_frame;
+    Uint64 delta_time;     // 8 bytes - used in calculations
 
-    kero_state_t state;
-    kero_state_t prev_state;
+    // Moderately accessed variables
+    kero_state_t state;    // 4 bytes
+    kero_state_t prev_state; // 4 bytes
 
-    float pos_x;
-    float pos_y;
-    float warp_x;
-    float warp_y;
-    float velocity_x;
-    float velocity_y;
+    int heading;           // 4 bytes - accessed often
+    int current_frame;     // 4 bytes
 
-    int current_frame;
-    int anim_fps;
-    int anim_length;
-    int anim_offset_x;
-    int anim_offset_y;
-    int sprite_offset_x;
-    int sprite_offset_y;
-    int heading;
-    int level;
-    int prev_life_count;
-    int life_count;
-    int line_index;
+    // Animation properties - accessed together
+    int anim_fps;          // 4 bytes
+    int anim_length;       // 4 bytes
+    int anim_offset_x;     // 4 bytes
+    int anim_offset_y;     // 4 bytes
+    int sprite_offset_x;   // 4 bytes
+    int sprite_offset_y;   // 4 bytes
 
-    bool repeat_anim;
-    bool jump_lock;
-    bool wears_mask;
-    bool respawn_lock;
+    // Less frequently accessed
+    Uint64 time_a;         // 8 bytes
+    Uint64 time_b;         // 8 bytes
+    Uint64 time_since_last_frame; // 8 bytes
 
-} kero_t;
+    float warp_x;          // 4 bytes
+    float warp_y;          // 4 bytes
+
+    int level;             // 4 bytes
+    int prev_life_count;   // 4 bytes
+    int life_count;        // 4 bytes
+    int line_index;        // 4 bytes
+
+    // Booleans at end (1 byte each, but padded)
+    bool repeat_anim;      // 1 byte
+    bool jump_lock;        // 1 byte
+    bool wears_mask;       // 1 byte
+    bool respawn_lock;     // 1 byte
+
+    // Pointers at end (accessed less frequently for setup/teardown)
+    SDL_Surface *render_canvas; // 4/8 bytes
+    SDL_Surface *temp_canvas;   // 4/8 bytes
+
+} kero_t
+#ifdef __SYMBIAN32__
+__attribute__((aligned(32))) // Cache line alignment on ARM for better performance
+#endif
+;
 
 void destroy_kero(kero_t *kero);
 bool load_kero(kero_t **kero, map_t *map);

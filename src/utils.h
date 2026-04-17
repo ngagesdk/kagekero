@@ -39,6 +39,39 @@ typedef enum button
 
 } button_t;
 
+// Fast bit manipulation macros (optimized for ARM)
+#if defined(__SYMBIAN32__)
+// On ARM, use inline bit operations for better performance.
+#define CHECK_BIT_FAST(num, n) ((num) & (1U << (n)))
+#define SET_BIT_FAST(num, n) ((num) |= (1U << (n)))
+#define CLEAR_BIT_FAST(num, n) ((num) &= ~(1U << (n)))
+#else
+#define CHECK_BIT_FAST check_bit
+#define SET_BIT_FAST set_bit
+#define CLEAR_BIT_FAST clear_bit
+#endif
+
+// Fast tile calculations using bit shifts since tile sizes are powers of 2.
+#define TILE_WIDTH_SHIFT 3   // 2^3 = 8 pixels (change to 4 for 16-pixel tiles)
+#define TILE_HEIGHT_SHIFT 3  // 2^3 = 8 pixels
+
+// Fast tile index calculation: (y / tile_height) * map_width + (x / tile_width)
+// Using bit shifts: (y >> TILE_HEIGHT_SHIFT) * map_width + (x >> TILE_WIDTH_SHIFT)
+#define GET_TILE_INDEX_FAST(x, y, map_width) \
+    (((y) >> TILE_HEIGHT_SHIFT) * (map_width) + ((x) >> TILE_WIDTH_SHIFT))
+
+// Fast position to tile coordinate.
+#define POS_TO_TILE_X(x) ((x) >> TILE_WIDTH_SHIFT)
+#define POS_TO_TILE_Y(y) ((y) >> TILE_HEIGHT_SHIFT)
+
+// Fast tile to position coordinate.
+#define TILE_TO_POS_X(tile_x) ((tile_x) << TILE_WIDTH_SHIFT)
+#define TILE_TO_POS_Y(tile_y) ((tile_y) << TILE_HEIGHT_SHIFT)
+
+// Snap position to tile grid.
+#define SNAP_TO_TILE_X(x) ((x) & ~((1 << TILE_WIDTH_SHIFT) - 1))
+#define SNAP_TO_TILE_Y(y) ((y) & ~((1 << TILE_HEIGHT_SHIFT) - 1))
+
 bool load_surface_from_file(const char *file_name, SDL_Surface **texture);
 bool load_texture_from_file(const char *file_name, SDL_Texture **texture, SDL_Renderer *renderer);
 
