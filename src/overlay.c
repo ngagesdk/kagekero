@@ -30,7 +30,7 @@ static void get_character_position(const unsigned char character, int *pos_x, in
         index = character - 0x20;
     }
 
-    *pos_x = 672 + (index % 18) * 7;
+    *pos_x = 64 + (index % 18) * 7;
     *pos_y = 146 + (index / 18) * 9;
 }
 
