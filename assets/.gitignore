@@ -6,3 +6,5 @@
 !*.tiled-project
 !*.tmj
 !*.xcf
+!*.py
+!*.json
