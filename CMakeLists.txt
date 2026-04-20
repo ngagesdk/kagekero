@@ -187,6 +187,10 @@ if(PACK_ASSETS)
   set(BASE_ASSETS
     001.${MAP_SUFFIX}
     002.${MAP_SUFFIX}
+    003.${MAP_SUFFIX}
+    004.${MAP_SUFFIX}
+    005.${MAP_SUFFIX}
+    006.${MAP_SUFFIX}
     tileset.png
   )
 
@@ -206,7 +210,7 @@ if(PACK_ASSETS)
     compress_maps("${ASSET_DIR}")
   endif()
 
-  set(ASSET_LIST ${BASE_ASSETS})
+  set(ASSET_LIST ${BASE_ASSETS} ${FRAME_ASSET})
 
   add_custom_command(
     OUTPUT ${ASSET_OUTPUT}
