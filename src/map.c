@@ -58,37 +58,36 @@ static void destroy_tiled_map(map_t *map)
 #if !defined __EMSCRIPTEN__
 static bool decompress_gz_buffer(Uint8 *compressed_data, size_t compressed_size, Uint8 **out_decompressed_data, uLongf *out_decompressed_size)
 {
-    #if defined(__SYMBIAN32__)
-        // Smaller chunk size to reduce memory fragmentation and pre-allocate
-        // based on expected compression ratio (typically 2-4x for tiled maps).
-        const size_t CHUNK_SIZE = 8192;       // 8KB chunks instead of 16KB.
-        size_t estimated_size = compressed_size * 3; // Assume 3x compression ratio.
-    #else
-        const size_t CHUNK_SIZE = 16384;
-    #endif
+#if defined(__SYMBIAN32__)
+    // Smaller chunk size to reduce memory fragmentation on constrained hardware.
+    const size_t CHUNK_SIZE = 8192;
+#else
+    const size_t CHUNK_SIZE = 16384;
+#endif
 
-        Uint8 *output = NULL;
-        size_t output_capacity = 0;
-        size_t output_size = 0;
+    // Pre-allocate based on estimated size to reduce realloc calls.
+    // Assume 3x compression ratio (typical for tiled maps).
+    size_t estimated_size = compressed_size * 3;
 
-        z_stream strm = { 0 };
-        strm.next_in = compressed_data;
-        strm.avail_in = (uInt)compressed_size;
+    Uint8 *output = NULL;
+    size_t output_capacity = 0;
+    size_t output_size = 0;
 
-        if (inflateInit2(&strm, 16 + MAX_WBITS) != Z_OK)
-        {
-            SDL_Log("inflateInit2 failed");
-            return false;
-        }
+    z_stream strm = { 0 };
+    strm.next_in = compressed_data;
+    strm.avail_in = (uInt)compressed_size;
 
-    #if defined(__SYMBIAN32__)
-        // Pre-allocate based on estimated size to reduce realloc calls
-        output = (Uint8 *)SDL_malloc(estimated_size);
-        if (output)
-        {
-            output_capacity = estimated_size;
-        }
-    #endif
+    if (inflateInit2(&strm, 16 + MAX_WBITS) != Z_OK)
+    {
+        SDL_Log("inflateInit2 failed");
+        return false;
+    }
+
+    output = (Uint8 *)SDL_malloc(estimated_size);
+    if (output)
+    {
+        output_capacity = estimated_size;
+    }
 
     int ret;
     do
@@ -278,30 +277,14 @@ static inline int get_local_id(int gid, cute_tiled_map_t *map)
     return local_id >= 0 ? local_id : 0;
 }
 
-#if defined(__SYMBIAN32__)
-// Tiles are always 16x16, use bit shifts (2^4 = 16).
+// Tileset is 512x512 with 16x16 tiles (32 columns): use bit ops instead of division/modulo.
 static inline void get_tile_position(int gid, int *pos_x, int *pos_y, cute_tiled_map_t *map)
 {
-    cute_tiled_tileset_t *tileset = map->tilesets;
     register int local_id = get_local_id(gid, map);
-    register int columns = tileset->columns;
 
-    // Always shift by 4 for 16x16 tiles (eliminates branch overhead).
-    *pos_x = (local_id % columns) << 4; // * 16
-    *pos_y = (local_id / columns) << 4; // * 16
+    *pos_x = (local_id & 31) << 4; // % 32 * 16
+    *pos_y = (local_id >> 5) << 4; // / 32 * 16
 }
-#else
-static inline void get_tile_position(int gid, int *pos_x, int *pos_y, cute_tiled_map_t *map)
-{
-    cute_tiled_tileset_t *tileset = map->tilesets;
-    register int local_id = get_local_id(gid, map);
-    register int tilewidth = tileset->tilewidth;
-    register int columns = tileset->columns;
-
-    *pos_x = (local_id % columns) * tilewidth;
-    *pos_y = (local_id / columns) * tileset->tileheight;
-}
-#endif
 
 static inline void get_frame_position(int frame_index, int width, int height, int *pos_x, int *pos_y, int column_count)
 {
@@ -557,34 +540,40 @@ static bool load_tiles(map_t *map)
         if (is_layer_of_type(TILE_LAYER, layer, map))
         {
             int *layer_content = layer->data;
-            register int tile_index = 0;
-
             for (int index_height = 0; index_height < map_height; index_height += 1)
             {
-                for (int index_width = 0; index_width < map_width; index_width += 1, tile_index += 1)
+                register int row_base = index_height * map_width;
+                for (int index_width = 0; index_width < map_width; index_width += 1)
                 {
                     cute_tiled_tile_descriptor_t *tile = tileset->tiles;
-                    int gid = remove_gid_flip_bits(layer_content[tile_index]);
+                    int gid = remove_gid_flip_bits(layer_content[row_base + index_width]);
 
                     if (tile_has_properties(gid, &tile, map->handle))
                     {
                         int prop_cnt = get_tile_property_count(tile);
                         cute_tiled_property_t *props = tile->properties;
-                        tile_desc_t *current_tile = &map->tile_desc[tile_index];
+                        tile_desc_t *current_tile = &map->tile_desc[row_base + index_width];
 
-                        if (get_boolean_property(H_IS_DEADLY, props, prop_cnt, map))
+                        for (int pi = 0; pi < prop_cnt; pi += 1)
                         {
-                            current_tile->is_deadly = true;
+                            Uint64 ph = generate_hash((const unsigned char *)props[pi].name.ptr);
+                            if (ph == H_IS_DEADLY)
+                            {
+                                current_tile->is_deadly = (bool)props[pi].data.boolean;
+                            }
+                            else if (ph == H_IS_SOLID)
+                            {
+                                current_tile->is_solid = (bool)props[pi].data.boolean;
+                            }
+                            else if (ph == H_IS_WALL)
+                            {
+                                current_tile->is_wall = (bool)props[pi].data.boolean;
+                            }
+                            else if (ph == H_OFFSET_TOP)
+                            {
+                                current_tile->offset_top = props[pi].data.integer;
+                            }
                         }
-                        if (get_boolean_property(H_IS_SOLID, props, prop_cnt, map))
-                        {
-                            current_tile->is_solid = true;
-                        }
-                        if (get_boolean_property(H_IS_WALL, props, prop_cnt, map))
-                        {
-                            current_tile->is_wall = true;
-                        }
-                        current_tile->offset_top = get_integer_property(H_OFFSET_TOP, props, prop_cnt, map);
                     }
                 }
             }
@@ -599,6 +588,15 @@ static bool load_tileset(map_t *map)
 {
     bool exit_code = true;
     char file_name[16] = { 0 };
+
+    int img_w = map->handle->tilesets->imagewidth;
+    int img_h = map->handle->tilesets->imageheight;
+
+    if (img_w <= 0 || img_h <= 0 || (img_w & (img_w - 1)) != 0 || (img_h & (img_h - 1)) != 0)
+    {
+        SDL_Log("Tileset dimensions (%dx%d) are not a power of two", img_w, img_h);
+        return false;
+    }
 
     SDL_snprintf(file_name, 16, "%s", map->handle->tilesets->image.ptr);
 
@@ -994,7 +992,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
                 register int tilewidth = map->cached_tilewidth;
                 register int tileheight = map->cached_tileheight;
                 int *layer_content = layer->data;
-                register int tile_index = 0;
+                int unroll_end = map_width & ~3;
 
                 src.w = dst.w = tilewidth;
                 src.h = dst.h = tileheight;
@@ -1002,20 +1000,52 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
                 for (int index_height = 0; index_height < map_height; index_height += 1)
                 {
                     register int dst_y = index_height * tileheight;
-                    for (int index_width = 0; index_width < map_width; index_width += 1, tile_index += 1)
-                    {
-                        int gid = remove_gid_flip_bits(layer_content[tile_index]);
+                    register int row_base = index_height * map_width;
+                    int index_width = 0;
 
-                        if (is_gid_valid(gid, map->handle))
+                    for (; index_width < unroll_end; index_width += 4)
+                    {
+                        int base = row_base + index_width;
+                        int g0 = remove_gid_flip_bits(layer_content[base]);
+                        int g1 = remove_gid_flip_bits(layer_content[base + 1]);
+                        int g2 = remove_gid_flip_bits(layer_content[base + 2]);
+                        int g3 = remove_gid_flip_bits(layer_content[base + 3]);
+
+                        dst.y = dst_y;
+                        if (g0)
+                        {
+                            dst.x = index_width * tilewidth;
+                            get_tile_position(g0, &src.x, &src.y, map->handle);
+                            SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+                        }
+                        if (g1)
+                        {
+                            dst.x = (index_width + 1) * tilewidth;
+                            get_tile_position(g1, &src.x, &src.y, map->handle);
+                            SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+                        }
+                        if (g2)
+                        {
+                            dst.x = (index_width + 2) * tilewidth;
+                            get_tile_position(g2, &src.x, &src.y, map->handle);
+                            SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+                        }
+                        if (g3)
+                        {
+                            dst.x = (index_width + 3) * tilewidth;
+                            get_tile_position(g3, &src.x, &src.y, map->handle);
+                            SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+                        }
+                    }
+
+                    for (; index_width < map_width; index_width += 1)
+                    {
+                        int gid = remove_gid_flip_bits(layer_content[row_base + index_width]);
+                        if (gid)
                         {
                             dst.x = index_width * tilewidth;
                             dst.y = dst_y;
-
-                            int tmp_x, tmp_y;
-                            get_tile_position(gid, &tmp_x, &tmp_y, map->handle);
-                            src.x = tmp_x;
-                            src.y = tmp_y;
-
+                            get_tile_position(gid, &src.x, &src.y, map->handle);
                             SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
                         }
                     }
@@ -1027,32 +1057,30 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
         }
         else if (is_layer_of_type(OBJECT_GROUP, layer, map))
         {
+            cute_tiled_map_t *handle = map->handle;
+            register int tilewidth_obj = map->cached_tilewidth;
+            register int tileheight_obj = map->cached_tileheight;
+            register int map_width_obj = map->cached_map_width;
+            src.w = dst.w = tilewidth_obj;
+            src.h = dst.h = tileheight_obj;
             cute_tiled_object_t *object = get_head_object(layer, map);
             while (object)
             {
                 int gid = remove_gid_flip_bits(object->gid);
 
-                if (is_gid_valid(gid, map->handle))
+                if (gid)
                 {
                     int anim_length = 0;
                     int id = 0;
 
                     // Cache object position to avoid multiple pointer dereferences.
-                    float obj_x = object->x;
-                    float obj_y = object->y;
+                    dst.x = (int)object->x;
+                    dst.y = (int)object->y - tileheight_obj;
 
-                    src.w = dst.w = map->handle->tilesets->tilewidth;
-                    src.h = dst.h = map->handle->tilesets->tileheight;
-                    dst.x = (int)obj_x;
-                    dst.y = (int)obj_y - map->handle->tilesets->tileheight;
+                    get_tile_position(gid, &src.x, &src.y, handle);
 
-                    int tmp_x, tmp_y;
-                    get_tile_position(gid, &tmp_x, &tmp_y, map->handle);
-                    src.x = tmp_x;
-                    src.y = tmp_y;
-
-                    set_object_animation(gid, &anim_length, &id, map->handle);
-                    map->obj[index].gid = get_local_id(gid, map->handle);
+                    set_object_animation(gid, &anim_length, &id, handle);
+                    map->obj[index].gid = get_local_id(gid, handle);
                     map->obj[index].id = id;
                     map->obj[index].x = dst.x;
                     map->obj[index].y = dst.y;
@@ -1069,16 +1097,13 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
 
                     if (prev_layer)
                     {
-                        int index_width = dst.x / map->handle->tilesets->tilewidth;
-                        int index_height = dst.y / map->handle->tilesets->tileheight;
+                        int iw = dst.x / tilewidth_obj;
+                        int ih = dst.y / tileheight_obj;
                         int *layer_content_below = prev_layer->data;
-                        int gid_below = remove_gid_flip_bits(layer_content_below[(index_height * map->handle->width) + index_width]);
-                        if (is_gid_valid(gid_below, map->handle))
+                        int gid_below = remove_gid_flip_bits(layer_content_below[(ih * map_width_obj) + iw]);
+                        if (gid_below)
                         {
-                            int tmp_x_below, tmp_y_below;
-                            get_tile_position(gid_below, &tmp_x_below, &tmp_y_below, map->handle);
-                            map->obj[index].canvas_src_x = tmp_x_below;
-                            map->obj[index].canvas_src_y = tmp_y_below;
+                            get_tile_position(gid_below, &map->obj[index].canvas_src_x, &map->obj[index].canvas_src_y, handle);
                         }
                     }
 
@@ -1126,21 +1151,11 @@ bool object_intersects(aabb_t bb, map_t *map, int *index_ptr)
                     if (is_gid_valid(gid, map->handle))
                     {
                         aabb_t object_aabb;
-#if defined(__SYMBIAN32__)
-                        // All tiles are 16x16, use constant for half-size.
                         const int obj_half = 8;
                         object_aabb.left = object->x - obj_half;
                         object_aabb.right = object->x + obj_half;
                         object_aabb.top = object->y - obj_half;
                         object_aabb.bottom = object->y + obj_half;
-#else
-                        int obj_half_width = (int)(object->width / 2);
-                        int obj_half_height = (int)(object->height / 2);
-                        object_aabb.left = object->x - obj_half_width;
-                        object_aabb.right = object->x + obj_half_width;
-                        object_aabb.top = object->y - obj_half_height;
-                        object_aabb.bottom = object->y + obj_half_height;
-#endif
 
                         if (do_intersect(bb, object_aabb))
                         {
@@ -1161,18 +1176,10 @@ bool object_intersects(aabb_t bb, map_t *map, int *index_ptr)
 
 int get_tile_index(int pos_x, int pos_y, map_t *map)
 {
-    // Use cached dimensions to reduce pointer dereferences
+    // Use cached dimensions to reduce pointer dereferences.
     register int map_width = map->cached_map_width;
     register int max_index = map->tile_desc_count - 1;
-
-#if defined(__SYMBIAN32__)
-    // N-Gage optimization: Tiles are always 16x16, use bit shift by 4
     register int index = (pos_x >> 4) + ((pos_y >> 4) * map_width);
-#else
-    register int tilewidth = map->cached_tilewidth;
-    register int tileheight = map->cached_tileheight;
-    register int index = (pos_x / tilewidth) + ((pos_y / tileheight) * map_width);
-#endif
 
     return (index > max_index) ? max_index : index;
 }

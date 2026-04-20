@@ -1,6 +1,10 @@
 *
+!pack-ngage.bat
+!run.bat
 !.gitignore
 !*.png
 !*.tiled-project
 !*.tmj
 !*.xcf
+!*.py
+!*.json
