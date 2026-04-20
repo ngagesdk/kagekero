@@ -77,8 +77,9 @@ typedef struct kero
     bool respawn_lock; // 1 byte
 
     // Pointers at end (accessed less frequently for setup/teardown).
-    SDL_Surface *render_canvas; // 4/8 bytes
-    SDL_Surface *temp_canvas;   // 4/8 bytes
+    SDL_Surface *render_canvas;  // 4/8 bytes
+    SDL_Surface *temp_canvas;    // 4/8 bytes
+    SDL_Surface *sprite_surface; // 4/8 bytes; kero.png
 
 } kero_t
 #ifdef __SYMBIAN32__

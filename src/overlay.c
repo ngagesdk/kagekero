@@ -1,4 +1,4 @@
-/** @file overlay.c
+﻿/** @file overlay.c
  *
  *  A minimalist, cross-platform puzzle-platformer, designed
  *  especially for the Nokia N-Gage.
@@ -44,6 +44,12 @@ void destroy_overlay(overlay_t *ui)
             ui->digits = NULL;
         }
 
+        if (ui->surface)
+        {
+            SDL_DestroySurface(ui->surface);
+            ui->surface = NULL;
+        }
+
         if (ui->dialogue_canvas)
         {
             SDL_DestroySurface(ui->dialogue_canvas);
@@ -87,6 +93,12 @@ bool load_overlay(map_t *map, overlay_t **ui)
     SDL_PixelFormat pixel_format = SDL_PIXELFORMAT_ARGB1555;
 #endif
 
+    if (!load_surface_from_file("overlay.png", &(*ui)->surface))
+    {
+        SDL_Log("Error loading overlay image");
+        return false;
+    }
+
     (*ui)->coin_count_canvas = SDL_CreateSurface(55, 16, pixel_format);
     if (!(*ui)->coin_count_canvas)
     {
@@ -109,12 +121,12 @@ bool load_overlay(map_t *map, overlay_t **ui)
     }
 
     SDL_Rect src;
-    src.x = 608;
+    src.x = 0;
     src.y = 16;
     src.w = 96;
     src.h = 48;
 
-    if (!SDL_BlitSurface(map->tileset_surface, &src, (*ui)->menu_canvas, NULL))
+    if (!SDL_BlitSurface((*ui)->surface, &src, (*ui)->menu_canvas, NULL))
     {
         SDL_Log("Error blitting to menu canvas: %s", SDL_GetError());
         return false;
@@ -127,12 +139,12 @@ bool load_overlay(map_t *map, overlay_t **ui)
         return false;
     }
 
-    src.x = 608;
+    src.x = 0;
     src.y = 74;
     src.w = 176;
     src.h = 72;
 
-    if (!SDL_BlitSurface(map->tileset_surface, &src, (*ui)->dialogue_canvas, NULL))
+    if (!SDL_BlitSurface((*ui)->surface, &src, (*ui)->dialogue_canvas, NULL))
     {
         SDL_Log("Error blitting to dialogue canvas: %s", SDL_GetError());
         return false;
@@ -145,12 +157,12 @@ bool load_overlay(map_t *map, overlay_t **ui)
         return false;
     }
 
-    src.x = 666;
+    src.x = 58;
     src.y = 0;
     src.w = 80;
     src.h = 8;
 
-    if (!SDL_BlitSurface(map->tileset_surface, &src, (*ui)->digits, NULL))
+    if (!SDL_BlitSurface((*ui)->surface, &src, (*ui)->digits, NULL))
     {
         SDL_Log("Error blitting to coin counter canvas: %s", SDL_GetError());
         return false;
@@ -195,12 +207,12 @@ bool render_overlay(int coins_left, int coins_max, int life_count, map_t *map, o
     }
 
     SDL_Rect src;
-    src.x = 608;
+    src.x = 0;
     src.y = 0;
     src.w = 54;
     src.h = 16;
 
-    if (!SDL_BlitSurface(map->tileset_surface, &src, ui->coin_count_canvas, NULL))
+    if (!SDL_BlitSurface(ui->surface, &src, ui->coin_count_canvas, NULL))
     {
         SDL_Log("Error blitting to coin counter canvas: %s", SDL_GetError());
         return false;
@@ -234,11 +246,11 @@ bool render_overlay(int coins_left, int coins_max, int life_count, map_t *map, o
         return false;
     }
 
-    src.x = 747;
+    src.x = 139;
     src.w = 37;
     src.h = 16;
 
-    if (!SDL_BlitSurface(map->tileset_surface, &src, ui->life_count_canvas, NULL))
+    if (!SDL_BlitSurface(ui->surface, &src, ui->life_count_canvas, NULL))
     {
         SDL_Log("Error blitting to life counter canvas: %s", SDL_GetError());
         return false;
@@ -326,8 +338,7 @@ bool render_overlay(int coins_left, int coins_max, int life_count, map_t *map, o
             SDL_Rect tmp_dst;
             SDL_Rect tmp_src;
 
-            // This can be optimised if required.
-            tmp_src.x = 689;
+            tmp_src.x = 81;
             tmp_src.y = 19;
             tmp_src.w = 13;
             tmp_src.h = 42;
@@ -337,7 +348,7 @@ bool render_overlay(int coins_left, int coins_max, int life_count, map_t *map, o
             tmp_dst.w = 13;
             tmp_dst.h = 42;
 
-            if (!SDL_BlitSurface(map->tileset_surface, &tmp_src, ui->menu_canvas, &tmp_dst))
+            if (!SDL_BlitSurface(ui->surface, &tmp_src, ui->menu_canvas, &tmp_dst))
             {
                 SDL_Log("Error blitting menu background to canvas: %s", SDL_GetError());
                 return false;
@@ -346,12 +357,12 @@ bool render_overlay(int coins_left, int coins_max, int life_count, map_t *map, o
             if (ui->menu_selection != ui->prev_selection)
             {
                 SDL_Rect src;
-                src.x = 608 + ui->menu_canvas_offset;
+                src.x = 0 + ui->menu_canvas_offset;
                 src.y = 16;
                 src.w = 96;
                 src.h = 48;
 
-                if (!SDL_BlitSurface(map->tileset_surface, &src, ui->menu_canvas, NULL))
+                if (!SDL_BlitSurface(ui->surface, &src, ui->menu_canvas, NULL))
                 {
                     SDL_Log("Error blitting to menu canvas: %s", SDL_GetError());
                     return false;
@@ -360,7 +371,7 @@ bool render_overlay(int coins_left, int coins_max, int life_count, map_t *map, o
 
             if (is_overclock_enabled() && ui->menu_selection >= MENU_MHZ)
             {
-                tmp_src.x = 666;
+                tmp_src.x = 58;
                 tmp_src.y = 8;
                 tmp_src.w = 24;
                 tmp_src.h = 8;
@@ -370,7 +381,7 @@ bool render_overlay(int coins_left, int coins_max, int life_count, map_t *map, o
                 tmp_dst.w = 24;
                 tmp_dst.h = 8;
 
-                if (!SDL_BlitSurface(map->tileset_surface, &tmp_src, ui->menu_canvas, &tmp_dst))
+                if (!SDL_BlitSurface(ui->surface, &tmp_src, ui->menu_canvas, &tmp_dst))
                 {
                     SDL_Log("Error blitting to menu canvas: %s", SDL_GetError());
                     return false;
@@ -385,12 +396,12 @@ bool render_overlay(int coins_left, int coins_max, int life_count, map_t *map, o
                 ui->current_frame = 0;
             }
 
-            src.x = 608 + (ui->current_frame * 14);
+            src.x = 0 + (ui->current_frame * 14);
             src.y = 64;
             src.w = 14;
             src.h = 10;
 
-            if (!SDL_BlitSurface(map->tileset_surface, &src, ui->menu_canvas, &dst))
+            if (!SDL_BlitSurface(ui->surface, &src, ui->menu_canvas, &dst))
             {
                 SDL_Log("Error blitting menu selection to canvas: %s", SDL_GetError());
                 return false;
@@ -435,7 +446,7 @@ bool render_text_ex(const char *text, bool alt_portrait, int portrait_x, int por
     dst.w = 31;
     dst.h = 31;
 
-    if (!SDL_BlitSurface(map->tileset_surface, &src, ui->dialogue_canvas, &dst))
+    if (!SDL_BlitSurface(ui->surface, &src, ui->dialogue_canvas, &dst))
     {
         SDL_Log("Error blitting to dialogue canvas: %s", SDL_GetError());
         return false;
@@ -463,11 +474,11 @@ bool render_text_ex(const char *text, bool alt_portrait, int portrait_x, int por
         }
         else
         {
-            src.x = 672;
+            src.x = 64;
             src.y = 146;
         }
 
-        if (!SDL_BlitSurface(map->tileset_surface, &src, ui->dialogue_canvas, &dst))
+        if (!SDL_BlitSurface(ui->surface, &src, ui->dialogue_canvas, &dst))
         {
             SDL_Log("Error blitting character to canvas: %s", SDL_GetError());
         }

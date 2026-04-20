@@ -330,6 +330,12 @@ void destroy_kero(kero_t *kero)
             SDL_DestroySurface(kero->temp_canvas);
             kero->temp_canvas = NULL;
         }
+
+        if (kero->sprite_surface)
+        {
+            SDL_DestroySurface(kero->sprite_surface);
+            kero->sprite_surface = NULL;
+        }
     }
 }
 
@@ -355,6 +361,11 @@ bool load_kero(kero_t **kero, map_t *map)
         return false;
     }
 
+    {
+        const SDL_PixelFormatDetails *fmt = SDL_GetPixelFormatDetails((*kero)->render_canvas->format);
+        SDL_SetSurfaceColorKey((*kero)->render_canvas, true, SDL_MapRGB(fmt, NULL, 0xff, 0x00, 0xff));
+    }
+
     (*kero)->temp_canvas = SDL_CreateSurface(KERO_SIZE, KERO_SIZE, pixel_format);
     if (!(*kero)->temp_canvas)
     {
@@ -370,6 +381,12 @@ bool load_kero(kero_t **kero, map_t *map)
     (*kero)->level = FIRST_LEVEL;
     (*kero)->life_count = 99;
     (*kero)->line_index = -1;
+
+    if (!load_surface_from_file("kero.png", &(*kero)->sprite_surface))
+    {
+        SDL_Log("Error loading kero sprite image");
+        return false;
+    }
 
     set_kero_state(*kero, STATE_IDLE);
 
@@ -514,16 +531,15 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
         set_kero_state(kero, STATE_IDLE);
     }
 
-    // Horizontal movement and sprite offset.
+    // Horizontal movement.
     float move = FP_MUL_CONST(vel_x, (float)kero->delta_time);
+    kero->sprite_offset_y = 0;
     if (kero->heading)
     {
-        kero->sprite_offset_y = 0;
         kero->pos_x += (vel_x > 0.f) ? move : -move;
     }
     else
     {
-        kero->sprite_offset_y = 3;
         kero->pos_x += (vel_x > 0.f) ? -move : move;
     }
 
@@ -579,7 +595,7 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
     }
 
     // Running state.
-    // Check button state only once and cache result
+    // Check button state only once and cache result.
     bool moving_horizontal = CHECK_BIT_FAST(*btn, BTN_LEFT) || CHECK_BIT_FAST(*btn, BTN_RIGHT);
     if (STATE_RUN == kero->state || (vel_y != 0.f))
     {
@@ -604,7 +620,7 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
         }
     }
 
-    // Write back cached velocity values
+    // Write back cached velocity values.
     kero->velocity_x = vel_x;
     kero->velocity_y = vel_y;
 }
@@ -629,12 +645,36 @@ bool render_kero(kero_t *kero, map_t *map)
     }
 
     src.x = (kero->current_frame + kero->anim_offset_x + kero->sprite_offset_x) * KERO_SIZE;
-    src.y = 656 + (kero->anim_offset_y + kero->sprite_offset_y) * KERO_SIZE;
+    src.y = 0 + (kero->anim_offset_y + kero->sprite_offset_y) * KERO_SIZE;
 
-    if (!SDL_BlitSurface(map->tileset_surface, &src, kero->temp_canvas, NULL))
+    if (!kero->heading)
     {
-        SDL_Log("Error blitting kero sprite: %s", SDL_GetError());
-        return false;
+        // Use render_canvas as a scratch buffer: fill with colorkey, blit sprite,
+        // flip, then composite onto temp_canvas (background stays correct).
+        const SDL_PixelFormatDetails *fmt = SDL_GetPixelFormatDetails(kero->render_canvas->format);
+        SDL_FillSurfaceRect(kero->render_canvas, NULL, SDL_MapRGB(fmt, NULL, 0xff, 0x00, 0xff));
+
+        if (!SDL_BlitSurface(kero->sprite_surface, &src, kero->render_canvas, NULL))
+        {
+            SDL_Log("Error blitting kero sprite: %s", SDL_GetError());
+            return false;
+        }
+
+        SDL_FlipSurface(kero->render_canvas, SDL_FLIP_HORIZONTAL);
+
+        if (!SDL_BlitSurface(kero->render_canvas, NULL, kero->temp_canvas, NULL))
+        {
+            SDL_Log("Error blitting flipped kero sprite: %s", SDL_GetError());
+            return false;
+        }
+    }
+    else
+    {
+        if (!SDL_BlitSurface(kero->sprite_surface, &src, kero->temp_canvas, NULL))
+        {
+            SDL_Log("Error blitting kero sprite: %s", SDL_GetError());
+            return false;
+        }
     }
 
     if (!SDL_BlitSurface(kero->temp_canvas, NULL, kero->render_canvas, NULL))
