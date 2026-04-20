@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.12.1" name="base" tilewidth="16" tileheight="16" tilecount="1024" columns="32">
+<tileset version="1.10" tiledversion="1.11.2" name="base" tilewidth="16" tileheight="16" tilecount="1024" columns="32">
  <image source="tileset.png" trans="ff00ff" width="512" height="512"/>
  <tile id="0">
   <properties>
@@ -1152,6 +1152,36 @@
    <property name="is_solid" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="410">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="411">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="412">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="413">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="414">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="415">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
  <tile id="416">
   <properties>
    <property name="is_solid" type="bool" value="true"/>
@@ -1197,6 +1227,66 @@
    <property name="is_solid" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="442">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="443">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="444">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="445">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="446">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="447">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="474">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="475">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="476">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="477">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="478">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="479">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
  <tile id="480">
   <animation>
    <frame tileid="480" duration="100"/>
@@ -1224,6 +1314,36 @@
    <frame tileid="497" duration="100"/>
    <frame tileid="499" duration="100"/>
   </animation>
+ </tile>
+ <tile id="506">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="507">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="508">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="509">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="510">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="511">
+  <properties>
+   <property name="is_solid" type="bool" value="true"/>
+  </properties>
  </tile>
  <tile id="512">
   <animation>
@@ -1309,360 +1429,6 @@
    <frame tileid="595" duration="100"/>
   </animation>
  </tile>
- <tile id="608">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="609">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="610">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="611">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="612">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="613">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="616">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="617">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="618">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="619">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="620">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="621">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="640">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="641">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="642">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="643">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="644">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="645">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="648">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="649">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="650">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="651">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="652">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="653">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="672">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="673">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="674">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="675">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="676">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="677">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="680">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="681">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="682">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="683">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="684">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="685">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="707">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="708">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="709">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="715">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="716">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="717">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="768">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="769">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="770">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="771">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="772">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="773">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="776">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="777">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="778">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="779">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="780">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="781">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-   <property name="offset_top" type="int" value="8"/>
-  </properties>
- </tile>
- <tile id="800">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="801">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="802">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="803">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="804">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="805">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="808">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="809">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="810">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="811">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="812">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="813">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
  <tile id="818">
   <properties>
    <property name="is_solid" type="bool" value="true"/>
@@ -1684,51 +1450,6 @@
    <frame tileid="831" duration="100"/>
   </animation>
  </tile>
- <tile id="835">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="836">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="837">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="840">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="841">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="842">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="843">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="844">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="845">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
  <tile id="850">
   <properties>
    <property name="is_solid" type="bool" value="true"/>
@@ -1749,21 +1470,6 @@
    <frame tileid="862" duration="100"/>
    <frame tileid="863" duration="100"/>
   </animation>
- </tile>
- <tile id="875">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="876">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="877">
-  <properties>
-   <property name="is_solid" type="bool" value="true"/>
-  </properties>
  </tile>
  <tile id="882">
   <properties>
