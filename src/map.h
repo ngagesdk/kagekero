@@ -60,8 +60,7 @@ typedef struct map
     int spawn_y;
 
     SDL_Texture *render_target;
-    SDL_Surface *render_canvas;
-    SDL_Surface *tileset_surface;
+    SDL_Texture *tileset_texture;
 
     bool static_tiles_rendered;
 
@@ -104,7 +103,7 @@ typedef struct map
     bool keep_dialogue;
 
 #if defined(__SYMBIAN32__)
-    // N-Gage optimization: Track if any animated objects changed this frame.
+    // Track if any animated objects changed this frame.
     bool objects_dirty;
 #endif
 

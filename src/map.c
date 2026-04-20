@@ -208,10 +208,10 @@ static bool load_tiled_map(const char *file_name, map_t *map)
 
 static void destroy_textures(map_t *map)
 {
-    if (map->render_canvas)
+    if (map->tileset_texture)
     {
-        SDL_DestroySurface(map->render_canvas);
-        map->render_canvas = NULL;
+        SDL_DestroyTexture(map->tileset_texture);
+        map->tileset_texture = NULL;
     }
 
     if (map->render_target)
@@ -229,7 +229,7 @@ static bool create_textures(SDL_Renderer *renderer, map_t *map)
         return false;
     }
 
-    if (map->render_target || map->render_canvas)
+    if (map->render_target || map->tileset_texture)
     {
         destroy_textures(map);
     }
@@ -248,24 +248,16 @@ static bool create_textures(SDL_Renderer *renderer, map_t *map)
     SDL_PixelFormat pixel_format = SDL_PIXELFORMAT_ARGB1555;
 #endif
 
-    map->render_target = SDL_CreateTexture(renderer, pixel_format, SDL_TEXTUREACCESS_STREAMING, map->width, map->height);
+    map->render_target = SDL_CreateTexture(renderer, pixel_format, SDL_TEXTUREACCESS_TARGET, map->width, map->height);
     if (!map->render_target)
     {
-        SDL_Log("Error creating texture: %s", SDL_GetError());
+        SDL_Log("Error creating render target texture: %s", SDL_GetError());
         return false;
     }
 
     if (!SDL_SetTextureScaleMode(map->render_target, SDL_SCALEMODE_NEAREST))
     {
         SDL_Log("Couldn't set texture scale mode: %s", SDL_GetError());
-    }
-
-    map->render_canvas = SDL_CreateSurface(map->width, map->height, pixel_format);
-
-    if (!map->render_canvas)
-    {
-        SDL_Log("Error creating temporary surface: %s", SDL_GetError());
-        return false;
     }
 
     return true;
@@ -584,7 +576,7 @@ static bool load_tiles(map_t *map)
     return true;
 }
 
-static bool load_tileset(map_t *map)
+static bool load_tileset(map_t *map, SDL_Renderer *renderer)
 {
     bool exit_code = true;
     char file_name[16] = { 0 };
@@ -602,14 +594,35 @@ static bool load_tileset(map_t *map)
 
     map->tileset_hash = generate_hash((const unsigned char *)file_name);
 
-    if (map->tileset_hash != map->prev_tileset_hash)
+    if (map->tileset_hash != map->prev_tileset_hash || !map->tileset_texture)
     {
         map->prev_tileset_hash = map->tileset_hash;
 
-        if (!load_surface_from_file((const char *)file_name, &map->tileset_surface))
+        SDL_Surface *tileset_surface = NULL;
+        if (!load_surface_from_file((const char *)file_name, &tileset_surface))
         {
             SDL_Log("Error loading tileset image '%s'", file_name);
-            exit_code = false;
+            return false;
+        }
+
+        if (map->tileset_texture)
+        {
+            SDL_DestroyTexture(map->tileset_texture);
+            map->tileset_texture = NULL;
+        }
+
+        map->tileset_texture = SDL_CreateTextureFromSurface(renderer, tileset_surface);
+        SDL_DestroySurface(tileset_surface);
+
+        if (!map->tileset_texture)
+        {
+            SDL_Log("Error creating tileset texture: %s", SDL_GetError());
+            return false;
+        }
+
+        if (!SDL_SetTextureScaleMode(map->tileset_texture, SDL_SCALEMODE_NEAREST))
+        {
+            SDL_Log("Couldn't set tileset texture scale mode: %s", SDL_GetError());
         }
     }
 
@@ -746,12 +759,7 @@ void destroy_map(map_t *map)
         map->obj = NULL;
     }
 
-    // [5] Tileset.
-    if (map->tileset_surface)
-    {
-        SDL_DestroySurface(map->tileset_surface);
-        map->tileset_surface = NULL;
-    }
+    // [5] Tileset texture is destroyed via destroy_textures called below.
 
     // [4] Tiles.
     if (map->tile_desc)
@@ -768,6 +776,7 @@ void destroy_map(map_t *map)
 
     // [1] Map.
     SDL_free(map);
+    map = NULL;
 }
 
 bool load_map(const char *file_name, map_t **map, SDL_Renderer *renderer)
@@ -825,7 +834,7 @@ bool load_map(const char *file_name, map_t **map, SDL_Renderer *renderer)
     }
 
     // [5] Tileset.
-    if (!load_tileset(*map))
+    if (!load_tileset(*map, renderer))
     {
         exit_code = false;
         goto exit;
@@ -895,13 +904,11 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
             register bool no_coins = !map->coins_left;
             register int obj_count = map->obj_count - 1;
             obj_t *obj_array = map->obj;
-            SDL_Surface *tileset = map->tileset_surface;
-            SDL_Surface *canvas = map->render_canvas;
 
-            // Preallocate rects to avoid repeated stack allocation
-            SDL_Rect dst = { .w = tilewidth, .h = tileheight };
-            SDL_Rect src = { .w = tilewidth, .h = tileheight };
-            SDL_Rect canvas_src = { .w = tilewidth, .h = tileheight };
+            SDL_FRect src_f = { .w = (float)tilewidth, .h = (float)tileheight };
+            SDL_FRect dst_f = { .w = (float)tilewidth, .h = (float)tileheight };
+
+            SDL_SetRenderTarget(renderer, map->render_target);
 
             for (int index = 0; index < obj_count; index += 1)
             {
@@ -920,7 +927,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
                     obj->current_frame = 1;
                 }
 
-                // Check if tile is visible for blitting operations.
+                // Check if tile is visible.
                 bool is_visible = is_tile_visible(obj->x, obj->y, tilewidth, tileheight, cam_x, cam_y);
 
                 if (is_visible)
@@ -936,23 +943,26 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
                         local_id = obj->id + 1;
                     }
 
-                    dst.x = obj->x;
-                    dst.y = obj->y;
+                    dst_f.x = (float)obj->x;
+                    dst_f.y = (float)obj->y;
 
                     int tmp_x, tmp_y;
                     get_tile_position(local_id, &tmp_x, &tmp_y, map->handle);
-                    src.x = tmp_x;
-                    src.y = tmp_y;
+                    src_f.x = (float)tmp_x;
+                    src_f.y = (float)tmp_y;
 
-                    // Blit canvas tile first (for transparency simulation).
-                    canvas_src.x = obj->canvas_src_x;
-                    canvas_src.y = obj->canvas_src_y;
-                    SDL_BlitSurface(tileset, &canvas_src, canvas, &dst);
+                    // Restore background tile first (for transparency simulation).
+                    src_f.x = (float)obj->canvas_src_x;
+                    src_f.y = (float)obj->canvas_src_y;
+                    SDL_RenderTexture(renderer, map->tileset_texture, &src_f, &dst_f);
 
-                    // Fast path: skip hidden objects.
+                    // Draw object tile on top.
                     if (!obj->is_hidden)
                     {
-                        SDL_BlitSurface(tileset, &src, canvas, &dst);
+                        get_tile_position(local_id, &tmp_x, &tmp_y, map->handle);
+                        src_f.x = (float)tmp_x;
+                        src_f.y = (float)tmp_y;
+                        SDL_RenderTexture(renderer, map->tileset_texture, &src_f, &dst_f);
                     }
                 }
 
@@ -968,19 +978,25 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
 
                 obj->id = get_next_object_id(obj->gid, obj->current_frame, map->handle);
             }
+
+            SDL_SetRenderTarget(renderer, NULL);
         }
 
         return true;
     }
 
     // Static tiles have not been rendered yet. Do it once!
+    SDL_SetRenderTarget(renderer, map->render_target);
+    SDL_SetRenderDrawColor(renderer, map->bg_r, map->bg_g, map->bg_b, 255);
+    SDL_RenderClear(renderer);
+
     int index = 0;
     layer = map->handle->layers;
 
     while (layer)
     {
-        SDL_Rect dst = { 0 };
-        SDL_Rect src = { 0 };
+        SDL_FRect dst_f = { 0 };
+        SDL_FRect src_f = { 0 };
 
         if (is_layer_of_type(TILE_LAYER, layer, map))
         {
@@ -994,12 +1010,12 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
                 int *layer_content = layer->data;
                 int unroll_end = map_width & ~3;
 
-                src.w = dst.w = tilewidth;
-                src.h = dst.h = tileheight;
+                src_f.w = dst_f.w = (float)tilewidth;
+                src_f.h = dst_f.h = (float)tileheight;
 
                 for (int index_height = 0; index_height < map_height; index_height += 1)
                 {
-                    register int dst_y = index_height * tileheight;
+                    register float dst_y = (float)(index_height * tileheight);
                     register int row_base = index_height * map_width;
                     int index_width = 0;
 
@@ -1011,30 +1027,39 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
                         int g2 = remove_gid_flip_bits(layer_content[base + 2]);
                         int g3 = remove_gid_flip_bits(layer_content[base + 3]);
 
-                        dst.y = dst_y;
+                        dst_f.y = dst_y;
+                        int tx, ty;
                         if (g0)
                         {
-                            dst.x = index_width * tilewidth;
-                            get_tile_position(g0, &src.x, &src.y, map->handle);
-                            SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+                            dst_f.x = (float)(index_width * tilewidth);
+                            get_tile_position(g0, &tx, &ty, map->handle);
+                            src_f.x = (float)tx;
+                            src_f.y = (float)ty;
+                            SDL_RenderTexture(renderer, map->tileset_texture, &src_f, &dst_f);
                         }
                         if (g1)
                         {
-                            dst.x = (index_width + 1) * tilewidth;
-                            get_tile_position(g1, &src.x, &src.y, map->handle);
-                            SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+                            dst_f.x = (float)((index_width + 1) * tilewidth);
+                            get_tile_position(g1, &tx, &ty, map->handle);
+                            src_f.x = (float)tx;
+                            src_f.y = (float)ty;
+                            SDL_RenderTexture(renderer, map->tileset_texture, &src_f, &dst_f);
                         }
                         if (g2)
                         {
-                            dst.x = (index_width + 2) * tilewidth;
-                            get_tile_position(g2, &src.x, &src.y, map->handle);
-                            SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+                            dst_f.x = (float)((index_width + 2) * tilewidth);
+                            get_tile_position(g2, &tx, &ty, map->handle);
+                            src_f.x = (float)tx;
+                            src_f.y = (float)ty;
+                            SDL_RenderTexture(renderer, map->tileset_texture, &src_f, &dst_f);
                         }
                         if (g3)
                         {
-                            dst.x = (index_width + 3) * tilewidth;
-                            get_tile_position(g3, &src.x, &src.y, map->handle);
-                            SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+                            dst_f.x = (float)((index_width + 3) * tilewidth);
+                            get_tile_position(g3, &tx, &ty, map->handle);
+                            src_f.x = (float)tx;
+                            src_f.y = (float)ty;
+                            SDL_RenderTexture(renderer, map->tileset_texture, &src_f, &dst_f);
                         }
                     }
 
@@ -1043,10 +1068,13 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
                         int gid = remove_gid_flip_bits(layer_content[row_base + index_width]);
                         if (gid)
                         {
-                            dst.x = index_width * tilewidth;
-                            dst.y = dst_y;
-                            get_tile_position(gid, &src.x, &src.y, map->handle);
-                            SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+                            dst_f.x = (float)(index_width * tilewidth);
+                            dst_f.y = dst_y;
+                            int tx, ty;
+                            get_tile_position(gid, &tx, &ty, map->handle);
+                            src_f.x = (float)tx;
+                            src_f.y = (float)ty;
+                            SDL_RenderTexture(renderer, map->tileset_texture, &src_f, &dst_f);
                         }
                     }
                 }
@@ -1061,8 +1089,8 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
             register int tilewidth_obj = map->cached_tilewidth;
             register int tileheight_obj = map->cached_tileheight;
             register int map_width_obj = map->cached_map_width;
-            src.w = dst.w = tilewidth_obj;
-            src.h = dst.h = tileheight_obj;
+            src_f.w = dst_f.w = (float)tilewidth_obj;
+            src_f.h = dst_f.h = (float)tileheight_obj;
             cute_tiled_object_t *object = get_head_object(layer, map);
             while (object)
             {
@@ -1074,16 +1102,19 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
                     int id = 0;
 
                     // Cache object position to avoid multiple pointer dereferences.
-                    dst.x = (int)object->x;
-                    dst.y = (int)object->y - tileheight_obj;
+                    dst_f.x = (float)object->x;
+                    dst_f.y = (float)object->y - tileheight_obj;
 
-                    get_tile_position(gid, &src.x, &src.y, handle);
+                    int tx, ty;
+                    get_tile_position(gid, &tx, &ty, handle);
+                    src_f.x = (float)tx;
+                    src_f.y = (float)ty;
 
                     set_object_animation(gid, &anim_length, &id, handle);
                     map->obj[index].gid = get_local_id(gid, handle);
                     map->obj[index].id = id;
-                    map->obj[index].x = dst.x;
-                    map->obj[index].y = dst.y;
+                    map->obj[index].x = (int)dst_f.x;
+                    map->obj[index].y = (int)dst_f.y;
                     map->obj[index].current_frame = 0;
                     map->obj[index].anim_length = anim_length;
                     map->obj[index].object_id = object->id;
@@ -1097,8 +1128,8 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
 
                     if (prev_layer)
                     {
-                        int iw = dst.x / tilewidth_obj;
-                        int ih = dst.y / tileheight_obj;
+                        int iw = (int)dst_f.x / tilewidth_obj;
+                        int ih = (int)dst_f.y / tileheight_obj;
                         int *layer_content_below = prev_layer->data;
                         int gid_below = remove_gid_flip_bits(layer_content_below[(ih * map_width_obj) + iw]);
                         if (gid_below)
@@ -1107,6 +1138,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
                         }
                     }
 
+                    SDL_RenderTexture(renderer, map->tileset_texture, &src_f, &dst_f);
                     index += 1;
                 }
 
@@ -1120,11 +1152,7 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
         layer = layer->next;
     }
 
-    if (!SDL_UpdateTexture(map->render_target, NULL, map->render_canvas->pixels, map->render_canvas->pitch))
-    {
-        SDL_Log("Error updating static tile texture: %s", SDL_GetError());
-        return false;
-    }
+    SDL_SetRenderTarget(renderer, NULL);
 
     map->static_tiles_rendered = true;
     *has_updated = true;

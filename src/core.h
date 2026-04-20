@@ -35,6 +35,7 @@ typedef struct
 
 #if !defined __SYMBIAN32__
     SDL_Texture *frame;
+    SDL_Texture *backbuffer;
     int frame_offset_x;
     int frame_offset_y;
     int screen_offset_x;

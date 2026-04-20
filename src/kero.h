@@ -77,9 +77,7 @@ typedef struct kero
     bool respawn_lock; // 1 byte
 
     // Pointers at end (accessed less frequently for setup/teardown).
-    SDL_Surface *render_canvas;  // 4/8 bytes
-    SDL_Surface *temp_canvas;    // 4/8 bytes
-    SDL_Surface *sprite_surface; // 4/8 bytes; kero.png
+    SDL_Texture *sprite_texture; // kero.png as GPU texture
 
 } kero_t
 #ifdef __SYMBIAN32__
@@ -88,8 +86,8 @@ typedef struct kero
     ;
 
 void destroy_kero(kero_t *kero);
-bool load_kero(kero_t **kero, map_t *map);
+bool load_kero(kero_t **kero, map_t *map, SDL_Renderer *renderer);
 void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL_Renderer *renderer, bool is_paused, bool *has_updated);
-bool render_kero(kero_t *kero, map_t *map);
+bool render_kero(kero_t *kero, SDL_Renderer *renderer, int cam_x, int cam_y);
 
 #endif // KERO_H

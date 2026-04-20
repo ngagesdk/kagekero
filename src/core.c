@@ -80,13 +80,13 @@ bool init(core_t **nc)
         return false;
     }
 
-    if (!load_kero(&(*nc)->kero, (*nc)->map))
+    if (!load_kero(&(*nc)->kero, (*nc)->map, (*nc)->renderer))
     {
         SDL_Log("Failed to load kero");
         return false;
     }
 
-    if (!load_overlay((*nc)->map, &(*nc)->ui))
+    if (!load_overlay((*nc)->map, &(*nc)->ui, (*nc)->renderer))
     {
         SDL_Log("Failed to load overlay");
         return false;
@@ -103,6 +103,14 @@ bool init(core_t **nc)
     {
         return false;
     }
+
+    (*nc)->backbuffer = SDL_CreateTexture((*nc)->renderer, SDL_PIXELFORMAT_XRGB4444, SDL_TEXTUREACCESS_TARGET, SCREEN_W, SCREEN_H);
+    if (!(*nc)->backbuffer)
+    {
+        SDL_Log("Failed to create backbuffer: %s", SDL_GetError());
+        return false;
+    }
+    SDL_SetTextureScaleMode((*nc)->backbuffer, SDL_SCALEMODE_NEAREST);
 #endif
 
     return true;
@@ -116,13 +124,12 @@ bool update(core_t *nc)
     nc->cam_y = (int)nc->kero->pos_y - (SCREEN_H / 2);
 
     render_map(nc->map, nc->renderer, &nc->has_updated, nc->cam_x, nc->cam_y);
-    render_kero(nc->kero, nc->map);
 
     if ((nc->kero->prev_life_count != nc->kero->life_count) ||
         (nc->map->prev_coins != nc->map->coins_left) ||
         (nc->is_paused && nc->ui->menu_selection != nc->ui->prev_selection))
     {
-        render_overlay(nc->map->coins_left, nc->map->coin_max, nc->kero->life_count, nc->map, nc->ui);
+        render_overlay(nc->map->coins_left, nc->map->coin_max, nc->kero->life_count, nc->map, nc->ui, nc->renderer);
     }
 
 #if defined __3DS__
@@ -156,8 +163,6 @@ bool update(core_t *nc)
 
 bool draw_scene(core_t *nc)
 {
-    SDL_Rect visible_area;
-
     if (nc->cam_x <= 0)
     {
         nc->cam_x = 0;
@@ -182,90 +187,83 @@ bool draw_scene(core_t *nc)
     if (!nc->has_updated)
 #endif
     {
-        visible_area.x = nc->cam_x;
-        visible_area.y = nc->cam_y;
-        visible_area.w = SCREEN_W;
-        visible_area.h = SCREEN_H;
+        // Composite everything into the backbuffer.
+#if defined __SYMBIAN32__
+        SDL_SetRenderTarget(nc->renderer, NULL);
+#else
+        SDL_SetRenderTarget(nc->renderer, nc->backbuffer);
+#endif
 
-        SDL_Surface *temp;
-        if (!SDL_LockTextureToSurface(nc->map->render_target, NULL, &temp))
-        {
-            SDL_Log("Error locking animated tile texture: %s", SDL_GetError());
-            return false;
-        }
-        SDL_BlitSurface(nc->map->render_canvas, &visible_area, temp, &visible_area);
+        // Draw visible slice of the map.
+        src.x = (float)nc->cam_x;
+        src.y = (float)nc->cam_y;
+        src.w = SCREEN_W;
+        src.h = SCREEN_H;
+        dst.x = 0.f;
+        dst.y = 0.f;
+        dst.w = SCREEN_W;
+        dst.h = SCREEN_H;
+        SDL_RenderTexture(nc->renderer, nc->map->render_target, &src, &dst);
 
-        SDL_Rect dst_rect;
-        dst_rect.x = (int)nc->kero->pos_x - KERO_HALF;
-        dst_rect.y = (int)nc->kero->pos_y - KERO_HALF;
-        dst_rect.w = KERO_SIZE;
-        dst_rect.h = KERO_SIZE;
+        // Draw kero in screen space.
+        render_kero(nc->kero, nc->renderer, nc->cam_x, nc->cam_y);
 
-        SDL_BlitSurface(nc->kero->render_canvas, NULL, temp, &dst_rect);
+        // HUD: coin counter.
+        dst.x = 0.f;
+        dst.y = 4.f;
+        dst.w = 55.f;
+        dst.h = 16.f;
+        SDL_RenderTexture(nc->renderer, nc->ui->coin_count_canvas, NULL, &dst);
 
-        dst_rect.x = 0 + nc->cam_x;
-        dst_rect.y = 4 + nc->cam_y;
-        dst_rect.w = 57;
-        dst_rect.h = 16;
-        SDL_BlitSurface(nc->ui->coin_count_canvas, NULL, temp, &dst_rect);
-
-        dst_rect.x = 139 + nc->cam_x;
-        dst_rect.y = 4 + nc->cam_y;
-        dst_rect.w = 37;
-        dst_rect.h = 16;
-        SDL_BlitSurface(nc->ui->life_count_canvas, NULL, temp, &dst_rect);
+        // HUD: life counter.
+        dst.x = 139.f;
+        dst.y = 4.f;
+        dst.w = 37.f;
+        dst.h = 16.f;
+        SDL_RenderTexture(nc->renderer, nc->ui->life_count_canvas, NULL, &dst);
 
         if (nc->is_paused)
         {
-            dst_rect.x = 40 + nc->cam_x;
-            dst_rect.y = 80 + nc->cam_y;
-            dst_rect.w = 96;
-            dst_rect.h = 48;
-
-            SDL_BlitSurface(nc->ui->menu_canvas, NULL, temp, &dst_rect);
+            dst.x = 40.f;
+            dst.y = 80.f;
+            dst.w = 96.f;
+            dst.h = 48.f;
+            SDL_RenderTexture(nc->renderer, nc->ui->menu_canvas, NULL, &dst);
         }
 
         if (nc->map->show_dialogue)
         {
-            dst_rect.x = 0 + nc->cam_x;
-            dst_rect.y = 136 + nc->cam_y; // Why 136? Shouldn't this be 104?.
-            dst_rect.w = 176;
-            dst_rect.h = 72;
-
-            SDL_BlitSurface(nc->ui->dialogue_canvas, NULL, temp, &dst_rect);
+            dst.x = 0.f;
+            dst.y = 136.f;
+            dst.w = 176.f;
+            dst.h = 72.f; // Why 136? Shouldn't this be 104?
+            SDL_RenderTexture(nc->renderer, nc->ui->dialogue_canvas, NULL, &dst);
         }
 
-        SDL_UnlockTexture(nc->map->render_target);
-
-        src.x = (float)(0 + nc->cam_x);
-        src.y = (float)(0 + nc->cam_y);
-        src.w = SCREEN_W;
-        src.h = SCREEN_H;
+#if !defined __SYMBIAN32__
+        // Present backbuffer to screen.
+        SDL_SetRenderTarget(nc->renderer, NULL);
 
         int screen_offset_x;
         int screen_offset_y;
-
 #if defined DEBUG
         screen_offset_x = SCREEN_OFFSET_X;
         screen_offset_y = SCREEN_OFFSET_Y;
-#elif !defined __SYMBIAN32__
+#else
         screen_offset_x = nc->screen_offset_x;
         screen_offset_y = nc->screen_offset_y;
-#else
-        screen_offset_x = SCREEN_OFFSET_X;
-        screen_offset_y = SCREEN_OFFSET_Y;
 #endif
-
         dst.x = (float)screen_offset_x;
         dst.y = (float)screen_offset_y;
         dst.w = SCREEN_W;
         dst.h = SCREEN_H;
 
-        if (!SDL_RenderTexture(nc->renderer, nc->map->render_target, &src, &dst))
+        if (!SDL_RenderTexture(nc->renderer, nc->backbuffer, NULL, &dst))
         {
-            SDL_Log("Error rendering texture: %s", SDL_GetError());
+            SDL_Log("Error rendering backbuffer: %s", SDL_GetError());
             return false;
         }
+#endif
     }
 
     SDL_RenderPresent(nc->renderer);
@@ -294,7 +292,7 @@ static bool handle_button_down(core_t *nc, button_t button)
             nc->is_paused = false;
 
             static int pride_line_index = 0;
-            render_text(pride_lines[pride_line_index], nc->kero->wears_mask, nc->map, nc->ui);
+            render_text(pride_lines[pride_line_index], nc->kero->wears_mask, nc->map, nc->ui, nc->renderer);
             pride_line_index++;
             if (pride_line_index > PRIDE_LINE_COUNT - 1)
             {
@@ -531,6 +529,12 @@ void destroy(core_t *nc)
         }
 
 #ifndef __SYMBIAN32__
+        if (nc->backbuffer)
+        {
+            SDL_DestroyTexture(nc->backbuffer);
+            nc->backbuffer = NULL;
+        }
+
         if (nc->frame)
         {
             SDL_DestroyTexture(nc->frame);

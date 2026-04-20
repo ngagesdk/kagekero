@@ -164,7 +164,7 @@ static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn, SDL_
     }
 }
 
-static void handle_intersect(kero_t *kero, map_t *map, overlay_t *ui)
+static void handle_intersect(kero_t *kero, map_t *map, overlay_t *ui, SDL_Renderer *renderer)
 {
     // Fast path: early exit if no objects in map.
     if (map->obj_count == 0)
@@ -207,7 +207,7 @@ static void handle_intersect(kero_t *kero, map_t *map, overlay_t *ui)
             {
                 map->show_dialogue = true;
                 map->keep_dialogue = false;
-                render_text_ex(map->obj[index + 1].str, true, 640, 146, map, ui);
+                render_text_ex(map->obj[index + 1].str, true, 640, 146, map, ui, renderer);
             }
         }
     }
@@ -319,57 +319,20 @@ void destroy_kero(kero_t *kero)
 {
     if (kero)
     {
-        if (kero->render_canvas)
+        if (kero->sprite_texture)
         {
-            SDL_DestroySurface(kero->render_canvas);
-            kero->render_canvas = NULL;
-        }
-
-        if (kero->temp_canvas)
-        {
-            SDL_DestroySurface(kero->temp_canvas);
-            kero->temp_canvas = NULL;
-        }
-
-        if (kero->sprite_surface)
-        {
-            SDL_DestroySurface(kero->sprite_surface);
-            kero->sprite_surface = NULL;
+            SDL_DestroyTexture(kero->sprite_texture);
+            kero->sprite_texture = NULL;
         }
     }
 }
 
-bool load_kero(kero_t **kero, map_t *map)
+bool load_kero(kero_t **kero, map_t *map, SDL_Renderer *renderer)
 {
     *kero = (kero_t *)SDL_calloc(1, sizeof(kero_t));
     if (!*kero)
     {
         SDL_Log("Failed to allocate memory for kero");
-        return false;
-    }
-
-#ifndef __DREAMCAST__
-    SDL_PixelFormat pixel_format = SDL_PIXELFORMAT_XRGB4444;
-#else
-    SDL_PixelFormat pixel_format = SDL_PIXELFORMAT_ARGB1555;
-#endif
-
-    (*kero)->render_canvas = SDL_CreateSurface(KERO_SIZE, KERO_SIZE, pixel_format);
-    if (!(*kero)->render_canvas)
-    {
-        SDL_Log("Error creating render canvas surface: %s", SDL_GetError());
-        return false;
-    }
-
-    {
-        const SDL_PixelFormatDetails *fmt = SDL_GetPixelFormatDetails((*kero)->render_canvas->format);
-        SDL_SetSurfaceColorKey((*kero)->render_canvas, true, SDL_MapRGB(fmt, NULL, 0xff, 0x00, 0xff));
-    }
-
-    (*kero)->temp_canvas = SDL_CreateSurface(KERO_SIZE, KERO_SIZE, pixel_format);
-    if (!(*kero)->temp_canvas)
-    {
-        SDL_Log("Error creating temporary surface: %s", SDL_GetError());
         return false;
     }
 
@@ -382,9 +345,9 @@ bool load_kero(kero_t **kero, map_t *map)
     (*kero)->life_count = 99;
     (*kero)->line_index = -1;
 
-    if (!load_surface_from_file("kero.png", &(*kero)->sprite_surface))
+    if (!load_texture_from_file("kero.png", &(*kero)->sprite_texture, renderer))
     {
-        SDL_Log("Error loading kero sprite image");
+        SDL_Log("Error loading kero sprite texture");
         return false;
     }
 
@@ -427,7 +390,7 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
         return;
     }
 
-    handle_intersect(kero, map, ui);
+    handle_intersect(kero, map, ui, renderer);
     handle_dash(kero, btn);
 
     // Cache frequently accessed map properties for better performance
@@ -497,7 +460,7 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
     if (kero->pos_y >= map_height + KERO_HALF)
     {
         kero->line_index++;
-        render_text(death_lines[kero->line_index], kero->wears_mask, map, ui);
+        render_text(death_lines[kero->line_index], kero->wears_mask, map, ui, renderer);
         map->show_dialogue = true;
 
         handle_death(kero);
@@ -625,61 +588,25 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
     kero->velocity_y = vel_y;
 }
 
-bool render_kero(kero_t *kero, map_t *map)
+bool render_kero(kero_t *kero, SDL_Renderer *renderer, int cam_x, int cam_y)
 {
-    SDL_Rect src;
-    src.x = (int)kero->pos_x - KERO_HALF;
-    src.y = (int)kero->pos_y - KERO_HALF;
+    SDL_FRect src;
+    src.x = (float)((kero->current_frame + kero->anim_offset_x + kero->sprite_offset_x) * KERO_SIZE);
+    src.y = (float)((kero->anim_offset_y + kero->sprite_offset_y) * KERO_SIZE);
     src.w = KERO_SIZE;
     src.h = KERO_SIZE;
 
-    if (src.x <= 0)
+    SDL_FRect dst;
+    dst.x = kero->pos_x - KERO_HALF - (float)cam_x;
+    dst.y = kero->pos_y - KERO_HALF - (float)cam_y;
+    dst.w = KERO_SIZE;
+    dst.h = KERO_SIZE;
+
+    SDL_FlipMode flip = kero->heading ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
+
+    if (!SDL_RenderTextureRotated(renderer, kero->sprite_texture, &src, &dst, 0.0, NULL, flip))
     {
-        src.x = 0;
-    }
-
-    if (!SDL_BlitSurface(map->render_canvas, &src, kero->temp_canvas, NULL))
-    {
-        SDL_Log("Error blitting kero canvas: %s", SDL_GetError());
-        return false;
-    }
-
-    src.x = (kero->current_frame + kero->anim_offset_x + kero->sprite_offset_x) * KERO_SIZE;
-    src.y = 0 + (kero->anim_offset_y + kero->sprite_offset_y) * KERO_SIZE;
-
-    if (!kero->heading)
-    {
-        // Use render_canvas as a scratch buffer: fill with colorkey, blit sprite,
-        // flip, then composite onto temp_canvas (background stays correct).
-        const SDL_PixelFormatDetails *fmt = SDL_GetPixelFormatDetails(kero->render_canvas->format);
-        SDL_FillSurfaceRect(kero->render_canvas, NULL, SDL_MapRGB(fmt, NULL, 0xff, 0x00, 0xff));
-
-        if (!SDL_BlitSurface(kero->sprite_surface, &src, kero->render_canvas, NULL))
-        {
-            SDL_Log("Error blitting kero sprite: %s", SDL_GetError());
-            return false;
-        }
-
-        SDL_FlipSurface(kero->render_canvas, SDL_FLIP_HORIZONTAL);
-
-        if (!SDL_BlitSurface(kero->render_canvas, NULL, kero->temp_canvas, NULL))
-        {
-            SDL_Log("Error blitting flipped kero sprite: %s", SDL_GetError());
-            return false;
-        }
-    }
-    else
-    {
-        if (!SDL_BlitSurface(kero->sprite_surface, &src, kero->temp_canvas, NULL))
-        {
-            SDL_Log("Error blitting kero sprite: %s", SDL_GetError());
-            return false;
-        }
-    }
-
-    if (!SDL_BlitSurface(kero->temp_canvas, NULL, kero->render_canvas, NULL))
-    {
-        SDL_Log("Error blitting kero temp canvas: %s", SDL_GetError());
+        SDL_Log("Error rendering kero sprite: %s", SDL_GetError());
         return false;
     }
 

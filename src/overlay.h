@@ -28,13 +28,13 @@ typedef enum menu_selection
 
 typedef struct overlay
 {
-    SDL_Surface *surface; // overlay.png
-    SDL_Surface *digits;
+    SDL_Texture *surface; // overlay.png as GPU texture
+    SDL_Texture *digits;
 
-    SDL_Surface *coin_count_canvas;
-    SDL_Surface *life_count_canvas;
-    SDL_Surface *menu_canvas;
-    SDL_Surface *dialogue_canvas;
+    SDL_Texture *coin_count_canvas;
+    SDL_Texture *life_count_canvas;
+    SDL_Texture *menu_canvas;
+    SDL_Texture *dialogue_canvas;
 
     menu_selection_t prev_selection;
     menu_selection_t menu_selection;
@@ -58,9 +58,9 @@ typedef struct overlay
 } overlay_t;
 
 void destroy_overlay(overlay_t *ui);
-bool load_overlay(map_t *map, overlay_t **ui);
-bool render_overlay(int coins_left, int coins_max, int life_count, map_t *map, overlay_t *ui);
-bool render_text(const char *text, bool alt_portrait, map_t *map, overlay_t *ui);
-bool render_text_ex(const char *text, bool alt_portrait, int portrait_x, int portrait_y, map_t *map, overlay_t *ui);
+bool load_overlay(map_t *map, overlay_t **ui, SDL_Renderer *renderer);
+bool render_overlay(int coins_left, int coins_max, int life_count, map_t *map, overlay_t *ui, SDL_Renderer *renderer);
+bool render_text(const char *text, bool alt_portrait, map_t *map, overlay_t *ui, SDL_Renderer *renderer);
+bool render_text_ex(const char *text, bool alt_portrait, int portrait_x, int portrait_y, map_t *map, overlay_t *ui, SDL_Renderer *renderer);
 
 #endif // OVERLAY_H
