@@ -859,6 +859,12 @@
    <frame tileid="306" duration="0"/>
   </animation>
  </tile>
+ <tile id="309">
+  <animation>
+   <frame tileid="309" duration="0"/>
+   <frame tileid="312" duration="0"/>
+  </animation>
+ </tile>
  <tile id="314">
   <properties>
    <property name="is_solid" type="bool" value="true"/>
@@ -965,6 +971,12 @@
   <animation>
    <frame tileid="335" duration="0"/>
    <frame tileid="338" duration="0"/>
+  </animation>
+ </tile>
+ <tile id="341">
+  <animation>
+   <frame tileid="341" duration="0"/>
+   <frame tileid="344" duration="0"/>
   </animation>
  </tile>
  <tile id="346">
@@ -1152,6 +1164,42 @@
    <property name="is_solid" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="398">
+  <animation>
+   <frame tileid="398" duration="0"/>
+   <frame tileid="401" duration="0"/>
+  </animation>
+ </tile>
+ <tile id="399">
+  <animation>
+   <frame tileid="399" duration="0"/>
+   <frame tileid="402" duration="0"/>
+  </animation>
+ </tile>
+ <tile id="400">
+  <animation>
+   <frame tileid="400" duration="0"/>
+   <frame tileid="403" duration="0"/>
+  </animation>
+ </tile>
+ <tile id="404">
+  <animation>
+   <frame tileid="404" duration="0"/>
+   <frame tileid="407" duration="0"/>
+  </animation>
+ </tile>
+ <tile id="405">
+  <animation>
+   <frame tileid="405" duration="0"/>
+   <frame tileid="408" duration="0"/>
+  </animation>
+ </tile>
+ <tile id="406">
+  <animation>
+   <frame tileid="406" duration="0"/>
+   <frame tileid="409" duration="0"/>
+  </animation>
+ </tile>
  <tile id="410">
   <properties>
    <property name="is_solid" type="bool" value="true"/>
@@ -1226,6 +1274,42 @@
   <properties>
    <property name="is_solid" type="bool" value="true"/>
   </properties>
+ </tile>
+ <tile id="430">
+  <animation>
+   <frame tileid="430" duration="0"/>
+   <frame tileid="433" duration="0"/>
+  </animation>
+ </tile>
+ <tile id="431">
+  <animation>
+   <frame tileid="431" duration="0"/>
+   <frame tileid="434" duration="0"/>
+  </animation>
+ </tile>
+ <tile id="432">
+  <animation>
+   <frame tileid="432" duration="0"/>
+   <frame tileid="435" duration="0"/>
+  </animation>
+ </tile>
+ <tile id="436">
+  <animation>
+   <frame tileid="436" duration="0"/>
+   <frame tileid="439" duration="0"/>
+  </animation>
+ </tile>
+ <tile id="437">
+  <animation>
+   <frame tileid="437" duration="0"/>
+   <frame tileid="440" duration="0"/>
+  </animation>
+ </tile>
+ <tile id="438">
+  <animation>
+   <frame tileid="438" duration="0"/>
+   <frame tileid="441" duration="0"/>
+  </animation>
  </tile>
  <tile id="442">
   <properties>
