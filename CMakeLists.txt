@@ -4,7 +4,6 @@ project(kagekero C CXX)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 option(PACK_ASSETS "Pack game assets into data.pfs" OFF)
-option(BUILD_FULL_VERSION "Build full version" OFF)
 option(DREAMCAST "Build for Dreamcast" OFF)
 option(DISABLE_ZLIB "Disable zlib dependency" OFF)
 
@@ -201,32 +200,13 @@ if(PACK_ASSETS)
     set(FRAME_ASSET frame.png)
   endif()
 
-  if(BUILD_FULL_VERSION)
-    set(ASSET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/full-assets")
+  set(ASSET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets")
 
-    if (NOT DISABLE_ZLIB)
-      compress_maps("${ASSET_DIR}")
-    endif()
-
-    set(ASSET_LIST
-      "${BASE_ASSETS}"
-      "${FRAME_ASSET}"
-      003.${MAP_SUFFIX}
-      004.${MAP_SUFFIX}
-      005.${MAP_SUFFIX}
-      006.${MAP_SUFFIX}
-      007.${MAP_SUFFIX}
-    )
-  else()
-
-    set(ASSET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets")
-
-    if (NOT DISABLE_ZLIB)
-      compress_maps("${ASSET_DIR}")
-    endif()
-
-    set(ASSET_LIST ${BASE_ASSETS})
+  if (NOT DISABLE_ZLIB)
+    compress_maps("${ASSET_DIR}")
   endif()
+
+  set(ASSET_LIST ${BASE_ASSETS})
 
   add_custom_command(
     OUTPUT ${ASSET_OUTPUT}
