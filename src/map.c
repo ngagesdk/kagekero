@@ -58,36 +58,36 @@ static void destroy_tiled_map(map_t *map)
 #if !defined __EMSCRIPTEN__
 static bool decompress_gz_buffer(Uint8 *compressed_data, size_t compressed_size, Uint8 **out_decompressed_data, uLongf *out_decompressed_size)
 {
-    #if defined(__SYMBIAN32__)
-        // Smaller chunk size to reduce memory fragmentation on constrained hardware.
-        const size_t CHUNK_SIZE = 8192;
-    #else
-        const size_t CHUNK_SIZE = 16384;
-    #endif
+#if defined(__SYMBIAN32__)
+    // Smaller chunk size to reduce memory fragmentation on constrained hardware.
+    const size_t CHUNK_SIZE = 8192;
+#else
+    const size_t CHUNK_SIZE = 16384;
+#endif
 
-        // Pre-allocate based on estimated size to reduce realloc calls.
-        // Assume 3x compression ratio (typical for tiled maps).
-        size_t estimated_size = compressed_size * 3;
+    // Pre-allocate based on estimated size to reduce realloc calls.
+    // Assume 3x compression ratio (typical for tiled maps).
+    size_t estimated_size = compressed_size * 3;
 
-        Uint8 *output = NULL;
-        size_t output_capacity = 0;
-        size_t output_size = 0;
+    Uint8 *output = NULL;
+    size_t output_capacity = 0;
+    size_t output_size = 0;
 
-        z_stream strm = { 0 };
-        strm.next_in = compressed_data;
-        strm.avail_in = (uInt)compressed_size;
+    z_stream strm = { 0 };
+    strm.next_in = compressed_data;
+    strm.avail_in = (uInt)compressed_size;
 
-        if (inflateInit2(&strm, 16 + MAX_WBITS) != Z_OK)
-        {
-            SDL_Log("inflateInit2 failed");
-            return false;
-        }
+    if (inflateInit2(&strm, 16 + MAX_WBITS) != Z_OK)
+    {
+        SDL_Log("inflateInit2 failed");
+        return false;
+    }
 
-        output = (Uint8 *)SDL_malloc(estimated_size);
-        if (output)
-        {
-            output_capacity = estimated_size;
-        }
+    output = (Uint8 *)SDL_malloc(estimated_size);
+    if (output)
+    {
+        output_capacity = estimated_size;
+    }
 
     int ret;
     do
@@ -282,8 +282,8 @@ static inline void get_tile_position(int gid, int *pos_x, int *pos_y, cute_tiled
 {
     register int local_id = get_local_id(gid, map);
 
-    *pos_x = (local_id & 31) << 4;  // % 32 * 16
-    *pos_y = (local_id >> 5) << 4;  // / 32 * 16
+    *pos_x = (local_id & 31) << 4; // % 32 * 16
+    *pos_y = (local_id >> 5) << 4; // / 32 * 16
 }
 
 static inline void get_frame_position(int frame_index, int width, int height, int *pos_x, int *pos_y, int column_count)
@@ -1012,16 +1012,42 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
                         int g3 = remove_gid_flip_bits(layer_content[base + 3]);
 
                         dst.y = dst_y;
-                        if (g0) { dst.x = index_width * tilewidth;       get_tile_position(g0, &src.x, &src.y, map->handle); SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst); }
-                        if (g1) { dst.x = (index_width + 1) * tilewidth; get_tile_position(g1, &src.x, &src.y, map->handle); SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst); }
-                        if (g2) { dst.x = (index_width + 2) * tilewidth; get_tile_position(g2, &src.x, &src.y, map->handle); SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst); }
-                        if (g3) { dst.x = (index_width + 3) * tilewidth; get_tile_position(g3, &src.x, &src.y, map->handle); SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst); }
+                        if (g0)
+                        {
+                            dst.x = index_width * tilewidth;
+                            get_tile_position(g0, &src.x, &src.y, map->handle);
+                            SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+                        }
+                        if (g1)
+                        {
+                            dst.x = (index_width + 1) * tilewidth;
+                            get_tile_position(g1, &src.x, &src.y, map->handle);
+                            SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+                        }
+                        if (g2)
+                        {
+                            dst.x = (index_width + 2) * tilewidth;
+                            get_tile_position(g2, &src.x, &src.y, map->handle);
+                            SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+                        }
+                        if (g3)
+                        {
+                            dst.x = (index_width + 3) * tilewidth;
+                            get_tile_position(g3, &src.x, &src.y, map->handle);
+                            SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+                        }
                     }
 
                     for (; index_width < map_width; index_width += 1)
                     {
                         int gid = remove_gid_flip_bits(layer_content[row_base + index_width]);
-                        if (gid) { dst.x = index_width * tilewidth; dst.y = dst_y; get_tile_position(gid, &src.x, &src.y, map->handle); SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst); }
+                        if (gid)
+                        {
+                            dst.x = index_width * tilewidth;
+                            dst.y = dst_y;
+                            get_tile_position(gid, &src.x, &src.y, map->handle);
+                            SDL_BlitSurface(map->tileset_surface, &src, map->render_canvas, &dst);
+                        }
                     }
                 }
 
@@ -1032,9 +1058,9 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
         else if (is_layer_of_type(OBJECT_GROUP, layer, map))
         {
             cute_tiled_map_t *handle = map->handle;
-            register int tilewidth_obj  = map->cached_tilewidth;
+            register int tilewidth_obj = map->cached_tilewidth;
             register int tileheight_obj = map->cached_tileheight;
-            register int map_width_obj  = map->cached_map_width;
+            register int map_width_obj = map->cached_map_width;
             src.w = dst.w = tilewidth_obj;
             src.h = dst.h = tileheight_obj;
             cute_tiled_object_t *object = get_head_object(layer, map);
@@ -1150,7 +1176,7 @@ bool object_intersects(aabb_t bb, map_t *map, int *index_ptr)
 
 int get_tile_index(int pos_x, int pos_y, map_t *map)
 {
-    // Use cached dimensions to reduce pointer dereferences
+    // Use cached dimensions to reduce pointer dereferences.
     register int map_width = map->cached_map_width;
     register int max_index = map->tile_desc_count - 1;
     register int index = (pos_x >> 4) + ((pos_y >> 4) * map_width);
