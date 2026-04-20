@@ -278,30 +278,14 @@ static inline int get_local_id(int gid, cute_tiled_map_t *map)
     return local_id >= 0 ? local_id : 0;
 }
 
-#if defined(__SYMBIAN32__)
-// Tiles are always 16x16, use bit shifts (2^4 = 16).
+// Tileset is 512x512 with 16x16 tiles (32 columns): use bit ops instead of division/modulo.
 static inline void get_tile_position(int gid, int *pos_x, int *pos_y, cute_tiled_map_t *map)
 {
-    cute_tiled_tileset_t *tileset = map->tilesets;
     register int local_id = get_local_id(gid, map);
-    register int columns = tileset->columns;
 
-    // Always shift by 4 for 16x16 tiles (eliminates branch overhead).
-    *pos_x = (local_id % columns) << 4; // * 16
-    *pos_y = (local_id / columns) << 4; // * 16
+    *pos_x = (local_id & 31) << 4;  // % 32 * 16
+    *pos_y = (local_id >> 5) << 4;  // / 32 * 16
 }
-#else
-static inline void get_tile_position(int gid, int *pos_x, int *pos_y, cute_tiled_map_t *map)
-{
-    cute_tiled_tileset_t *tileset = map->tilesets;
-    register int local_id = get_local_id(gid, map);
-    register int tilewidth = tileset->tilewidth;
-    register int columns = tileset->columns;
-
-    *pos_x = (local_id % columns) * tilewidth;
-    *pos_y = (local_id / columns) * tileset->tileheight;
-}
-#endif
 
 static inline void get_frame_position(int frame_index, int width, int height, int *pos_x, int *pos_y, int column_count)
 {
@@ -599,6 +583,15 @@ static bool load_tileset(map_t *map)
 {
     bool exit_code = true;
     char file_name[16] = { 0 };
+
+    int img_w = map->handle->tilesets->imagewidth;
+    int img_h = map->handle->tilesets->imageheight;
+
+    if (img_w <= 0 || img_h <= 0 || (img_w & (img_w - 1)) != 0 || (img_h & (img_h - 1)) != 0)
+    {
+        SDL_Log("Tileset dimensions (%dx%d) are not a power of two", img_w, img_h);
+        return false;
+    }
 
     SDL_snprintf(file_name, 16, "%s", map->handle->tilesets->image.ptr);
 
