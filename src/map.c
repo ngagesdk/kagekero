@@ -59,13 +59,15 @@ static void destroy_tiled_map(map_t *map)
 static bool decompress_gz_buffer(Uint8 *compressed_data, size_t compressed_size, Uint8 **out_decompressed_data, uLongf *out_decompressed_size)
 {
     #if defined(__SYMBIAN32__)
-        // Smaller chunk size to reduce memory fragmentation and pre-allocate
-        // based on expected compression ratio (typically 2-4x for tiled maps).
-        const size_t CHUNK_SIZE = 8192;       // 8KB chunks instead of 16KB.
-        size_t estimated_size = compressed_size * 3; // Assume 3x compression ratio.
+        // Smaller chunk size to reduce memory fragmentation on constrained hardware.
+        const size_t CHUNK_SIZE = 8192;
     #else
         const size_t CHUNK_SIZE = 16384;
     #endif
+
+        // Pre-allocate based on estimated size to reduce realloc calls.
+        // Assume 3x compression ratio (typical for tiled maps).
+        size_t estimated_size = compressed_size * 3;
 
         Uint8 *output = NULL;
         size_t output_capacity = 0;
@@ -81,14 +83,11 @@ static bool decompress_gz_buffer(Uint8 *compressed_data, size_t compressed_size,
             return false;
         }
 
-    #if defined(__SYMBIAN32__)
-        // Pre-allocate based on estimated size to reduce realloc calls
         output = (Uint8 *)SDL_malloc(estimated_size);
         if (output)
         {
             output_capacity = estimated_size;
         }
-    #endif
 
     int ret;
     do
