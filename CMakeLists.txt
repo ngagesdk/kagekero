@@ -191,6 +191,8 @@ if(PACK_ASSETS)
     004.${MAP_SUFFIX}
     005.${MAP_SUFFIX}
     006.${MAP_SUFFIX}
+    kero.png
+    overlay.png
     tileset.png
   )
 
