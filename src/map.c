@@ -776,7 +776,6 @@ void destroy_map(map_t *map)
 
     // [1] Map.
     SDL_free(map);
-    map = NULL;
 }
 
 bool load_map(const char *file_name, map_t **map, SDL_Renderer *renderer)
@@ -947,9 +946,6 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
                     dst_f.y = (float)obj->y;
 
                     int tmp_x, tmp_y;
-                    get_tile_position(local_id, &tmp_x, &tmp_y, map->handle);
-                    src_f.x = (float)tmp_x;
-                    src_f.y = (float)tmp_y;
 
                     // Restore background tile first (for transparency simulation).
                     src_f.x = (float)obj->canvas_src_x;
