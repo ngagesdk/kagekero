@@ -92,7 +92,7 @@ bool init(core_t **nc)
         return false;
     }
 
-    if (!render_map((*nc)->map, (*nc)->renderer, &(*nc)->has_updated, 0, 0))
+    if (!render_map((*nc)->map, (*nc)->renderer, &(*nc)->has_updated))
     {
         SDL_Log("Failed to render map");
         return false;
@@ -123,7 +123,7 @@ bool update(core_t *nc)
     nc->cam_x = (int)nc->kero->pos_x - (SCREEN_W / 2);
     nc->cam_y = (int)nc->kero->pos_y - (SCREEN_H / 2);
 
-    render_map(nc->map, nc->renderer, &nc->has_updated, nc->cam_x, nc->cam_y);
+    render_map(nc->map, nc->renderer, &nc->has_updated);
 
     if ((nc->kero->prev_life_count != nc->kero->life_count) ||
         (nc->map->prev_coins != nc->map->coins_left) ||

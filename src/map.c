@@ -319,13 +319,6 @@ static bool set_object_animation(int gid, int *anim_length, int *id, cute_tiled_
     return false;
 }
 
-static inline bool is_tile_visible(int tile_x, int tile_y, int tile_width, int tile_height, int cam_x, int cam_y)
-{
-    // Check if tile is within the visible screen area.
-    return !(tile_x + tile_width < cam_x || tile_x > cam_x + SCREEN_W ||
-             tile_y + tile_height < cam_y || tile_y > cam_y + SCREEN_H);
-}
-
 static inline int remove_gid_flip_bits(int gid)
 {
     return cute_tiled_unset_flags(gid);
@@ -855,7 +848,7 @@ exit:
     return exit_code;
 }
 
-bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x, int cam_y)
+bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated)
 {
     cute_tiled_layer_t *layer;
     cute_tiled_layer_t *prev_layer = NULL;
@@ -926,40 +919,34 @@ bool render_map(map_t *map, SDL_Renderer *renderer, bool *has_updated, int cam_x
                     obj->current_frame = 1;
                 }
 
-                // Check if tile is visible.
-                bool is_visible = is_tile_visible(obj->x, obj->y, tilewidth, tileheight, cam_x, cam_y);
+                int local_id;
 
-                if (is_visible)
+                if (use_lgbtq)
                 {
-                    int local_id;
+                    local_id = lookup_lgbtq_tile_id(obj->id) + 1;
+                }
+                else
+                {
+                    local_id = obj->id + 1;
+                }
 
-                    if (use_lgbtq)
-                    {
-                        local_id = lookup_lgbtq_tile_id(obj->id) + 1;
-                    }
-                    else
-                    {
-                        local_id = obj->id + 1;
-                    }
+                dst_f.x = (float)obj->x;
+                dst_f.y = (float)obj->y;
 
-                    dst_f.x = (float)obj->x;
-                    dst_f.y = (float)obj->y;
+                int tmp_x, tmp_y;
 
-                    int tmp_x, tmp_y;
+                // Restore background tile first (for transparency simulation).
+                src_f.x = (float)obj->canvas_src_x;
+                src_f.y = (float)obj->canvas_src_y;
+                SDL_RenderTexture(renderer, map->tileset_texture, &src_f, &dst_f);
 
-                    // Restore background tile first (for transparency simulation).
-                    src_f.x = (float)obj->canvas_src_x;
-                    src_f.y = (float)obj->canvas_src_y;
+                // Draw object tile on top.
+                if (!obj->is_hidden)
+                {
+                    get_tile_position(local_id, &tmp_x, &tmp_y, map->handle);
+                    src_f.x = (float)tmp_x;
+                    src_f.y = (float)tmp_y;
                     SDL_RenderTexture(renderer, map->tileset_texture, &src_f, &dst_f);
-
-                    // Draw object tile on top.
-                    if (!obj->is_hidden)
-                    {
-                        get_tile_position(local_id, &tmp_x, &tmp_y, map->handle);
-                        src_f.x = (float)tmp_x;
-                        src_f.y = (float)tmp_y;
-                        SDL_RenderTexture(renderer, map->tileset_texture, &src_f, &dst_f);
-                    }
                 }
 
                 // Always update animation frame (even if off-screen).

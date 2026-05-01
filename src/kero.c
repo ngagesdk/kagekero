@@ -508,11 +508,11 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
 
     if (kero->wears_mask)
     {
-        kero->sprite_offset_x = 12;
+        kero->sprite_offset_y = 3;
     }
     else
     {
-        kero->sprite_offset_x = 0;
+        kero->sprite_offset_y = 0;
     }
 
     clamp_kero_position(kero, map);
