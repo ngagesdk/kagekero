@@ -193,7 +193,9 @@ if(PACK_ASSETS)
     006.${MAP_SUFFIX}
     kero.png
     overlay.png
+    splash.png
     tileset.png
+    title.png
   )
 
   if (NGAGESDK)
