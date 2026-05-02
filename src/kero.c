@@ -124,7 +124,7 @@ static void reset_kero_on_out_of_bounds(kero_t *kero, map_t *map)
     kero->velocity_y = 0.f;
 }
 
-static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *renderer)
+static bool handle_interaction(kero_t *kero, map_t *map, unsigned int *btn, SDL_Renderer *renderer)
 {
     if (check_bit(*btn, BTN_UP))
     {
@@ -149,7 +149,7 @@ static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn, SDL_
                     if (!load_map(next_map, &map, renderer))
                     {
                         SDL_Log("Failed to load next map: %s", next_map);
-                        return;
+                        return false;
                     }
                     else
                     {
@@ -157,11 +157,17 @@ static void handle_interaction(kero_t *kero, map_t *map, unsigned int *btn, SDL_
                         kero->pos_y = (float)map->spawn_y;
                         kero->velocity_x = 0.f;
                         kero->velocity_y = 0.f;
+                        kero->time_a = SDL_GetTicks();
+                        kero->time_b = kero->time_a;
+                        kero->delta_time = 0;
+                        return true;
                     }
                 }
             }
         }
     }
+
+    return false;
 }
 
 static void handle_intersect(kero_t *kero, map_t *map, overlay_t *ui, SDL_Renderer *renderer)
@@ -431,7 +437,10 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
         }
         kero->velocity_y = 0.f;
 
-        handle_interaction(kero, map, btn, renderer);
+        if (handle_interaction(kero, map, btn, renderer))
+        {
+            return;
+        }
 
         if (!check_bit(*btn, BTN_7))
         {
