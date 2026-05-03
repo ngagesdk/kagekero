@@ -23,9 +23,9 @@ jobs:
           sudo apt-get install -y cmake ninja-build
 
       - name: Setup Emscripten SDK
-        uses: mymindstorm/setup-emsdk@v14
+        uses: mymindstorm/setup-emsdk@v16
         with:
-          version: 3.1.66 # use latest stable
+          version: 3.4.8 # use latest stable
 
       - name: Create build directory
         run: mkdir build
