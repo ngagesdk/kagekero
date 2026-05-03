@@ -14,6 +14,7 @@
 #include "cheats.h"
 #include "config.h"
 #include "core.h"
+#include "fix32.h"
 #include "game.h"
 #include "intro.h"
 #include "kero.h"
@@ -140,6 +141,19 @@ bool draw_scene(core_t *nc)
         if (nc->state == STATE_MENU && nc->temp_a != NULL)
         {
             SDL_RenderTexture(nc->renderer, nc->temp_a, NULL, NULL);
+
+            if (nc->temp_b != NULL)
+            {
+                float anim_offset = fix32_to_float(SIN_LUT[(SDL_GetTicks() / 6) & 0xFF]);
+                float tex_w, tex_h;
+                SDL_GetTextureSize(nc->temp_b, &tex_w, &tex_h);
+                SDL_FRect dst_b;
+                dst_b.x = 96.0f;
+                dst_b.y = 16.0f + anim_offset;
+                dst_b.w = tex_w;
+                dst_b.h = tex_h;
+                SDL_RenderTexture(nc->renderer, nc->temp_b, NULL, &dst_b);
+            }
         }
         else if (nc->map != NULL)
         {

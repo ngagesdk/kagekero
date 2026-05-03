@@ -25,6 +25,12 @@ bool load_menu(core_t *nc)
         return false;
     }
 
+    if (!load_texture_from_file("title.png", &nc->temp_b, nc->renderer))
+    {
+        SDL_Log("Unable to load title screen logo: %s", SDL_GetError());
+        return false;
+    }
+
     return true;
 }
 
@@ -56,5 +62,11 @@ void unload_menu(core_t *nc)
     {
         SDL_DestroyTexture(nc->temp_a);
         nc->temp_a = NULL;
+    }
+
+    if (nc->temp_b)
+    {
+        SDL_DestroyTexture(nc->temp_b);
+        nc->temp_b = NULL;
     }
 }
