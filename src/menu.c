@@ -46,6 +46,7 @@ bool handle_menu_button_down(core_t *nc, button_t button)
     if (button == BTN_5 || button == BTN_7)
     {
         nc->state = STATE_GAME;
+        nc->btn = 0;
 
         unload_menu(nc);
         if (!load_game(nc))
