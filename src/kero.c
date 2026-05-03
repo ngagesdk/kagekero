@@ -3,7 +3,7 @@
  *  A minimalist, cross-platform puzzle-platformer, designed
  *  especially for the Nokia N-Gage.
  *
- *  Copyright (c) 2025, Michael Fitzmayer. All rights reserved.
+ *  Copyright (c) 2026, Michael Fitzmayer. All rights reserved.
  *  SPDX-License-Identifier: MIT
  *
  **/
@@ -350,6 +350,8 @@ bool load_kero(kero_t **kero, map_t *map, SDL_Renderer *renderer)
     (*kero)->level = FIRST_LEVEL;
     (*kero)->life_count = 99;
     (*kero)->line_index = -1;
+    (*kero)->time_a = SDL_GetTicks();
+    (*kero)->time_b = (*kero)->time_a;
 
     if (!load_texture_from_file("kero.png", &(*kero)->sprite_texture, renderer))
     {

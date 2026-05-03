@@ -1,4 +1,4 @@
-/** @file cheats.h
+/** @file game.h
  *
  *  A minimalist, cross-platform puzzle-platformer, designed
  *  especially for the Nokia N-Gage.
@@ -8,15 +8,17 @@
  *
  **/
 
-#ifndef CHEATS_H
-#define CHEATS_H
+#ifndef GAME_H
+#define GAME_H
 
 #include <SDL3/SDL.h>
 
+#include "core.h"
 #include "utils.h"
 
-void add_to_ring_buffer(button_t button);
-void clear_ring_buffer(void);
-bool find_sequence(const button_t *sequence, int sequence_length);
+bool load_game(core_t *nc);
+bool update_game(core_t *nc);
+bool handle_game_button_down(core_t *nc, button_t button);
+void unload_game(core_t *nc);
 
-#endif // CHEATS_H
+#endif /* GAME_H */

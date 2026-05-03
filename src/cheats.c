@@ -3,7 +3,7 @@
  *  A minimalist, cross-platform puzzle-platformer, designed
  *  especially for the Nokia N-Gage.
  *
- *  Copyright (c) 2025, Michael Fitzmayer. All rights reserved.
+ *  Copyright (c) 2026, Michael Fitzmayer. All rights reserved.
  *  SPDX-License-Identifier: MIT
  *
  **/
@@ -30,6 +30,7 @@ void clear_ring_buffer(void)
     {
         sequence_ring_buffer[i] = 0;
     }
+    current_index = 0;
 }
 
 bool find_sequence(const button_t *sequence, int sequence_length)
@@ -38,21 +39,18 @@ bool find_sequence(const button_t *sequence, int sequence_length)
     {
         return false;
     }
-    for (int i = 0; i <= BUFFER_SIZE - sequence_length; i++)
+
+    // The most recently added entry is at (current_index - 1).
+    // Walk backwards through the ring buffer and compare against the
+    // sequence in reverse, so the sequence must end exactly at the
+    // last written position.
+    for (int j = 0; j < sequence_length; j++)
     {
-        bool match = true;
-        for (int j = 0; j < sequence_length; j++)
+        int buf_pos = (current_index - 1 - j + BUFFER_SIZE) % BUFFER_SIZE;
+        if (sequence_ring_buffer[buf_pos] != sequence[sequence_length - 1 - j])
         {
-            if (sequence_ring_buffer[i + j] != sequence[j])
-            {
-                match = false;
-                break;
-            }
-        }
-        if (match)
-        {
-            return true;
+            return false;
         }
     }
-    return false;
+    return true;
 }

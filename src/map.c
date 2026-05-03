@@ -3,7 +3,7 @@
  *  A minimalist, cross-platform puzzle-platformer, designed
  *  especially for the Nokia N-Gage.
  *
- *  Copyright (c) 2025, Michael Fitzmayer. All rights reserved.
+ *  Copyright (c) 2026, Michael Fitzmayer. All rights reserved.
  *  SPDX-License-Identifier: MIT
  *
  **/
@@ -722,9 +722,8 @@ static bool load_objects(map_t *map)
 static inline int lookup_lgbtq_tile_id(int id)
 {
     // Optimize range checks: use unsigned subtraction trick.
-    register unsigned int offset1 = id - 930;
-    register unsigned int offset2 = id - 980;
-    return ((offset1 <= 19) || (offset2 <= 19)) ? id - 100 : id;
+    register unsigned int offset1 = id - 544;
+    return (offset1 <= 63) ? id - 64 : id;
 }
 
 void destroy_map(map_t *map)

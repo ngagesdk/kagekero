@@ -3,7 +3,7 @@
  *  A minimalist, cross-platform puzzle-platformer, designed
  *  especially for the Nokia N-Gage.
  *
- *  Copyright (c) 2025, Michael Fitzmayer. All rights reserved.
+ *  Copyright (c) 2026, Michael Fitzmayer. All rights reserved.
  *  SPDX-License-Identifier: MIT
  *
  **/
@@ -14,20 +14,15 @@
 #include "cheats.h"
 #include "config.h"
 #include "core.h"
+#include "game.h"
+#include "intro.h"
 #include "kero.h"
 #include "map.h"
+#include "menu.h"
 #include "overclock.h"
 #include "overlay.h"
 #include "pfs.h"
 #include "utils.h"
-
-static const char *pride_lines[PRIDE_LINE_COUNT] = {
-    "This frog's pro-  nouns? Rib/bit.   Deal with it.",
-    "Ribbit! Looks likeKero's hopping outand proud!",
-    "Who knew cheats   could be this     queer? Kero did.  Kero always knew.",
-    "One small hop for a frog, one giant leap for frogkind",
-    "You thought Kero  was just a frog?  Surprise - they'rea queer icon."
-};
 
 bool init(core_t **nc)
 {
@@ -42,7 +37,6 @@ bool init(core_t **nc)
     {
         return SDL_APP_FAILURE;
     }
-    (*nc)->state = STATE_INTRO;
 
 #if !defined __SYMBIAN32__ && !defined DEBUG
     SDL_DisplayID display_id = SDL_GetPrimaryDisplay();
@@ -73,31 +67,6 @@ bool init(core_t **nc)
 
     init_file_reader();
 
-    char first_map[11] = { 0 };
-    SDL_snprintf(first_map, 11, "%03d.%s", FIRST_LEVEL, MAP_SUFFIX);
-    if (!load_map(first_map, &(*nc)->map, (*nc)->renderer))
-    {
-        return false;
-    }
-
-    if (!load_kero(&(*nc)->kero, (*nc)->map, (*nc)->renderer))
-    {
-        SDL_Log("Failed to load kero");
-        return false;
-    }
-
-    if (!load_overlay((*nc)->map, &(*nc)->ui, (*nc)->renderer))
-    {
-        SDL_Log("Failed to load overlay");
-        return false;
-    }
-
-    if (!render_map((*nc)->map, (*nc)->renderer, &(*nc)->has_updated))
-    {
-        SDL_Log("Failed to render map");
-        return false;
-    }
-
 #if !defined __SYMBIAN32__
     if (!load_texture_from_file(FRAME_IMAGE, &(*nc)->frame, (*nc)->renderer))
     {
@@ -113,71 +82,45 @@ bool init(core_t **nc)
     SDL_SetTextureScaleMode((*nc)->backbuffer, SDL_SCALEMODE_NEAREST);
 #endif
 
+    (*nc)->state = STATE_INTRO;
     return true;
 }
 
 bool update(core_t *nc)
 {
-    update_kero(nc->kero, nc->map, nc->ui, &nc->btn, nc->renderer, nc->is_paused, &nc->has_updated);
-
-    nc->cam_x = (int)nc->kero->pos_x - (SCREEN_W / 2);
-    nc->cam_y = (int)nc->kero->pos_y - (SCREEN_H / 2);
-
-    render_map(nc->map, nc->renderer, &nc->has_updated);
-
-    if ((nc->kero->prev_life_count != nc->kero->life_count) ||
-        (nc->map->prev_coins != nc->map->coins_left) ||
-        (nc->is_paused && nc->ui->menu_selection != nc->ui->prev_selection))
+    switch (nc->state)
     {
-        render_overlay(nc->map->coins_left, nc->map->coin_max, nc->kero->life_count, nc->map, nc->ui, nc->renderer);
+        case STATE_INTRO:
+            return update_intro(nc);
+        case STATE_MENU:
+            return update_menu(nc);
+        case STATE_GAME:
+            return update_game(nc);
     }
-
-#if defined __3DS__
-    SDL_RenderTexture(nc->renderer, nc->frame, NULL, NULL);
-#elif defined __DREAMCAST__
-    SDL_FRect dst;
-    dst.w = FRAME_WIDTH;
-    dst.h = FRAME_HEIGHT;
-    dst.x = FRAME_OFFSET_X;
-    dst.y = FRAME_OFFSET_Y;
-
-    SDL_RenderTexture(nc->renderer, nc->frame, NULL, &dst);
-#elif !defined __SYMBIAN32__
-    SDL_FRect src;
-    src.w = FRAME_WIDTH;
-    src.h = FRAME_HEIGHT;
-    src.x = 0.f;
-    src.y = 0.f;
-
-    SDL_FRect dst;
-    dst.w = FRAME_WIDTH;
-    dst.h = FRAME_HEIGHT;
-    dst.x = (float)nc->frame_offset_x;
-    dst.y = (float)nc->frame_offset_y;
-
-    SDL_RenderTexture(nc->renderer, nc->frame, &src, &dst);
-#endif
 
     return true;
 }
 
 bool draw_scene(core_t *nc)
 {
-    if (nc->cam_x <= 0)
+    if (nc->map != NULL)
     {
-        nc->cam_x = 0;
-    }
-    else if (nc->cam_x >= nc->map->width - SCREEN_W)
-    {
-        nc->cam_x = nc->map->width - SCREEN_W;
-    }
-    if (nc->cam_y <= 0)
-    {
-        nc->cam_y = 0;
-    }
-    else if (nc->cam_y >= nc->map->height - SCREEN_H)
-    {
-        nc->cam_y = nc->map->height - SCREEN_H;
+        if (nc->cam_x <= 0)
+        {
+            nc->cam_x = 0;
+        }
+        else if (nc->cam_x >= nc->map->width - SCREEN_W)
+        {
+            nc->cam_x = nc->map->width - SCREEN_W;
+        }
+        if (nc->cam_y <= 0)
+        {
+            nc->cam_y = 0;
+        }
+        else if (nc->cam_y >= nc->map->height - SCREEN_H)
+        {
+            nc->cam_y = nc->map->height - SCREEN_H;
+        }
     }
 
     SDL_FRect src;
@@ -194,50 +137,57 @@ bool draw_scene(core_t *nc)
         SDL_SetRenderTarget(nc->renderer, nc->backbuffer);
 #endif
 
-        // Draw visible slice of the map.
-        src.x = (float)nc->cam_x;
-        src.y = (float)nc->cam_y;
-        src.w = SCREEN_W;
-        src.h = SCREEN_H;
-        dst.x = 0.f;
-        dst.y = 0.f;
-        dst.w = SCREEN_W;
-        dst.h = SCREEN_H;
-        SDL_RenderTexture(nc->renderer, nc->map->render_target, &src, &dst);
-
-        // Draw kero in screen space.
-        render_kero(nc->kero, nc->renderer, nc->cam_x, nc->cam_y);
-
-        // HUD: coin counter.
-        dst.x = 0.f;
-        dst.y = 4.f;
-        dst.w = 55.f;
-        dst.h = 16.f;
-        SDL_RenderTexture(nc->renderer, nc->ui->coin_count_canvas, NULL, &dst);
-
-        // HUD: life counter.
-        dst.x = 139.f;
-        dst.y = 4.f;
-        dst.w = 37.f;
-        dst.h = 16.f;
-        SDL_RenderTexture(nc->renderer, nc->ui->life_count_canvas, NULL, &dst);
-
-        if (nc->is_paused)
+        if (nc->state == STATE_MENU && nc->temp_a != NULL)
         {
-            dst.x = 40.f;
-            dst.y = 80.f;
-            dst.w = 96.f;
-            dst.h = 48.f;
-            SDL_RenderTexture(nc->renderer, nc->ui->menu_canvas, NULL, &dst);
+            SDL_RenderTexture(nc->renderer, nc->temp_a, NULL, NULL);
         }
-
-        if (nc->map->show_dialogue)
+        else if (nc->map != NULL)
         {
+            // Draw visible slice of the map.
+            src.x = (float)nc->cam_x;
+            src.y = (float)nc->cam_y;
+            src.w = SCREEN_W;
+            src.h = SCREEN_H;
             dst.x = 0.f;
-            dst.y = 136.f;
-            dst.w = 176.f;
-            dst.h = 72.f; // Why 136? Shouldn't this be 104?
-            SDL_RenderTexture(nc->renderer, nc->ui->dialogue_canvas, NULL, &dst);
+            dst.y = 0.f;
+            dst.w = SCREEN_W;
+            dst.h = SCREEN_H;
+            SDL_RenderTexture(nc->renderer, nc->map->render_target, &src, &dst);
+
+            // Draw kero in screen space.
+            render_kero(nc->kero, nc->renderer, nc->cam_x, nc->cam_y);
+
+            // HUD: coin counter.
+            dst.x = 0.f;
+            dst.y = 4.f;
+            dst.w = 55.f;
+            dst.h = 16.f;
+            SDL_RenderTexture(nc->renderer, nc->ui->coin_count_canvas, NULL, &dst);
+
+            // HUD: life counter.
+            dst.x = 139.f;
+            dst.y = 4.f;
+            dst.w = 37.f;
+            dst.h = 16.f;
+            SDL_RenderTexture(nc->renderer, nc->ui->life_count_canvas, NULL, &dst);
+
+            if (nc->is_paused)
+            {
+                dst.x = 40.f;
+                dst.y = 80.f;
+                dst.w = 96.f;
+                dst.h = 48.f;
+                SDL_RenderTexture(nc->renderer, nc->ui->menu_canvas, NULL, &dst);
+            }
+
+            if (nc->map->show_dialogue)
+            {
+                dst.x = 0.f;
+                dst.y = 136.f;
+                dst.w = 176.f;
+                dst.h = 72.f; // Why 136? Shouldn't this be 104?
+                SDL_RenderTexture(nc->renderer, nc->ui->dialogue_canvas, NULL, &dst);
+            }
         }
 
 #if !defined __SYMBIAN32__
@@ -266,6 +216,34 @@ bool draw_scene(core_t *nc)
 #endif
     }
 
+#if defined __3DS__
+    SDL_RenderTexture(nc->renderer, nc->frame, NULL, NULL);
+#elif defined __DREAMCAST__
+    {
+        SDL_FRect fdst;
+        fdst.w = FRAME_WIDTH;
+        fdst.h = FRAME_HEIGHT;
+        fdst.x = FRAME_OFFSET_X;
+        fdst.y = FRAME_OFFSET_Y;
+        SDL_RenderTexture(nc->renderer, nc->frame, NULL, &fdst);
+    }
+#elif !defined __SYMBIAN32__
+    {
+        SDL_FRect fsrc;
+        fsrc.w = FRAME_WIDTH;
+        fsrc.h = FRAME_HEIGHT;
+        fsrc.x = 0.f;
+        fsrc.y = 0.f;
+
+        SDL_FRect fdst;
+        fdst.w = FRAME_WIDTH;
+        fdst.h = FRAME_HEIGHT;
+        fdst.x = (float)nc->frame_offset_x;
+        fdst.y = (float)nc->frame_offset_y;
+        SDL_RenderTexture(nc->renderer, nc->frame, &fsrc, &fdst);
+    }
+#endif
+
     SDL_RenderPresent(nc->renderer);
 
     return true;
@@ -273,140 +251,17 @@ bool draw_scene(core_t *nc)
 
 static bool handle_button_down(core_t *nc, button_t button)
 {
-    if (nc->is_paused)
+    switch (nc->state)
     {
-        add_to_ring_buffer(button);
-#ifdef __SYMBIAN32__
-        int sequence_length = 5;
-        const button_t cheat_sequence[5] = { BTN_5, BTN_4, BTN_2, BTN_8, BTN_7 };
-#else
-        int sequence_length = 10;
-        const button_t cheat_sequence[10] = { BTN_UP, BTN_UP, BTN_DOWN, BTN_DOWN, BTN_LEFT, BTN_RIGHT, BTN_LEFT, BTN_RIGHT, BTN_5, BTN_7 };
-#endif
-        if (find_sequence(cheat_sequence, sequence_length))
-        {
-            nc->kero->wears_mask = true;
-            nc->map->use_lgbtq_flag = true;
-            nc->map->show_dialogue = true;
-            nc->map->keep_dialogue = true;
-            nc->is_paused = false;
-
-            static int pride_line_index = 0;
-            render_text(pride_lines[pride_line_index], nc->kero->wears_mask, nc->map, nc->ui, nc->renderer);
-            pride_line_index++;
-            if (pride_line_index > PRIDE_LINE_COUNT - 1)
-            {
-                pride_line_index = 0;
-            }
-
-            clear_ring_buffer();
-        }
+        case STATE_INTRO:
+            return handle_intro_button_down(nc, button);
+        case STATE_MENU:
+            return handle_menu_button_down(nc, button);
+        case STATE_GAME:
+            return handle_game_button_down(nc, button);
+        default:
+            return true;
     }
-    else
-    {
-        clear_ring_buffer();
-    }
-
-    if ((check_bit(nc->btn, BTN_SOFTRIGHT) || check_bit(nc->btn, BTN_SOFTLEFT)) && !nc->is_paused && !nc->map->show_dialogue)
-    {
-        nc->is_paused = true;
-        nc->ui->prev_selection = nc->ui->menu_selection;
-        nc->ui->menu_selection = MENU_RESUME;
-    }
-    else if (nc->map->show_dialogue)
-    {
-        if (check_bit(nc->btn, BTN_5) || check_bit(nc->btn, BTN_7) || check_bit(nc->btn, BTN_SELECT))
-        {
-            if (!nc->map->keep_dialogue)
-            {
-                nc->map->show_dialogue = false;
-            }
-            else
-            {
-                nc->map->keep_dialogue = false;
-            }
-        }
-    }
-    else if (nc->is_paused)
-    {
-        if (check_bit(nc->btn, BTN_7) || check_bit(nc->btn, BTN_SELECT))
-        {
-            switch (nc->ui->menu_selection)
-            {
-                default:
-                case MENU_NONE:
-                    break;
-                case MENU_RESUME:
-                    nc->is_paused = false;
-                    break;
-                case MENU_SETTINGS:
-                    nc->ui->prev_selection = nc->ui->menu_selection;
-                    nc->ui->menu_selection = MENU_MHZ;
-                    nc->ui->is_settings_menu = true;
-                    break;
-                case MENU_QUIT:
-                    return false;
-                case MENU_MHZ:
-                    {
-                        if (is_overclock_enabled())
-                        {
-                            disable_overclock();
-                        }
-                        else
-                        {
-                            enable_overclock();
-                        }
-                        break;
-                    }
-                case MENU_BACK:
-                    nc->ui->prev_selection = nc->ui->menu_selection;
-                    nc->ui->menu_selection = MENU_SETTINGS;
-                    nc->ui->is_settings_menu = false;
-                    break;
-            }
-        }
-        else if (check_bit(nc->btn, BTN_UP))
-        {
-            nc->ui->prev_selection = nc->ui->menu_selection;
-            nc->ui->menu_selection -= 1;
-
-            if (!nc->ui->is_settings_menu)
-            {
-                if (nc->ui->menu_selection < MENU_RESUME)
-                {
-                    nc->ui->menu_selection = MENU_QUIT;
-                }
-            }
-            else
-            {
-                if (nc->ui->menu_selection < MENU_MHZ)
-                {
-                    nc->ui->menu_selection = MENU_BACK;
-                }
-            }
-        }
-        else if (check_bit(nc->btn, BTN_DOWN))
-        {
-            nc->ui->prev_selection = nc->ui->menu_selection;
-            nc->ui->menu_selection += 1;
-            if (!nc->ui->is_settings_menu)
-            {
-                if (nc->ui->menu_selection > MENU_QUIT)
-                {
-                    nc->ui->menu_selection = MENU_RESUME;
-                }
-            }
-            else
-            {
-                if (nc->ui->menu_selection > MENU_BACK)
-                {
-                    nc->ui->menu_selection = MENU_MHZ;
-                }
-            }
-        }
-    }
-
-    return true;
 }
 
 bool handle_events(core_t *nc)
@@ -510,23 +365,7 @@ void destroy(core_t *nc)
 
     if (nc)
     {
-        if (nc->ui)
-        {
-            destroy_overlay(nc->ui);
-            nc->ui = NULL;
-        }
-
-        if (nc->kero)
-        {
-            destroy_kero(nc->kero);
-            nc->kero = NULL;
-        }
-
-        if (nc->map)
-        {
-            destroy_map(nc->map);
-            nc->map = NULL;
-        }
+        unload_game(nc);
 
 #ifndef __SYMBIAN32__
         if (nc->backbuffer)

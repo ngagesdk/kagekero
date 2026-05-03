@@ -3,7 +3,7 @@
  *  A minimalist, cross-platform puzzle-platformer, designed
  *  especially for the Nokia N-Gage.
  *
- *  Copyright (c) 2025, Michael Fitzmayer. All rights reserved.
+ *  Copyright (c) 2026, Michael Fitzmayer. All rights reserved.
  *  SPDX-License-Identifier: MIT
  *
  **/
@@ -33,6 +33,9 @@ typedef struct
 
     state_t state;
 
+    SDL_Texture *temp_a;
+    SDL_Texture *temp_b;
+
 #if !defined __SYMBIAN32__
     SDL_Texture *frame;
     SDL_Texture *backbuffer;
@@ -61,5 +64,7 @@ bool update(core_t *nc);
 bool draw_scene(core_t *nc);
 bool handle_events(core_t *nc);
 void destroy(core_t *nc);
+
+bool update_intro(core_t *nc);
 
 #endif // CORE_H

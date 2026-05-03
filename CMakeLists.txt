@@ -30,9 +30,12 @@ set(kagekero_sources
   src/cheats.c
   src/core.c
   src/fixedp.c
+  src/game.c
+  src/intro.c
   src/kero.c
   src/main.c
   src/map.c
+  src/menu.c
   src/overclock.cpp
   src/overlay.c
   src/pfs.c

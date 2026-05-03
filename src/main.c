@@ -3,7 +3,7 @@
  *  A minimalist, cross-platform puzzle-platformer, designed
  *  especially for the Nokia N-Gage.
  *
- *  Copyright (c) 2025, Michael Fitzmayer. All rights reserved.
+ *  Copyright (c) 2026, Michael Fitzmayer. All rights reserved.
  *  SPDX-License-Identifier: MIT
  *
  **/
@@ -58,7 +58,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     }
     if (!draw_scene(core))
     {
-        SDL_Log("Failed to draw kagekero scene");
+        SDL_Log("Failed to draw scene");
         return SDL_APP_SUCCESS;
     }
 
