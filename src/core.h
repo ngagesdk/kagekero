@@ -35,6 +35,8 @@ typedef struct
 
     SDL_Texture *temp_a;
     SDL_Texture *temp_b;
+    float temp_b_w;
+    float temp_b_h;
 
 #if !defined __SYMBIAN32__
     SDL_Texture *frame;

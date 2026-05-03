@@ -31,6 +31,8 @@ bool load_menu(core_t *nc)
         return false;
     }
 
+    SDL_GetTextureSize(nc->temp_b, &nc->temp_b_w, &nc->temp_b_h);
+
     return true;
 }
 

@@ -229,9 +229,10 @@ static bool create_textures(SDL_Renderer *renderer, map_t *map)
         return false;
     }
 
-    if (map->render_target || map->tileset_texture)
+    if (map->render_target)
     {
-        destroy_textures(map);
+        SDL_DestroyTexture(map->render_target);
+        map->render_target = NULL;
     }
 
     map->height = map->handle->height * map->handle->tilesets->tileheight;
@@ -624,12 +625,6 @@ static bool load_tileset(map_t *map, SDL_Renderer *renderer)
 
 static bool load_objects(map_t *map)
 {
-    if (map->obj)
-    {
-        SDL_free(map->obj);
-        map->obj = NULL;
-    }
-
     cute_tiled_layer_t *layer = map->handle->layers;
 
     while (layer)
@@ -790,6 +785,19 @@ bool load_map(const char *file_name, map_t **map, SDL_Renderer *renderer)
     }
     else
     {
+        if ((*map)->obj)
+        {
+            for (int index = 0; index < (*map)->obj_count; index += 1)
+            {
+                if ((*map)->obj[index].str)
+                {
+                    SDL_free((void *)(*map)->obj[index].str);
+                    (*map)->obj[index].str = NULL;
+                }
+            }
+            SDL_free((*map)->obj);
+            (*map)->obj = NULL;
+        }
         (*map)->obj_count = 0;
         (*map)->coins_left = 0;
         (*map)->layer_count = 0;

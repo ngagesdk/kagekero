@@ -471,6 +471,10 @@ void update_kero(kero_t *kero, map_t *map, overlay_t *ui, unsigned int *btn, SDL
     if (kero->pos_y >= map_height + KERO_HALF)
     {
         kero->line_index++;
+        if (kero->line_index >= DEATH_LINE_COUNT)
+        {
+            kero->line_index = 0;
+        }
         render_text(death_lines[kero->line_index], kero->wears_mask, map, ui, renderer);
         map->show_dialogue = true;
 

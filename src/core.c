@@ -144,14 +144,12 @@ bool draw_scene(core_t *nc)
 
             if (nc->temp_b != NULL)
             {
-                float anim_offset = fix32_to_float(SIN_LUT[(SDL_GetTicks() / 6) & 0xFF]);
-                float tex_w, tex_h;
-                SDL_GetTextureSize(nc->temp_b, &tex_w, &tex_h);
+                float anim_offset = fix32_to_float(SIN_LUT[(SDL_GetTicks() >> 3) & 0xFF]);
                 SDL_FRect dst_b;
                 dst_b.x = 96.0f;
                 dst_b.y = 16.0f + anim_offset;
-                dst_b.w = tex_w;
-                dst_b.h = tex_h;
+                dst_b.w = nc->temp_b_w;
+                dst_b.h = nc->temp_b_h;
                 SDL_RenderTexture(nc->renderer, nc->temp_b, NULL, &dst_b);
             }
         }
