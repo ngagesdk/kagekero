@@ -43,7 +43,7 @@ bool update_menu(core_t *nc)
 
 bool handle_menu_button_down(core_t *nc, button_t button)
 {
-    if (button == BTN_5)
+    if (button == BTN_5 || button == BTN_7)
     {
         nc->state = STATE_GAME;
 
