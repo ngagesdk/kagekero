@@ -25,7 +25,7 @@ jobs:
       - name: Setup Emscripten SDK
         uses: emscripten-core/setup-emsdk@v15
         with:
-          version: 3.4.8 # use latest stable
+          version: 5.0.1
 
       - name: Create build directory
         run: mkdir build
